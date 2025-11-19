@@ -62,7 +62,7 @@ function RootLayoutNav() {
       <PersistGate loading={<Text>Loading...</Text>} persistor={persistor}>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
           <Stack>
-            <Stack.Screen name="landing-screen" options={{ headerShown: false }} />
+            <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="authscreen" options={{ headerShown: false }} />
             <Stack.Screen name="login" options={{ headerShown: false }} />
             <Stack.Screen name="(guest)" options={{ headerShown: false }} />

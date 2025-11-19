@@ -12,9 +12,9 @@ export default function LandingScreen() {
 
   const checkAuth = () => {
     if (!staffProfile?.biodata.fullName) {
-      router.replace("/authscreen");
+      // router.replace("/authscreen");
     } else {
-      router.replace("./(dashboard)");
+      // router.replace("./(dashboard)");
     }
   }
 
