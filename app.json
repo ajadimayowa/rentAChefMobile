@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "rentachefapp",
+    "slug": "rentachefapp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/loadIcon.png",
+    "scheme": "rentachefapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/images/loadIcon.png",
+        "backgroundImage": "./assets/images/loadIcon.png",
+        "monochromeImage": "./assets/images/loadIcon.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/loadIcon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/loadIcon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff",
+          "dark": {
+            "backgroundColor": "#000000"
+          }
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
