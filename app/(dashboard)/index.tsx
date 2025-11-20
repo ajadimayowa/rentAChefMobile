@@ -10,8 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function GuestHomeScreen() {
   return (
-    <SafeAreaView style={styles.container}>
-      <HeaderBar title="Welcome to Rent A Cheff" showSearch />
+    <View style={styles.container}>
+      <HeaderBar title="Welcome to Rent A Cheff" showSearch showBack={false}/>
 
       <ScrollView contentContainerStyle={{ padding: 20 }}>
         <SectionText text="Made Near You!"/>
@@ -98,7 +98,7 @@ export default function GuestHomeScreen() {
           onPress={() => {}}
         />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

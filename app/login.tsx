@@ -11,12 +11,15 @@ import { ScaledSheet } from "react-native-size-matters";
 import { useNavigation } from "@react-navigation/native";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { router } from "expo-router";
+import { router, useRouter } from "expo-router";
 import ReusableButton from "@/components/buttons/ReusableButton";
 import TitleText from "@/components/typography/TitleText";
 import SectionText from "@/components/typography/SectionText";
 import FormInput from "@/components/FormInput";
 import api from "@/services/apiConfig";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Constants from "expo-constants";
+import Toast from "react-native-toast-message";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
@@ -25,46 +28,70 @@ const LoginSchema = Yup.object().shape({
 
 export default function LoginScreen() {
   const navigation = useNavigation();
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
 
   const handleLogin = async (val: any) => {
+    // const apiUrl = Constants.expoConfig?.extra?.apiUrl
+    // console.log('baseUrl',apiUrl)
         setLoading(true)
         try {
             const res = await api.post('/auth/login', val)
+            console.log({seeRes:res})
 
             if(res?.data?.success){
               router.push({
                 pathname: "/otpverificationscreen",
                 params: { email: val.email },
             });
+             Toast.show({
+                                type: 'success',
+                                text1: 'OTP Sent',
+                                text2: 'Login verification code sent!'
+                            });
             setLoading(false)
             } else{
+
+              console.log({seeAfter:res})
               setLoading(false)
-              Alert.alert('Login Error')
+              Toast.show({
+                                type: 'success',
+                                text1: 'OTP Sent',
+                                text2: res?.data?.message || 'Something went wrong!',
+                            });
+              
             }
             
-        } catch (error) {
-            console.log({ seeError: error })
+        } catch (error:any) {
+            console.log({ seeErrorBreak: error })
             setLoading(false)
+             Toast.show({
+                                type: 'error',
+                                text1: 'Login Error',
+                                text2: error?.response?.message || 'Invalid credentials',
+                            });
         }
     }
 
   return (
+<>
     <View style={styles.container}>
       {/* Header */}
       <ImageBackground
-        source={require("../assets/images/header-fruits.png")}
+        source={require("../assets/images/banana-top.jpg")}
         resizeMode="cover"
         style={{ padding: 20, height: 200, justifyContent: "flex-start" }}
       >
+        <SafeAreaView>
         <ReusableButton
           style={{ width: 100 }}
-          onPress={() => router.back()}
+          onPress={() => router.navigate('./authscreen')}
           iconLeft={"chevron-back"}
           extStyle={{ width: "50%", padding: 0, color: "#000" }}
           type="pressableText"
           title="Go Back"
         />
+        </SafeAreaView>
       </ImageBackground>
 
       {/* Form Section */}
@@ -135,6 +162,7 @@ export default function LoginScreen() {
         </Formik>
       </View>
     </View>
+    </>
   );
 }
 

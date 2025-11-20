@@ -15,8 +15,9 @@ import { useNavigation } from "@react-navigation/native";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import ReusableButton from "@/components/buttons/ReusableButton";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, useRouter } from "expo-router";
 import api, { setToken } from "@/services/apiConfig";
+import Toast from "react-native-toast-message";
 
 const VerificationSchema = Yup.object().shape({
   code: Yup.string()
@@ -26,6 +27,7 @@ const VerificationSchema = Yup.object().shape({
 
 export default function VerificationCodeScreen() {
   const navigation = useNavigation();
+  const router = useRouter()
   const inputs = useRef<TextInput[]>([]);
   const { email } = useLocalSearchParams<{ email: string }>();
   const [loading,setLoading] = useState(false)
@@ -55,20 +57,23 @@ export default function VerificationCodeScreen() {
         setLoading(true)
         try {
             const res = await api.post('/auth/verify-loginOtp', payload)
-
-            if(res?.data?.success){
-              setToken(res?.data?.token)
-              router.replace({
-                pathname: "/(dashboard)"
-            });
+            setToken(res?.data?.token)
+              router.replace("/(dashboard)");
+            Toast.show({
+                            type: 'success',
+                            text1: 'Success',
+                            text2: 'Login Successful!'
+                        });
             setLoading(false)
-            } else{
-              setLoading(false)
-              Alert.alert('Login Error')
-            }
+
             
         } catch (error) {
             console.log({ seeError: error })
+            setLoading(false)
+            Toast.show({
+                            type: 'error',
+                            text1: 'Invalid OTP!'
+                        });
             setLoading(false)
         }
     }

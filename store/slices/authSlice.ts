@@ -2,10 +2,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 
-interface IStaffProfile {
+interface IUserProfile {
     biodata: {
         id: string
         fullName: string,
+        firstName:string,
         email: string,
         phoneNumber: string
         address: string;
@@ -33,40 +34,6 @@ interface IStaffProfile {
             idNumber?: string
         };
     };
-    organization?: {
-        id: string;
-        fullName: string
-        address: string;
-        status: string;
-    };
-    branch?: {
-        id: string;
-        fullName: string
-        address: string;
-        bankAccountInformation: {
-            accountName: string;
-            accountNumber: string;
-            nameOfBank: string;
-            isActive: boolean
-        }
-        status: string;
-        manager: {
-            id: string;
-            fullName: string;
-            phoneNumber: string;
-            isActive: boolean
-        }
-    };
-    role?: {
-        id?: string;
-        fullName?: string;
-        isActive: boolean
-    }
-    department?: {
-        id?: string;
-        fullName?: string;
-        isActive?: boolean
-    };
 
 
 
@@ -74,17 +41,18 @@ interface IStaffProfile {
 interface AuthState {
     token: string | null;
     userId: string | null;
-    staffProfile: IStaffProfile| null
+    userProfile: IUserProfile| null
 }
 
 
 const initialState: AuthState = {
   token: null,
   userId: null,
-  staffProfile: {
+  userProfile: {
     biodata: {
       id: "",
       fullName: "",
+      firstName:'',
       email: "",
       phoneNumber: "",
       address: "",
@@ -111,41 +79,7 @@ const initialState: AuthState = {
         idCardPicture: "",
         idNumber: "",
       },
-    },
-    organization: {
-      id: "",
-      fullName: "",
-      address: "",
-      status: "",
-    },
-    branch: {
-      id: "",
-      fullName: "",
-      address: "",
-      bankAccountInformation: {
-        accountName: "",
-        accountNumber: "",
-        nameOfBank: "",
-        isActive: false,
-      },
-      status: "",
-      manager: {
-        id: "",
-        fullName: "",
-        phoneNumber: "",
-        isActive: false,
-      },
-    },
-    role: {
-      id: "",
-      fullName: "",
-      isActive: false,
-    },
-    department: {
-      id: "",
-      fullName: "",
-      isActive: false,
-    },
+    }
   },
 };
 
@@ -162,9 +96,9 @@ const authSlice = createSlice({
         },
         setStaffProfile: (
             state,
-            action: PayloadAction<IStaffProfile>
+            action: PayloadAction<IUserProfile>
         ) => {
-            state.staffProfile = action.payload;
+            state.userProfile = action.payload;
         },
         logout: (state) => {
             state.token = null;

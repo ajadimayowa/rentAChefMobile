@@ -67,8 +67,8 @@ export default function EmailVerificationCodeScreen() {
           validationSchema={VerificationSchema}
           onSubmit={(values) => {
             console.log("Entered code:", values.code);
-            router.push({
-              pathname: "/SetPassword",
+            router.replace({
+              pathname: "login",
             });
           }}
         >

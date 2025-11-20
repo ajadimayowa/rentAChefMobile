@@ -7,14 +7,14 @@ import { useRouter } from "expo-router";
 import { useAppSelector } from "@/store/hooks";
 
 export default function LandingScreen() {
-  const { staffProfile } = useAppSelector((state) => state.auth);
+  const staffProfile = useAppSelector((state) => state.auth.userProfile);
   const router = useRouter();
 
   const checkAuth = () => {
     if (!staffProfile?.biodata.fullName) {
-      // router.replace("/authscreen");
+      router.replace("/authscreen");
     } else {
-      // router.replace("./(dashboard)");
+      router.replace("/(dashboard)");
     }
   }
 
@@ -24,11 +24,11 @@ export default function LandingScreen() {
     }, 3000)
   }, []);
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View>
         <Image source={require('../assets/gif/rentLoader.gif')} style={{ width: 200, height: 200 }} />
       </View>
-    </SafeAreaView>
+    </View>
 
   )
 }

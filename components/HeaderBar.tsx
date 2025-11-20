@@ -5,17 +5,20 @@ import { ScaledSheet } from "react-native-size-matters";
 import { Ionicons } from "@expo/vector-icons";
 import ReusableButton from "./buttons/ReusableButton";
 import { router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface HeaderBarProps {
   title: string;
   subtitle?: string;
+  showBack?:boolean;
   showSearch?: boolean;
   onSearch?: (value: string) => void;
 }
 
-const HeaderBar: React.FC<HeaderBarProps> = ({ title, subtitle, showSearch, onSearch }) => (
+const HeaderBar: React.FC<HeaderBarProps> = ({ title, subtitle,showBack, showSearch, onSearch }) => (
   <View style={styles.container}>
-    <ReusableButton textStyle={{color:'#fff'}} style={{ width: 100, margin:0, padding:0 }} onPress={() => router.back()} iconLeft={"chevron-back"} type="pressableText" title="Go Back" />
+    <SafeAreaView>
+    {showBack&&<ReusableButton textStyle={{color:'#fff'}} style={{ width: 100, margin:0, padding:0 }} onPress={() => router.back()} iconLeft={"chevron-back"} type="pressableText" title="Go Back" />}
     <View style={{padding:10}}>
       <Text style={styles.title}>{title}</Text>
     {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
@@ -32,7 +35,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ title, subtitle, showSearch, onSe
     )}
     </View>
 
-    
+    </SafeAreaView>
   </View>
 );
 

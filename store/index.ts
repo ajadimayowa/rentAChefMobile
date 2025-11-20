@@ -11,10 +11,10 @@ const rootReducer = combineReducers({
 
 // persist config
 const persistConfig = {
-  key: "root",
-  storage: SecureStorage,
-  whitelist: ["auth"],
-  keyPrefix: "", // ✅ removes "persist:" prefix
+    key: "root",
+    storage: SecureStorage,
+    whitelist: ["auth"],
+    keyPrefix: "", // ✅ removes "persist:" prefix
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

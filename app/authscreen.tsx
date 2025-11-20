@@ -3,7 +3,6 @@ import {
   View,
   Text,
   ImageBackground,
-  SafeAreaView,
   Dimensions,
   Image
 } from "react-native";
@@ -14,6 +13,8 @@ import Colors from "@/constants/Colors";
 import ReusableButton from "@/components/buttons/ReusableButton";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 
 const { width } = Dimensions.get("window");
 
@@ -48,7 +49,9 @@ export default function LoginScreen() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <SafeAreaView style={styles.screenContainer}>
+    <>
+    <StatusBar style="light"/>
+    <View style={styles.screenContainer}>
       {/* 🔸 Top Swipeable Section */}
       <View style={styles.topFrame}>
         <Swiper
@@ -117,7 +120,8 @@ export default function LoginScreen() {
         </View>
 
       </View>
-    </SafeAreaView>
+    </View>
+    </>
   );
 }
 
