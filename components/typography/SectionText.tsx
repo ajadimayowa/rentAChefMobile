@@ -13,6 +13,6 @@ export default SectionText;
 const styles = ScaledSheet.create({
     p:{
         fontFamily:'secondaryFont',
-        fontSize:'18@ms'
+        fontSize:'15@ms'
     }
 })

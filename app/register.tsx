@@ -9,6 +9,7 @@ import FormInput from "@/components/FormInput";
 import api from "@/services/apiConfig";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
+import BodyText from "@/components/typography/BodyText";
 
 const RegisterSchema = Yup.object().shape({
     fullName: Yup.string().required("Full name is required"),
@@ -22,25 +23,37 @@ export default function RegisterScreen() {
     const [step, setStep] = useState(1); // STEP 1 OR STEP 2
 
     const register = async (val: any) => {
+        console.log({ SeeSending: val })
         setLoading(true)
         try {
             const res = await api.post("/auth/register", val);
-            setLoading(false);
-            Toast.show({
-                type: 'success',
-                text1: 'OTP Sent',
-                text2: 'Emain verification code sent!'
-            });
-            router.push({
-                pathname: "/emailotpverificationscreen",
-                params: { email: val.email },
-            });
+            if (res?.data?.payload) {
+                setLoading(false);
+                setStep(1)
+                Toast.show({
+                    type: 'success',
+                    text1: 'OTP Sent',
+                    text2: 'Emain verification code sent!'
+                });
+                router.replace({
+                    pathname: "/emailotpverificationscreen",
+                    params: { email: val.email },
+                });
+
+            } else {
+                setLoading(false)
+                Toast.show({
+                    type: 'error',
+                    text1: 'User already exist',
+                });
+            }
+
         } catch (error) {
             setLoading(false);
             Toast.show({
                 type: 'error',
                 text1: 'Registration failed',
-                text2: 'Email already exist!'
+                text2: 'Email/Phone already exist!'
             });
         }
     }
@@ -78,20 +91,25 @@ export default function RegisterScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <ImageBackground
-                source={require("../assets/images/header-fruits.png")}
+                source={require("../assets/images/banana-top.jpg")}
                 resizeMode="cover"
                 style={{ padding: 20, height: 200, justifyContent: "flex-start" }}
             >
-                <ReusableButton
-                    style={{ width: 100 }}
-                    onPress={() => router.back()}
-                    iconLeft={"chevron-back"}
-                    extStyle={{ width: "50%", padding: 0, color: "#000" }}
-                    type="pressableText"
-                    title="Go Back"
-                />
+                <SafeAreaView style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <ReusableButton
+                        style={{ width: 100 }}
+                        onPress={() => router.navigate('./authscreen')}
+                        iconLeft={"chevron-back"}
+                        extStyle={{ width: "50%", padding: 0, color: "#000" }}
+                        type="pressableText"
+                        title="Go Back"
+                    />
+                    <TouchableOpacity onPress={() => router.push("/signup-chef")}>
+                        <BodyText text=" Chef Signup >" />
+                    </TouchableOpacity>
+                </SafeAreaView>
             </ImageBackground>
 
             <View style={{ paddingHorizontal: 30 }}>
@@ -136,13 +154,8 @@ export default function RegisterScreen() {
                                             placeholder="Phone number"
                                         />
 
-                                        <Text style={styles.signupText}>
-                                            By signing up, You agree to our{" "}
-                                            <Text style={styles.signupLink}>Terms</Text> &{" "}
-                                            <Text style={styles.signupLink}>Privacy Policy</Text>
-                                        </Text>
-
                                         <ReusableButton
+                                            style={{ marginTop: 20 }}
                                             iconRight={"arrow-forward-outline"}
                                             onPress={async () => {
                                                 const formErrors = await validateForm();
@@ -157,6 +170,12 @@ export default function RegisterScreen() {
                                             }}
                                             title="Continue"
                                         />
+
+                                        <Text style={styles.signupText}>
+                                            By signing up, You agree to our{" "}
+                                            <Text style={styles.signupLink}>Terms</Text> &{" "}
+                                            <Text style={styles.signupLink}>Policy</Text>
+                                        </Text>
                                     </>
                                 )}
 
@@ -195,6 +214,17 @@ export default function RegisterScreen() {
                                             title="Register"
                                             onPress={() => handleSubmit()}
                                         />
+
+                                        <View style={{ width: '100%', justifyContent: 'center',alignItems:'center', marginTop:20 }}>
+                                            <ReusableButton
+                                                style={{ width: 100 }}
+                                                onPress={() => setStep(1)}
+                                                iconLeft={"chevron-back"}
+                                                extStyle={{ width: "100%", padding: 0, color: "#000" }}
+                                                type="pressableText"
+                                                title="Previous"
+                                            />
+                                        </View>
                                     </>
                                 )}
                             </>
@@ -202,7 +232,7 @@ export default function RegisterScreen() {
                     }}
                 </Formik>
             </View>
-        </SafeAreaView>
+        </View>
     );
 }
 

@@ -1,8 +1,9 @@
 // components/FormInput.tsx
 import React from "react";
-import { TextInput, Text, View } from "react-native";
+import { TextInput, Text, View, TouchableOpacity } from "react-native";
 import { useFormikContext, Formik, Field,useField } from "formik";
 import { ScaledSheet } from "react-native-size-matters";
+import { Ionicons } from "@expo/vector-icons";
 
 type InputProps = {
   label?:string;
@@ -19,7 +20,7 @@ export default function FormInput({ id, placeholder,label, type = "text" }: Inpu
 
   return (
     <View style={styles.container}>
-      {label&&<Text style={{fontFamily:'secondaryFont'}}>{label}</Text>}
+        {label&&<Text style={{fontFamily:'secondaryFont'}}>{label}</Text>}
       <TextInput
         style={[
           styles.input,
@@ -28,6 +29,7 @@ export default function FormInput({ id, placeholder,label, type = "text" }: Inpu
         placeholder={placeholder}
         secureTextEntry={secure}
         keyboardType={keyboardType}
+        autoCapitalize="none"
         value={field.value}
         onChangeText={helpers.setValue}
         onBlur={() => helpers.setTouched(true)}

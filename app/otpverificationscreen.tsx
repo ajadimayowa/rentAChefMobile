@@ -18,6 +18,11 @@ import ReusableButton from "@/components/buttons/ReusableButton";
 import { router, useLocalSearchParams, useRouter } from "expo-router";
 import api, { setToken } from "@/services/apiConfig";
 import Toast from "react-native-toast-message";
+import { useDispatch } from "react-redux";
+import { setUserProfile } from "@/store/slices/authSlice";
+import BodyText from "@/components/typography/BodyText";
+import { SafeAreaView } from "react-native-safe-area-context";
+import SecureStorage from "@/store/secureStore";
 
 const VerificationSchema = Yup.object().shape({
   code: Yup.string()
@@ -30,7 +35,8 @@ export default function VerificationCodeScreen() {
   const router = useRouter()
   const inputs = useRef<TextInput[]>([]);
   const { email } = useLocalSearchParams<{ email: string }>();
-  const [loading,setLoading] = useState(false)
+  const [loading,setLoading] = useState(false);
+  const dispatch = useDispatch()
 
   const handleChange = (text: string, index: number, values: any, setFieldValue: any) => {
     let newCode = values.code.split("");
@@ -53,20 +59,34 @@ export default function VerificationCodeScreen() {
 
   const handleVerifyLoginOtp = async (val: any) => {
     let payload = {otp:val?.code,email:email}
-    console.log({pay:payload})
+    // console.log({pay:payload})
         setLoading(true)
         try {
             const res = await api.post('/auth/verify-loginOtp', payload)
-            setToken(res?.data?.token)
-              router.replace("/(dashboard)");
+            if(res?.data?.success){
+              console.log({seeDataProfile:res?.data})
+              // setToken(res?.data?.token)
+              dispatch(setUserProfile(res?.data?.payload));
+              await SecureStorage.setItem('userToken',res?.data?.token)
+
+
+             
             Toast.show({
                             type: 'success',
                             text1: 'Success',
                             text2: 'Login Successful!'
                         });
+                
             setLoading(false)
-
-            
+ router.replace("/(dashboard)");
+           
+            } else {
+               setLoading(false)
+            Toast.show({
+                            type: 'error',
+                            text1: 'Invalid OTP!'
+                        });
+            }
         } catch (error) {
             console.log({ seeError: error })
             setLoading(false)
@@ -84,18 +104,20 @@ export default function VerificationCodeScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ImageBackground
-        source={require('../assets/images/header-fruits.png')}
+        source={require("../assets/images/banana-top.jpg")}
         resizeMode="cover"
-        style={{ padding: 20, height: 200, justifyContent: 'flex-start' }}
+        style={{ padding: 20, height: 200, justifyContent: "flex-start" }}
       >
-         <ReusableButton
+        <SafeAreaView style={{width:'100%', flexDirection:'row', justifyContent:'space-between'}}>
+        <ReusableButton
           style={{ width: 100 }}
-          onPress={() => router.back()}
+          onPress={() => router.navigate('./authscreen')}
           iconLeft={"chevron-back"}
           extStyle={{ width: "50%", padding: 0, color: "#000" }}
           type="pressableText"
           title="Go Back"
         />
+        </SafeAreaView>
       </ImageBackground>
       <View style={{ width: '100%', padding: 20 }}>
         <Text style={styles.title}>Enter the code sent to your email/phone number.</Text>

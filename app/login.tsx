@@ -20,6 +20,8 @@ import api from "@/services/apiConfig";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Constants from "expo-constants";
 import Toast from "react-native-toast-message";
+import { Ionicons } from "@expo/vector-icons";
+import BodyText from "@/components/typography/BodyText";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
@@ -29,7 +31,8 @@ const LoginSchema = Yup.object().shape({
 export default function LoginScreen() {
   const navigation = useNavigation();
   const router = useRouter()
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [securePass,setSecurePass] = useState(true)
 
   const handleLogin = async (val: any) => {
     // const apiUrl = Constants.expoConfig?.extra?.apiUrl
@@ -82,7 +85,7 @@ export default function LoginScreen() {
         resizeMode="cover"
         style={{ padding: 20, height: 200, justifyContent: "flex-start" }}
       >
-        <SafeAreaView>
+        <SafeAreaView style={{width:'100%', flexDirection:'row', justifyContent:'space-between'}}>
         <ReusableButton
           style={{ width: 100 }}
           onPress={() => router.navigate('./authscreen')}
@@ -91,6 +94,9 @@ export default function LoginScreen() {
           type="pressableText"
           title="Go Back"
         />
+        <TouchableOpacity onPress={() => router.push("/login-chef")}>
+          <BodyText text=" Chef Login >"/>
+        </TouchableOpacity>
         </SafeAreaView>
       </ImageBackground>
 
@@ -121,14 +127,21 @@ export default function LoginScreen() {
               <FormInput label="Email" placeholder="Enter email..." id="email"/>
               
 
-              <Text style={{fontFamily:'secondaryFont'}}>Password</Text>
+<View style={{width:'100%', justifyContent:'space-between',flexDirection:'row',marginTop:20,padding:10,alignItems:'center'}}>
+<Text style={{fontFamily:'secondaryFont'}}>Password</Text>
+              <TouchableOpacity onPress={()=>setSecurePass(!securePass)}>
+                        <Ionicons size={18} name="eye-off"/>
+                      </TouchableOpacity>
+</View>
+              
               <TextInput
                 placeholder="Password"
+                autoCapitalize="none"
                 style={styles.input}
                 value={values.password}
                 onChangeText={handleChange("password")}
                 onBlur={handleBlur("password")}
-                secureTextEntry
+                secureTextEntry={securePass}
               />
               {touched.password && errors.password && (
                 <Text style={styles.error}>{errors.password}</Text>

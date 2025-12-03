@@ -7,11 +7,11 @@ import { useRouter } from "expo-router";
 import { useAppSelector } from "@/store/hooks";
 
 export default function LandingScreen() {
-  const staffProfile = useAppSelector((state) => state.auth.userProfile);
+  const userProfile = useAppSelector((state) => state.auth.bioData);
   const router = useRouter();
 
   const checkAuth = () => {
-    if (!staffProfile?.biodata.fullName) {
+    if (!userProfile?.id) {
       router.replace("/authscreen");
     } else {
       router.replace("/(dashboard)");

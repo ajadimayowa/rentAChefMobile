@@ -1,0 +1,21 @@
+{
+  "build": {
+    "preview": {
+      "env": {
+        "API_BASE_URL": "https://rentachefbackend.onrender.com"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
+
+    "production": {
+      "env": {
+        "API_BASE_URL": "https://rentachefbackend.onrender.com"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  }
+}

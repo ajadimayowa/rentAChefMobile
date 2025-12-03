@@ -9,39 +9,28 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import ReusableCard from "@/components/cards/ReusableCard";
 import Toast from "react-native-toast-message";
 import { useDispatch, useSelector } from "react-redux";
-import { persistor, RootState } from "@/store";
+import { RootState } from "@/store";
 import { useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import SecureStorage from "@/store/secureStore";
-import BodyText from "@/components/typography/BodyText";
+import { logout } from "@/store/slices/authSlice";
 
 export default function GuestChefsScreen() {
-  const userProfile = useSelector((state:RootState)=>state.auth.bioData);
+  const userProfile = useSelector((state:RootState)=>state.auth.userProfile?.biodata);
   const dispatch = useDispatch();
   const router = useRouter()
 
-  const handleLogout = async()=>{
-   await persistor.purge();
-    router.replace('/authscreen')
+  const handleLogout = ()=>{
+    dispatch(logout())
+    router.replace('/index');
 
   }
   return (
     <SafeAreaView style={styles.frame}>
       <View style={styles.container}>
         <View style={{alignItems:'center', width:'100%'}}>
-        {userProfile?.profilePic?<Image source={userProfile?.profilePic as any} style={{ width: 100, height: 100, borderRadius:100 }}/>:<View>{userProfile?.gender=='m'?<Image source={ require('../../assets/images/womanavatar.png')} style={{ width: 100, height: 100, borderRadius:100 }}/>:<Image source={ require('../../assets/images/manavatar.png')} style={{ width: 100, height: 100, borderRadius:100 }}/>}</View>}
+        <Image source={require('../../assets/images/avatar.jpg')} style={{ width: 100, height: 100, borderRadius:100 }}/>
+        <Text>{userProfile?.fullName}</Text>
         </View>
-        <ReusableCard> 
-          <View>
-            <SectionText text="Name"/>
-            <BodyText text={userProfile?.fullName}/>
-
-            <SectionText textStyle={{marginTop:5}} text="Gender"/>
-            <BodyText text={userProfile?.gender=='m'?'Male':'Female'}/>
-          </View>
-
-      </ReusableCard>
-
         <ReusableCard title="Prefference"> 
 
       </ReusableCard>

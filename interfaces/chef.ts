@@ -1,0 +1,18 @@
+export interface IChef {
+            "staffId": string,
+            "name": string,
+            "gender":string,
+            "phoneNumber":number,
+            "email": string,
+            "bio": string,
+            "specialties": string[],
+            "location": string,
+            "state":string,
+            "menus": [],
+            "password": string,
+            "isPasswordUpdated": boolean,
+            "isActive": boolean,
+            "createdAt": string,
+            "updatedAt": string,
+            "id": string,
+        }

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   View,
   Text,
@@ -15,6 +15,8 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import ReusableButton from "@/components/buttons/ReusableButton";
 import { router, useLocalSearchParams } from "expo-router";
+import api from "@/services/apiConfig";
+import Toast from "react-native-toast-message";
 
 const VerificationSchema = Yup.object().shape({
   code: Yup.string()
@@ -23,6 +25,7 @@ const VerificationSchema = Yup.object().shape({
 });
 
 export default function EmailVerificationCodeScreen() {
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
   const inputs = useRef<TextInput[]>([]);
   const { email } = useLocalSearchParams<{ email: string }>();
@@ -46,6 +49,42 @@ export default function EmailVerificationCodeScreen() {
     }
   };
 
+  const handleVerifyLoginOtp = async (val: any) => {
+    setLoading(true)
+    try {
+      const res = await api.post(`/auth/verify-email`,{
+        email:email,
+        otp:val
+      });
+      console.log({ seeResp: res })
+      if (res?.data) {
+        Toast.show({
+          type: 'success',
+          text1: 'Email verified!',
+          text2: 'Go back home to login'
+        });
+
+        setLoading(false)
+        router.replace("/");
+
+      } else {
+        setLoading(false)
+        Toast.show({
+          type: 'error',
+          text1: 'Invalid OTP!'
+        });
+      }
+    } catch (error) {
+      console.log({ seeError: error })
+      setLoading(false)
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid OTP!'
+      });
+      setLoading(false)
+    }
+  }
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -65,12 +104,7 @@ export default function EmailVerificationCodeScreen() {
         <Formik
           initialValues={{ code: "" }}
           validationSchema={VerificationSchema}
-          onSubmit={(values) => {
-            console.log("Entered code:", values.code);
-            router.replace({
-              pathname: "login",
-            });
-          }}
+          onSubmit={(values) => handleVerifyLoginOtp(values?.code)}
         >
           {({ values, setFieldValue, handleSubmit, errors, touched }) => (
             <>

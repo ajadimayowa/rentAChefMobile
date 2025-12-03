@@ -1,3 +1,4 @@
+import * as SecureStore from "expo-secure-store";
 import axios from 'axios';
 // import { API_BASEURL, API_KEY } from '@env';
 // console.log({ currentDev: dev })
@@ -17,21 +18,23 @@ const api = axios.create({
   },
 });
 
-const MAX_RETRIES = 0;
+const MAX_RETRIES = 2;
 
 api.interceptors.response.use(
   (response:any) => {
-    console.log(
-      '%c⬅️ [API RESPONSE SUCCESS]',
-      'color: lightgreen',
-      response.config?.method?.toUpperCase(),
-      response.config?.baseURL + response.config?.url,
-      '\nResponse Data:',
-      response?.data
-    );
+    // console.log(
+    //   '%c⬅️ [API RESPONSE SUCCESS]',
+    //   'color: lightgreen',
+    //   response.config?.method?.toUpperCase(),
+    //   response.config?.baseURL + response.config?.url,
+    //   '\nResponse Data:',
+    //   response?.data
+    // );
+    // console.log({seeResp:response?.data})
     return response;
   },
-  async (error) => {
+  async (error:any) => {
+    console.log({seeRootError:error})
     const { config } = error;
 
     console.log(
@@ -53,22 +56,27 @@ api.interceptors.response.use(
 
     config.__retryCount += 1;
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    return api(config);
+    return error;
   }
 );
 
 let token: string | null = null;
 
+
 api.interceptors.request.use(
-  config => {
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+  async (config) => {
+    const userToken = await SecureStore.getItemAsync("userToken");
+    // console.log({ seeOurTok: userToken });
+
+    if (userToken) {
+      config.headers.Authorization = `Bearer ${userToken}`;
     }
+
     return config;
   },
-  error => Promise.reject(error)
+  (error) => Promise.reject(error)
 );
 
 export const setToken = (newToken: string) => {

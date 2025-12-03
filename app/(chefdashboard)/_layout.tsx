@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { Link, Tabs, useRouter } from 'expo-router';
 import { Image, Pressable, Text, View } from 'react-native';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -48,9 +48,10 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="guest-home"
+        name="index"
         options={{
           title: "Home",
+          headerShown: false, // <--- hide the extra header
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home-outline" color={color} size={size} />
           ),
@@ -58,15 +59,27 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
-        name="guest-chefs"
+        name="bookings"
         options={{
-          title: "Chefs",
+          title: "Bookings",
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="chef-hat" size={size} color={color}/>
+            <Ionicons name="fast-food" color={color} size={size} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-circle" color={color} size={size} />
           ),
         }}
       />
     </Tabs>
+
+    
 
       {/* 🔑 Auth modal */}
       <AuthModal
