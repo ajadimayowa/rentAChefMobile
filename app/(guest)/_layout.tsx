@@ -11,12 +11,14 @@ import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import SecureStorage from '@/store/secureStore';
 import AuthModal from '@/components/AuthModal';
 import SearchScreen from '@/components/SearchScreen';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [searchVisible, setSearchVisible] = useState(false);
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   // 🔑 Auth guard for tab presses
   const authGuard = (screen: any) => ({
@@ -41,8 +43,8 @@ export default function TabLayout() {
         tabBarStyle: {
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
-          height: 60,
-          paddingBottom: 5,
+          paddingBottom: insets.bottom,
+          height: 60 + insets.bottom,
         },
         tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
       }}

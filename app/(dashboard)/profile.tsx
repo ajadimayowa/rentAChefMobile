@@ -37,24 +37,25 @@ export default function GuestChefsScreen() {
             <BodyText text={userProfile?.fullName}/>
 
             <SectionText textStyle={{marginTop:5}} text="Gender"/>
-            <BodyText text={userProfile?.gender=='m'?'Male':'Female'}/>
+            <BodyText text={userProfile?.gender=='m'?'Male':'-'}/>
           </View>
 
       </ReusableCard>
 
-        <ReusableCard title="Prefference"> 
+        <ReusableCard title="Update profile"> 
 
       </ReusableCard>
-      <ReusableCard title="Settings"> 
+      <ReusableCard title="Health Information"> 
 
       </ReusableCard>
-      <ReusableCard title="Wallet"> 
+      <ReusableCard title="Subscriptions"> 
 
       </ReusableCard>
 
-      <ReusableCard onPress={()=>Toast.show({type:'success', text1:'Hello'})} title="Ping"> 
+      <ReusableCard title="Payment Methods"> 
 
       </ReusableCard>
+
       <ReusableCard onPress={handleLogout} title="Logout"> 
 
       </ReusableCard>

@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   ImageBackground,
   Alert,
-  ScrollView,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
 } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import { useNavigation } from "@react-navigation/native";
@@ -31,7 +31,7 @@ const LoginSchema = Yup.object().shape({
   password: Yup.string().required("Password is required"),
 });
 
-export default function LoginScreen() {
+export default function LoginChefScreen() {
   const navigation = useNavigation();
   const router = useRouter()
   const [loading, setLoading] = useState(false);
@@ -80,7 +80,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
+  <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
@@ -90,97 +90,105 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.container}>
-          <ImageBackground
-            source={require("../assets/images/banana-top.jpg")}
-            resizeMode="cover"
-            style={{ padding: 20, height: 200, justifyContent: "flex-start" }}
+      <View style={styles.container}>
+        {/* Header */}
+        <ImageBackground
+          source={require("../assets/images/banana-top.jpg")}
+          resizeMode="cover"
+          style={{ padding: 20, height: 200, justifyContent: "flex-start" }}
+        >
+          <SafeAreaView style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}>
+            <ReusableButton
+              style={{ width: 100 }}
+              onPress={() => router.navigate('./authscreen')}
+              iconLeft={"chevron-back"}
+              extStyle={{ width: "50%", padding: 0, color: "#000" }}
+              type="pressableText"
+              title="Go Back"
+            />
+            <TouchableOpacity onPress={() => router.push("/login")}>
+              <BodyText text=" User Login >" />
+            </TouchableOpacity>
+          </SafeAreaView>
+        </ImageBackground>
+
+        {/* Form Section */}
+        <View style={{ width: "100%", padding: 20 }}>
+          <SectionText text="Welcome Back!" />
+          <TitleText text="Login as a chef" />
+
+          <Formik
+            initialValues={{ email: "", password: "" }}
+            validationSchema={LoginSchema}
+            onSubmit={(values) => {
+              handleLogin(values);
+              // Example navigation after login success:
+              // router.push("/home");
+            }}
           >
-            <SafeAreaView style={{ width: "100%", flexDirection: "row", justifyContent: "space-between" }}>
-              <ReusableButton
-                style={{ width: 100 }}
-                onPress={() => router.navigate("./authscreen")}
-                iconLeft={"chevron-back"}
-                extStyle={{ width: "50%", padding: 0, color: "#000" }}
-                type="pressableText"
-                title="Go Back"
-              />
+            {({
+              handleChange,
+              handleBlur,
+              handleSubmit,
+              values,
+              errors,
+              touched,
+            }) => (
+              <>
+                {/* Email */}
+                <FormInput label="Email" placeholder="Enter email..." id="email" />
 
-              <TouchableOpacity onPress={() => router.push("/login-chef")}>
-                <BodyText text=" Chef Login >" />
-              </TouchableOpacity>
-            </SafeAreaView>
-          </ImageBackground>
 
-          <View style={{ width: "100%", padding: 20 }}>
-            <SectionText text="Welcome Back!" />
-            <TitleText text="Login to your account" />
-
-            <Formik
-              initialValues={{ email: "", password: "" }}
-              validationSchema={LoginSchema}
-              onSubmit={handleLogin}
-            >
-              {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-                <>
-                  <FormInput label="Email" placeholder="Enter email..." id="email" />
-
-                  <View
-                    style={{
-                      width: "100%",
-                      justifyContent: "space-between",
-                      flexDirection: "row",
-                      marginTop: 20,
-                      padding: 10,
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text style={{ fontFamily: "secondaryFont" }}>Password</Text>
-
-                    <TouchableOpacity onPress={() => setSecurePass(!securePass)}>
-                      <Ionicons size={18} name="eye-off" />
-                    </TouchableOpacity>
-                  </View>
-
-                  <TextInput
-                    placeholder="Password"
-                    autoCapitalize="none"
-                    style={styles.input}
-                    value={values.password}
-                    onChangeText={handleChange("password")}
-                    onBlur={handleBlur("password")}
-                    secureTextEntry={securePass}
-                  />
-
-                  {touched.password && errors.password && (
-                    <Text style={styles.error}>{errors.password}</Text>
-                  )}
-
-                  <TouchableOpacity onPress={() => router.push("/forgotpasswordscreen")}>
-                    <Text style={styles.forgotPassword}>Forgot Password?</Text>
+                <View style={{ width: '100%', justifyContent: 'space-between', flexDirection: 'row', marginTop: 20, padding: 10, alignItems: 'center' }}>
+                  <Text style={{ fontFamily: 'secondaryFont' }}>Password</Text>
+                  <TouchableOpacity onPress={() => setSecurePass(!securePass)}>
+                    <Ionicons size={18} name="eye-off" />
                   </TouchableOpacity>
+                </View>
 
-                  <ReusableButton
-                    loading={loading}
-                    style={{ marginTop: 40 }}
-                    iconRight={"arrow-forward-outline"}
-                    onPress={handleSubmit}
-                    title="Login"
-                  />
+                <TextInput
+                  placeholder="Password"
+                  autoCapitalize="none"
+                  style={styles.input}
+                  value={values.password}
+                  onChangeText={handleChange("password")}
+                  onBlur={handleBlur("password")}
+                  secureTextEntry={securePass}
+                />
+                {touched.password && errors.password && (
+                  <Text style={styles.error}>{errors.password}</Text>
+                )}
 
-                  <Text style={styles.signupText}>
-                    Don’t have an account?{" "}
-                    <Text style={styles.signupLink} onPress={() => router.push("/register")}>
-                      Create one
-                    </Text>
+                <TouchableOpacity
+                  onPress={() => router.push("/forgotpasswordscreen")}
+                >
+                  <Text style={styles.forgotPassword}>Forgot Password?</Text>
+                </TouchableOpacity>
+
+                <ReusableButton
+                  loading={loading}
+                  style={{ marginTop: 40 }}
+                  iconRight={"arrow-forward-outline"}
+                  onPress={() => handleSubmit()}
+                  title="Login"
+                />
+
+                <Text style={styles.signupText}>
+                  Don’t have chef account?{" "}
+                  <Text
+                    style={styles.signupLink}
+                    onPress={() => router.push("/signup-chef")}
+                  >
+                    Create one
                   </Text>
-                </>
-              )}
-            </Formik>
-          </View>
+                </Text>
+              </>
+            )}
+          </Formik>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      </View>
+     </ScrollView>
+      </KeyboardAvoidingView>
   );
 }
 

@@ -12,7 +12,7 @@ interface DishCardProps {
   title: string;
   price: number;
   rating?: number;
-  madeByChef:string;
+  madeByChef: string;
   onPress: () => void;
   onLike?: () => void;
 }
@@ -53,18 +53,18 @@ const DishCard: React.FC<DishCardProps> = ({
         </View>
 
         {/* ✅ Content */}
-        <View style={{width:'100%',display:'flex',  flexDirection:'row', justifyContent:'space-between'}}>
-<View style={styles.content}>
-  <SectionText textStyle={{color:'#fff'}} text={title}/>
-  <BodyText textStyle={{color:'#fff'}} text={madeByChef}/>
-          <Text style={styles.price}>{price?`From : ${convertToThousand(price)}`:'N0.00'}</Text>
-        </View>
+        <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+          <View style={styles.content}>
+            <SectionText textStyle={{ color: '#fff',overflow:'scroll' }} text={title} />
+            <BodyText textStyle={{ color: '#fff' }} text={madeByChef} />
+            <Text style={styles.price}>{price ? `From : ${convertToThousand(price)}` : 'N0.00'}</Text>
+          </View>
 
-        <View style={{padding:10}}>
-          <TouchableOpacity activeOpacity={0.9} style={{backgroundColor:'#fff',borderRadius:5,padding:10}}>
-          <Text>Order</Text>
-        </TouchableOpacity>
-        </View>
+          <View style={{ padding: 10 }}>
+            <TouchableOpacity activeOpacity={0.9} style={{ backgroundColor: '#fff', borderRadius: 5, padding: 10 }}>
+              <Text>Order</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
       </ImageBackground>
@@ -128,6 +128,8 @@ const styles = ScaledSheet.create({
   content: {
     padding: "12@s",
     zIndex: 2,
+    maxWidth:'70%',
+    overflow:'hidden'
   },
 
   title: {

@@ -3,17 +3,19 @@ import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
 import SecureStorage from "./secureStore";
 import authReducer from "./slices/authSlice";
+import locationReducer from "./slices/locationSlice"
 
 // combine all reducers
 const rootReducer = combineReducers({
     auth: authReducer,
+    location:locationReducer
 });
 
 // persist config
 const persistConfig = {
     key: "root",
     storage: SecureStorage,
-    whitelist: ["auth"],
+    whitelist: ["auth","location"],
     keyPrefix: "", // ✅ removes "persist:" prefix
 };
 

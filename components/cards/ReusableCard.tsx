@@ -105,10 +105,10 @@ export default memo(Card);
 // ---- Styles ----
 const styles = ScaledSheet.create({
     container: {
-        backgroundColor: '#fdeaeaff',
+        backgroundColor: '#eeeeeeff',
         overflow: 'hidden',
-        marginVertical: '6@vs',
-        marginHorizontal: '4@s',
+        marginVertical: '4@vs',
+        justifyContent:'center',
         // iOS shadow
         shadowColor: '#222121ff',
         shadowOffset: { width: 0, height: 0.5 },
@@ -118,12 +118,13 @@ const styles = ScaledSheet.create({
     },
     imageWrapper: {
         width: '100%',
-        height: '110@vs',
+        height: '120@vs',
         justifyContent: 'flex-end',
     },
     inner: {
         paddingHorizontal: '12@s',
-        paddingVertical: '10@vs',
+        paddingVertical: '15@vs',
+        justifyContent:'center'
     },
     rowBetween: {
         flexDirection: 'row',

@@ -16,7 +16,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import ReusableButton from "@/components/buttons/ReusableButton";
 import { router, useLocalSearchParams, useRouter } from "expo-router";
-import api, { setToken } from "@/services/apiConfig";
+import api from "@/services/apiConfig";
 import Toast from "react-native-toast-message";
 import { useDispatch } from "react-redux";
 import { setUserProfile } from "@/store/slices/authSlice";
@@ -35,7 +35,7 @@ export default function VerificationCodeScreen() {
   const router = useRouter()
   const inputs = useRef<TextInput[]>([]);
   const { email } = useLocalSearchParams<{ email: string }>();
-  const [loading,setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch()
 
   const handleChange = (text: string, index: number, values: any, setFieldValue: any) => {
@@ -58,45 +58,40 @@ export default function VerificationCodeScreen() {
   };
 
   const handleVerifyLoginOtp = async (val: any) => {
-    let payload = {otp:val?.code,email:email}
+    let payload = { otp: val?.code, email: email }
     // console.log({pay:payload})
-        setLoading(true)
-        try {
-            const res = await api.post('/auth/verify-loginOtp', payload)
-            if(res?.data?.success){
-              console.log({seeDataProfile:res?.data})
-              // setToken(res?.data?.token)
-              dispatch(setUserProfile(res?.data?.payload));
-              await SecureStorage.setItem('userToken',res?.data?.token)
+    setLoading(true)
+    try {
+      const res = await api.post('/auth/verify-loginOtp', payload)
+      if (res?.data?.success) {
+        dispatch(setUserProfile(res?.data?.payload));
+        await SecureStorage.setItem('userToken', res?.data?.token)
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'Login Successful!'
+        });
 
+        setLoading(false)
+        router.replace("/(dashboard)");
 
-             
-            Toast.show({
-                            type: 'success',
-                            text1: 'Success',
-                            text2: 'Login Successful!'
-                        });
-                
-            setLoading(false)
- router.replace("/(dashboard)");
-           
-            } else {
-               setLoading(false)
-            Toast.show({
-                            type: 'error',
-                            text1: 'Invalid OTP!'
-                        });
-            }
-        } catch (error) {
-            console.log({ seeError: error })
-            setLoading(false)
-            Toast.show({
-                            type: 'error',
-                            text1: 'Invalid OTP!'
-                        });
-            setLoading(false)
-        }
+      } else {
+        setLoading(false)
+        Toast.show({
+          type: 'error',
+          text1: 'Invalid OTP!'
+        });
+      }
+    } catch (error) {
+      console.log({ seeError: error })
+      setLoading(false)
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid OTP!'
+      });
+      setLoading(false)
     }
+  }
 
   return (
     <KeyboardAvoidingView
@@ -108,15 +103,15 @@ export default function VerificationCodeScreen() {
         resizeMode="cover"
         style={{ padding: 20, height: 200, justifyContent: "flex-start" }}
       >
-        <SafeAreaView style={{width:'100%', flexDirection:'row', justifyContent:'space-between'}}>
-        <ReusableButton
-          style={{ width: 100 }}
-          onPress={() => router.navigate('./authscreen')}
-          iconLeft={"chevron-back"}
-          extStyle={{ width: "50%", padding: 0, color: "#000" }}
-          type="pressableText"
-          title="Go Back"
-        />
+        <SafeAreaView style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}>
+          <ReusableButton
+            style={{ width: 100 }}
+            onPress={() => router.navigate('./authscreen')}
+            iconLeft={"chevron-back"}
+            extStyle={{ width: "50%", padding: 0, color: "#000" }}
+            type="pressableText"
+            title="Go Back"
+          />
         </SafeAreaView>
       </ImageBackground>
       <View style={{ width: '100%', padding: 20 }}>
@@ -156,7 +151,7 @@ export default function VerificationCodeScreen() {
                 <Text style={styles.error}>{errors.code}</Text>
               )}
 
-              <ReusableButton style={{ marginTop: 40 }} iconRight={"arrow-forward-outline"} onPress={() => handleSubmit()} title="Continue" />
+              <ReusableButton loading={loading} style={{ marginTop: 40 }} iconRight={"arrow-forward-outline"} onPress={() => handleSubmit()} title="Continue" />
 
               <Text style={styles.resendText}>
                 Didn’t get code? <Text style={styles.resendLink}>Resend</Text>

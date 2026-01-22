@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ReusableButton from "./buttons/ReusableButton";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Colors from "@/constants/Colors";
 
 interface HeaderBarProps {
   title: string;
@@ -40,7 +41,7 @@ const HeaderBarUser: React.FC<HeaderBarProps> = ({ title, subtitle,showBack, sho
 );
 
 const styles = ScaledSheet.create({
-  container: { padding: "20@s", backgroundColor: "#EA7052", borderBottomLeftRadius: "20@s", borderBottomRightRadius: "20@s" },
+  container: { padding: "5@s", backgroundColor: Colors.primary.base, borderBottomLeftRadius: "20@s", borderBottomRightRadius: "20@s" },
   title: { fontSize: "16@s", color: "#fff", fontWeight: "700" },
   subtitle: { fontSize: "12@s", color: "#ffe" },
   searchBox: {

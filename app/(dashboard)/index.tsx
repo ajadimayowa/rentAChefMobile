@@ -1,6 +1,6 @@
 // app/(tabs)/guest-home.tsx
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, Text, Pressable } from "react-native";
+import { View, ScrollView, Text, Pressable, RefreshControl } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import HeaderBar from "@/components/HeaderBar";
 import ChefCard from "@/components/ChefCard";
@@ -21,12 +21,16 @@ import ReusableCard from "@/components/cards/ReusableCard";
 import ReusableImageBGCard from "@/components/cards/ReusableImageBGCard";
 import ReusableImgBGOverlayCard from "@/components/cards/ReusableImgBGOverlayCard";
 import BodyText from "@/components/typography/BodyText";
+import HeaderBarLoaction from "@/components/HeaderBarLoaction";
+import { router } from "expo-router";
 
 export default function GuestHomeScreen() {
   const [loading, setLoading] = useState(false);
   const [menus, setMenus] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [chefs, setChefs] = useState<any[]>([]);
   const userProfile = useSelector((user: RootState) => user.auth);
+  const userLocation = useSelector((location: RootState) => location.location);
 
   const menuCategories = [
     {
@@ -52,19 +56,19 @@ export default function GuestHomeScreen() {
       id: '1',
       title: 'Completed',
       description: '',
-      icon:'checkbox'
+      icon: 'checkbox'
     },
     {
       id: '2',
       title: 'Upcoming',
       description: '',
-      icon:'calendar-clear'
+      icon: 'calendar-clear'
     },
     {
       id: '3',
       title: 'Perks',
       description: '',
-      icon:'fast-food'
+      icon: 'fast-food'
     }
   ]
 
@@ -73,10 +77,10 @@ export default function GuestHomeScreen() {
     // console.log('baseUrl',apiUrl)
     setLoading(true)
     try {
-      const res = await api.get('/chef/all')
+      const res = await api.get('/chefs?limit=20')
       console.log({ seeRes: res?.data?.payload })
       if (res?.data?.success) {
-        setChefs(res?.data?.payload)
+        setChefs(res?.data?.payload?.reverse())
         setLoading(false)
       } else {
         console.log({ seeAfter: res })
@@ -104,7 +108,7 @@ export default function GuestHomeScreen() {
     // console.log('baseUrl',apiUrl)
     setLoading(true)
     try {
-      const res = await api.get('/menu/all')
+      const res = await api.get('/menu/getMenus')
       console.log({ seeRes: res?.data?.payload })
       if (res?.data?.success) {
         setMenus(res?.data?.payload)
@@ -129,119 +133,123 @@ export default function GuestHomeScreen() {
       });
     }
   }
+
+  const fetchCategories = async () => {
+    // const apiUrl = Constants.expoConfig?.extra?.apiUrl
+    // console.log('baseUrl',apiUrl)
+    setLoading(true)
+    try {
+      const res = await api.get('/category/categories')
+      console.log({ seeRes: res?.data?.payload })
+      if (res?.data?.success) {
+        setCategories(res?.data?.payload)
+        setLoading(false)
+      } else {
+        console.log({ seeAfter: res })
+        setLoading(false)
+        Toast.show({
+          type: 'error',
+          text1: 'Network error',
+          text2: res?.data?.message || 'Unable to fetch categories',
+        });
+      }
+
+    } catch (error: any) {
+      console.log({ seeErrorBreak: error })
+      setLoading(false)
+      Toast.show({
+        type: 'error',
+        text1: 'Login Error',
+        text2: error?.response?.message || 'Invalid credentials',
+      });
+    }
+  }
   useEffect(() => {
+    fetchCategories()
     fetchMenu();
     fetchChefs();
+
   }, [])
   return (
     <View style={styles.container}>
-      <HeaderBarUser subtitle="Welcome to rent a chef" title={`Hi ${userProfile?.bioData?.fullName?.split(" ")[0]}`} showSearch showBack={false} />
+      {/* <HeaderBarUser subtitle="Welcome to rent a chef" title={`Hi ${userProfile?.bioData?.fullName?.split(" ")[0]}`} showSearch showBack={false} /> */}
+      <HeaderBarLoaction profilePic={userProfile.bioData.profilePic} location={`${userLocation.userLocation},${userLocation.userState}`} fullName={`Hi ${userProfile?.bioData?.fullName}`} showSearch showBack={false} />
 
       {
         loading && <PrimaryLoader />
       }
 
       {!loading &&
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
+        <ScrollView
+        refreshControl={
+                            <RefreshControl refreshing={loading} onRefresh={fetchChefs} />
+                        } 
+        contentContainerStyle={{ padding: 20 }}>
           <ReusableImgBGOverlayCard
             image={require('../../assets/images/pasta.png')}
             gradientText={'Enjoy Amazing Dishes'}
             description={`You don't have to break your bank to enjoy exquisite cuisines.`}
           />
 
-          <View style={{ width: '100%',padding:20, flexDirection: 'row', marginTop: 10, gap:20, justifyContent: 'space-between' }}>
+          {/* <View style={{ width: '100%', padding: 20, flexDirection: 'row', marginTop: 10, gap: 20, justifyContent: 'space-between' }}>
             <Pressable
-                  onPress={() => console.log('ok')}
-                  style={({ pressed }) => [
-                    styles.btncontainer,
-                    { backgroundColor: '#fff' },
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <Ionicons name={'checkbox-outline'} size={34} color={'#000'}/>
-                  <Text style={[styles.text, { color: '#000' }]}>{'Completed'}</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => console.log('ok')}
-                  style={({ pressed }) => [
-                    styles.btncontainer,
-                    { backgroundColor: '#fff' },
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <Ionicons name={'calendar-clear-outline'} size={34} color={'#000'}/>
-                  <Text style={[styles.text, { color: '#000' }]}>{'Upcoming'}</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => console.log('ok')}
-                  style={({ pressed }) => [
-                    styles.btncontainer,
-                    { backgroundColor: '#fff' },
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <Ionicons name={'fast-food-outline'} size={34} color={'#000'}/>
-                  <Text style={[styles.text, { color: '#000' }]}>{'Perks'}</Text>
-                </Pressable>
-            {/* {
-              activities.map((cats, index) => (
-                <Pressable
-                  onPress={() => console.log('ok')}
-                  style={({ pressed }) => [
-                    styles.btncontainer,
-                    { backgroundColor: '#fff' },
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <Ionicons name={'calendar-clear'} size={34} color={'#000'}/>
-                  <Text style={[styles.text, { color: '#000' }]}>{cats.title}</Text>
-                </Pressable>
-              ))
-            } */}
+              onPress={() => console.log('ok')}
+              style={({ pressed }) => [
+                styles.btncontainer,
+                { backgroundColor: '#fff' },
+                pressed && styles.pressed,
+              ]}
+            >
+              <Ionicons name={'checkbox-outline'} size={34} color={'#000'} />
+              <Text style={[styles.text, { color: '#000' }]}>{'Completed'}</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => console.log('ok')}
+              style={({ pressed }) => [
+                styles.btncontainer,
+                { backgroundColor: '#fff' },
+                pressed && styles.pressed,
+              ]}
+            >
+              <Ionicons name={'calendar-clear-outline'} size={34} color={'#000'} />
+              <Text style={[styles.text, { color: '#000' }]}>{'Upcoming'}</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => console.log('ok')}
+              style={({ pressed }) => [
+                styles.btncontainer,
+                { backgroundColor: '#fff' },
+                pressed && styles.pressed,
+              ]}
+            >
+              <Ionicons name={'fast-food-outline'} size={34} color={'#000'} />
+              <Text style={[styles.text, { color: '#000' }]}>{'Perks'}</Text>
+            </Pressable>
+            
+          </View> */}
 
-            {/* <Pressable
-                  onPress={() => console.log('ok')}
-                  style={({ pressed }) => [
-                    styles.btncontainer,
-                    { backgroundColor: '#fff' },
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <Text style={[styles.text, { color: '#000' }]}>{'See More'}</Text>
-                </Pressable> */}
-          </View>
 
-          
 
-          <SectionText text="Made near you" textStyle={{ marginBottom: 15 }} />
-          <View style={{ width: '100%',marginBottom:10, flexDirection: 'row', marginTop: 10, justifyContent: 'space-between' }}>
+<SectionText text="Available services" textStyle={{ marginBottom: 10, marginTop: 10, }} />
+          <View style={{ width: '100%', marginBottom: 10, gap:10, flexDirection: 'row',flexWrap:'wrap',marginTop: 10,}}>
             {
-              menuCategories.map((cats, index) => (
+              categories.map((cats, index) => (
                 <Pressable
-                key={index}
+                  key={index}
                   onPress={() => console.log('ok')}
                   style={({ pressed }) => [
                     styles.catbtncontainer,
-                    { backgroundColor: '#fff' },
+                    { backgroundColor: index==0?'#E39325':'#fff' },
                     pressed && styles.pressed,
                   ]}
                 >
-                  <Text style={[styles.text, { color: '#000' }]}>{cats.title}</Text>
+                  <BodyText text={cats.name}/>
+                  {/* <Text style={[styles.text, { color: '#000' }]}>{}</Text> */}
                 </Pressable>
               ))
             }
-
-            <Pressable
-                  onPress={() => console.log('ok')}
-                  style={({ pressed }) => [
-                    styles.catbtncontainer,
-                    { backgroundColor: '#fff' },
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <Text style={[styles.text, { color: '#000' }]}>{'See all'}</Text>
-                </Pressable>
           </View>
+          <SectionText text="Menus" textStyle={{ marginBottom: 10, marginTop: 10, }} />
           {
             menus.length > 0 ? <>
               <ScrollView
@@ -281,11 +289,11 @@ export default function GuestHomeScreen() {
               <View key={index}>
                 <ChefCard
                   specialty={chef.specialties}
-                  image={chef?.gender == 'f' ? require("../../assets/images/chefAvatar.jpg") : require("../../assets/images/maleChefAvata.png")}
+                  image={chef?.profilePic}
                   name={chef.name}
                   location={chef.location}
                   state={chef.state}
-                  onPress={() => { }}
+                  onPress={() =>router.push({pathname:'/viewchefinfo',params:{id:chef.id,chefPic:chef.profilePic}})}
                 />
               </View>
             ))
@@ -310,10 +318,10 @@ const styles = ScaledSheet.create({
     paddingHorizontal: "10@ms",
     borderRadius: "20@ms",
     alignSelf: "flex-start",
-    alignItems:'center',
-    justifyContent:'center',
-    height:'100@ms',
-    width:'100@ms',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100@ms',
+    width: '100@ms',
     // ✅ Drop shadow (iOS)
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
@@ -329,7 +337,7 @@ const styles = ScaledSheet.create({
     paddingHorizontal: "10@ms",
     borderRadius: "20@ms",
     alignSelf: "flex-start",
-    alignItems:'center',
+    alignItems: 'center',
     // ✅ Drop shadow (iOS)
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },

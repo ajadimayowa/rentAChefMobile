@@ -28,7 +28,7 @@ const UserActiveAds: React.FC<any> = () => {
     const handleLogout = async () => {
         await persistor.purge();
         await SecureStorage.removeItem('userToken')
-        router.replace('/(homepage)');
+        router.replace('/');
 
     }
     const fetchAds = async () => {
@@ -41,20 +41,20 @@ const UserActiveAds: React.FC<any> = () => {
             console.log({ seeRes: res })
 
             if (res?.data?.success) {
-                Toast.show({
-                    type: 'success',
-                    text1: 'Profile Fetched'
-                });
+                // Toast.show({
+                //     type: 'success',
+                //     text1: 'Profile Fetched'
+                // });
                 setAds(res?.data?.data)
                 setLoading(false)
             } else {
 
                 console.log({ seeAfter: res })
                 setLoading(false)
-                Toast.show({
-                    type: 'error',
-                    text1: 'Session Expired!'
-                });
+                // Toast.show({
+                //     type: 'error',
+                //     text1: 'Session Expired!'
+                // });
                 setAds([])
 
             }
@@ -62,10 +62,10 @@ const UserActiveAds: React.FC<any> = () => {
         } catch (error: any) {
             console.log({ seeErrorBreak: error })
             setLoading(false)
-             Toast.show({
-                    type: 'error',
-                    text1: 'Session Expired!'
-                });
+            //  Toast.show({
+            //         type: 'error',
+            //         text1: 'Session Expired!'
+            //     });
             setAds([])
         }
     }

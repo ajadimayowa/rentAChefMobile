@@ -61,7 +61,7 @@ const ReusableButton: React.FC<ButtonProps> = ({
         return (
           extStyle || {
             backgroundColor: "transparent",
-            borderWidth: moderateScale(1.5),
+            borderWidth: moderateScale(0.3),
             borderColor: Colors.primary.base,
           }
         );

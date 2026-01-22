@@ -14,7 +14,7 @@ import PrimaryLoader from "@/components/Loader";
 import { IChef } from "@/interfaces/chef";
 import { router } from "expo-router";
 
-export default function GuestChefsScreen() {
+export default function ChefsScreen() {
 
   const [loading, setLoading] = useState(false);
     const [menus, setMenus] = useState<any[]>([]);
@@ -25,7 +25,7 @@ export default function GuestChefsScreen() {
     // console.log('baseUrl',apiUrl)
     setLoading(true)
     try {
-      const res = await api.get('/chefs?limit=20')
+      const res = await api.get('/chefs')
       console.log({ seeRes: res?.data?.payload })
       if (res?.data?.success) {
         setChefs(res?.data?.payload.reverse())

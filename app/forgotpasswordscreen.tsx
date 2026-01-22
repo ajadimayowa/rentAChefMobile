@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,14 +10,63 @@ import {
 import { ScaledSheet } from "react-native-size-matters";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { router } from "expo-router";
+import { router, useNavigation, useRouter } from "expo-router";
 import ReusableButton from "@/components/buttons/ReusableButton";
+import api from "@/services/apiConfig";
+import Toast from "react-native-toast-message";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ForgotPasswordSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
 });
 
 export default function ForgotPasswordScreen() {
+  const navigation = useNavigation();
+  const router = useRouter()
+  const [loading, setLoading] = useState(false);
+  const [securePass, setSecurePass] = useState(true)
+
+  const handlePasswordReset = async (val: any) => {
+    // const apiUrl = Constants.expoConfig?.extra?.apiUrl
+    // console.log('baseUrl',apiUrl)
+    setLoading(true)
+    try {
+      const res = await api.post('/auth/request-password-reset-otp', val)
+      console.log({ seeRes: res })
+
+      if (res?.data?.success) {
+        router.push({
+          pathname: "/resetpasswordscreen",
+          params: { email: val.email },
+        })
+        Toast.show({
+          type: 'success',
+          text1: 'OTP Sent',
+          text2: 'Login verification code sent!'
+        });
+        setLoading(false)
+      } else {
+
+        console.log({ seeAfter: res })
+        setLoading(false)
+        Toast.show({
+          type: 'success',
+          text1: 'OTP Sent',
+          text2: res?.data?.message || 'Something went wrong!',
+        });
+
+      }
+
+    } catch (error: any) {
+      console.log({ seeErrorBreak: error })
+      setLoading(false)
+      Toast.show({
+        type: 'error',
+        text1: 'Login Error',
+        text2: error?.response?.message || 'Invalid credentials',
+      });
+    }
+  }
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -29,9 +78,10 @@ export default function ForgotPasswordScreen() {
         resizeMode="cover"
         style={{ padding: 20, height: 200, justifyContent: "flex-start" }}
       >
+        <SafeAreaView style={{ width: "100%", flexDirection: "row", justifyContent: "space-between" }} />
         <ReusableButton
           style={{ width: 100 }}
-          onPress={() => router.back()}
+          onPress={() => router.navigate("./authscreen")}
           iconLeft={"chevron-back"}
           extStyle={{ width: "50%", padding: 0, color: "#000" }}
           type="pressableText"
@@ -49,13 +99,7 @@ export default function ForgotPasswordScreen() {
         <Formik
           initialValues={{ email: "" }}
           validationSchema={ForgotPasswordSchema}
-          onSubmit={(values) => {
-            console.log("Sending OTP to:", values.email);
-            router.push({
-              pathname: "/resetpasswordscreen",
-              params: { email: values.email },
-            });
-          }}
+          onSubmit={(values) => handlePasswordReset(values)}
         >
           {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
             <>
@@ -63,6 +107,7 @@ export default function ForgotPasswordScreen() {
                 placeholder="Enter your email"
                 style={styles.input}
                 value={values.email}
+                autoCapitalize="none"
                 onChangeText={handleChange("email")}
                 onBlur={handleBlur("email")}
                 keyboardType="email-address"
@@ -72,9 +117,10 @@ export default function ForgotPasswordScreen() {
               )}
 
               <ReusableButton
+                loading={loading}
                 style={{ marginTop: 40 }}
                 iconRight={"arrow-forward-outline"}
-                onPress={() => handleSubmit()}
+                onPress={handleSubmit}
                 title="Send Code"
               />
             </>

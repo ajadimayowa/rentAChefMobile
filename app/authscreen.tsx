@@ -27,20 +27,20 @@ export default function LoginScreen() {
       description: "Connect with skilled chefs ready to create your dream meal.",
     },
     {
-      id: 2,
-      image: require("../assets/images/slides/homeSlides/slide1.jpg"),
-      title: "Book Instantly",
-      description: "Choose your chef, set a time, and book in minutes.",
-    },
-    {
       id: 3,
-      image: require("../assets/images/slides/homeSlides/slide1.jpg"),
+      image: require("../assets/images/slides/homeSlides/slideB.png"),
       title: "Secure Payments",
       description: "Pay safely through our integrated payment system.",
     },
     {
+      id: 2,
+      image: require("../assets/images/slides/homeSlides/slideA.png"),
+      title: "Book Instantly",
+      description: "Choose your chef, set a time, and book in minutes.",
+    },
+    {
       id: 4,
-      image: require("../assets/images/slides/homeSlides/slide1.jpg"),
+      image: require("../assets/images/slides/homeSlides/slideC.png"),
       title: "Experience Great Taste",
       description: "Enjoy gourmet meals from the comfort of your home.",
     },
@@ -115,7 +115,7 @@ export default function LoginScreen() {
           </View>
         </View>
         <View style={{ width: '100%', alignItems: 'center', display:'flex', justifyContent:'center'}}>
-          <ReusableButton iconColor={'#E2725B'} onPress={()=>router.push("/(guest)/guest-home")} iconRight={"arrow-forward-outline"} extStyle={{width:'50%',padding:0}} textStyle={{color:'#E2725B'}} type="pressableText" title="Continue as guest" />
+          <ReusableButton iconColor={'#E2725B'} onPress={()=>router.push("/(guest)/guest-home")} iconRight={"arrow-forward-outline"} extStyle={{width:'50%',padding:0}} textStyle={{color:'#000'}} type="pressableText" title="Continue as guest" />
 
         </View>
 

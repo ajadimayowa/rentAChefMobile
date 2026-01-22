@@ -1,12 +1,12 @@
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "../store";
-import { Text } from "react-native";
+import { Text, TouchableOpacity } from "react-native";
 
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
@@ -23,8 +23,6 @@ export const unstable_settings = {
   initialRouteName: 'index', // or 'authscreen'
 };
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
 
@@ -40,11 +38,6 @@ export default function RootLayout() {
     if (error) throw error;
   }, [error]);
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
 
   if (!loaded) {
     return null;
@@ -64,15 +57,25 @@ function RootLayoutNav() {
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="authscreen" options={{ headerShown: false }} />
             <Stack.Screen name="login" options={{ headerShown: false }} />
+            <Stack.Screen name="login-chef" options={{ headerShown: false }} />
             <Stack.Screen name="(guest)" options={{ headerShown: false }} />
             <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
             <Stack.Screen name="register" options={{ headerShown: false }} />
+            <Stack.Screen name="signup-chef" options={{ headerShown: false }} />
             <Stack.Screen name="otpverificationscreen" options={{ headerShown: false }} />
             <Stack.Screen name="emailotpverificationscreen" options={{ headerShown: false }} />
             <Stack.Screen name="SetPassword" options={{ headerShown: false }} />
             <Stack.Screen name="forgotpasswordscreen" options={{ headerShown: false }} />
             <Stack.Screen name="resetpasswordscreen" options={{ headerShown: false }} />
-            
+
+            <Stack.Screen name="viewmenu" options={{ headerShown: false }} />
+            <Stack.Screen name="viewchefinfo" options={{ headerShown: true, title:'Chef Information', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
+            <Stack.Screen name="viewavailability" options={{ headerShown: true, title:'Check Availability', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
+            <Stack.Screen name="paymentpage" options={{ headerShown: true, title:'Complete Payment', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
+
+            <Stack.Screen name="states" options={{ presentation: "modal", title: 'Choose State' }} />
+            <Stack.Screen name="location" options={{ presentation: "modal", title: 'Choose LGA' }} />
+            <Stack.Screen name="search" options={{ presentation: "modal", title: 'Search Chef/Menu' }} />
             <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           </Stack>
           

@@ -6,6 +6,8 @@ import { ScaledSheet } from "react-native-size-matters";
 import BodyText from "./typography/BodyText";
 import ReusableButton from "./buttons/ReusableButton";
 import Colors from "@/constants/Colors";
+import { formatListWithEllipsis} from "@/helpers/utils";
+import { router } from "expo-router";
 
 interface ChefCardProps {
   image: any;
@@ -19,7 +21,14 @@ interface ChefCardProps {
 const ChefCard: React.FC<ChefCardProps> = ({ image, name, location,state, specialty, onPress }) => (
   <TouchableOpacity onPress={onPress} style={styles.card}>
 
-    <Image source={image} style={styles.image} />
+    <Image
+  source={
+    image
+      ? { uri: image }
+      : require("../assets/images/chefAvatar.jpg")
+  }
+  style={styles.image}
+/>
     <View style={styles.info}>
       <View style={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
         <Ionicons name="location" size={17} color="#B7D2A4" />
@@ -29,14 +38,12 @@ const ChefCard: React.FC<ChefCardProps> = ({ image, name, location,state, specia
       </View>
       <Text style={styles.name}>{name}</Text>
       <View style={{ display: 'flex', flexDirection: 'row', gap: 3 }}>
-        {
-          specialty?.map((sp: string,index) => <Text key={index}>{`${sp},`}</Text>)
-        }
+        
+<Text> {formatListWithEllipsis(specialty ?? [], 3)}</Text>
       </View>
-      <BodyText text="+4 More" textStyle={{ fontSize: 14 }} />
-      <TouchableOpacity style={{ marginTop: 10, display: 'flex', gap: 5, flexDirection: 'row' }}>
-        <Text style={{ color: Colors.primary.base }}>View</Text>
-        <Ionicons name="arrow-forward" size={16} color={Colors.primary.base} />
+      <TouchableOpacity onPress={onPress} style={{ marginTop: 10, display: 'flex', gap: 5, flexDirection: 'row' }}>
+        <Text style={{ color: '#E2725B'}}>View profile</Text>
+        <Ionicons name="arrow-forward" size={16} color={'#E2725B'} />
       </TouchableOpacity>
 
     </View>
@@ -54,7 +61,7 @@ const styles = ScaledSheet.create({
     borderRadius: "10@s",
     backgroundColor: "#fff",
   },
-  image: { width: "100@s", height: "120@s", borderRadius: "10@s", marginRight: "10@s" },
+  image: { width: "100@ms", height: "120@ms", borderRadius: "10@ms", marginRight: "10@ms" },
   info: { flex: 1 },
   name: { fontWeight: "700", fontSize: "14@s", color: "#333" },
   location: { fontSize: "12@s", color: "#777" },

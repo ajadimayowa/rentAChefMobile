@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ImageBackground,
+  ScrollView,
 } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import { useNavigation } from "@react-navigation/native";
@@ -65,7 +66,7 @@ export default function EmailVerificationCodeScreen() {
         });
 
         setLoading(false)
-        router.replace("/");
+        router.replace("/login");
 
       } else {
         setLoading(false)
@@ -90,6 +91,11 @@ export default function EmailVerificationCodeScreen() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
+      <ScrollView
+                      contentContainerStyle={{ flexGrow: 1 }}
+                      keyboardShouldPersistTaps="handled"
+                      showsVerticalScrollIndicator={false}
+                    >
       <ImageBackground
         source={require('../assets/images/header-fruits.png')}
         resizeMode="cover"
@@ -143,6 +149,7 @@ export default function EmailVerificationCodeScreen() {
           )}
         </Formik>
       </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }

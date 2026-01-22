@@ -18,7 +18,7 @@ const RegisterSchema = Yup.object().shape({
     password: Yup.string().required("Password is required"),
 });
 
-export default function RegisterScreen() {
+export default function RegisterChefScreen() {
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState(1); // STEP 1 OR STEP 2
 
@@ -92,15 +92,15 @@ export default function RegisterScreen() {
 
     return (
         <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
-          >
-            <ScrollView
-              contentContainerStyle={{ flexGrow: 1 }}
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
+              style={{ flex: 1 }}
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
             >
+              <ScrollView
+                contentContainerStyle={{ flexGrow: 1 }}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+              >
         <View style={styles.container}>
             <ImageBackground
                 source={require("../assets/images/banana-top.jpg")}
@@ -116,14 +116,14 @@ export default function RegisterScreen() {
                         type="pressableText"
                         title="Go Back"
                     />
-                    <TouchableOpacity onPress={() => router.push("/signup-chef")}>
-                        <BodyText text=" Chef Signup >" />
+                    <TouchableOpacity onPress={() => router.push("/register")}>
+                        <BodyText text=" User Signup >" />
                     </TouchableOpacity>
                 </SafeAreaView>
             </ImageBackground>
 
             <View style={{ paddingHorizontal: 30 }}>
-                <Text style={styles.title}>Create your account!</Text>
+                <Text style={styles.title}>Create your chef account!</Text>
             </View>
 
             <View style={{ width: "100%", padding: 20 }}>
@@ -243,8 +243,8 @@ export default function RegisterScreen() {
                 </Formik>
             </View>
         </View>
-         </ScrollView>
-  </KeyboardAvoidingView>
+        </ScrollView>
+              </KeyboardAvoidingView>
     );
 }
 

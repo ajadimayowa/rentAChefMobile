@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
 import { Link, Tabs, useRouter } from 'expo-router';
 import { Image, Pressable, Text, View } from 'react-native';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -11,12 +11,15 @@ import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import SecureStorage from '@/store/secureStore';
 import AuthModal from '@/components/AuthModal';
 import SearchScreen from '@/components/SearchScreen';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [searchVisible, setSearchVisible] = useState(false);
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  
 
   // 🔑 Auth guard for tab presses
   const authGuard = (screen: any) => ({
@@ -37,12 +40,12 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: "#EA7052",
-        tabBarInactiveTintColor: "#777",
+        tabBarInactiveTintColor: "#111010ff",
         tabBarStyle: {
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
-          height: 60,
-          paddingBottom: 5,
+          paddingBottom: insets.bottom,
+          height: 60 + insets.bottom,
         },
         tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
       }}
@@ -53,7 +56,17 @@ export default function TabLayout() {
           title: "Home",
           headerShown: false, // <--- hide the extra header
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" color={color} size={size} />
+            <Octicons name="home-fill" color={color} size={size} />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="chefs"
+        options={{
+          title: "Chefs",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="chef-hat" size={size} color={color}/>
           ),
         }}
       />
@@ -73,7 +86,7 @@ export default function TabLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-circle" color={color} size={size} />
+            <Ionicons name="person" color={color} size={size} />
           ),
         }}
       />

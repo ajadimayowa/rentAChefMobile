@@ -27,10 +27,10 @@ export default function GuestHomeScreen() {
     // console.log('baseUrl',apiUrl)
     setLoading(true)
     try {
-      const res = await api.get('/chef/all')
+      const res = await api.get('/chefs')
       console.log({ seeRes: res?.data?.payload })
       if (res?.data?.success) {
-        setChefs(res?.data?.payload)
+        setChefs(res?.data?.payload.reverse())
         setLoading(false)
       } else {
         console.log({ seeAfter: res })
@@ -58,7 +58,7 @@ export default function GuestHomeScreen() {
     // console.log('baseUrl',apiUrl)
     setLoading(true)
     try {
-      const res = await api.get('/menu/all')
+      const res = await api.get('/menu/getMenus')
       console.log({ seeRes: res?.data?.payload })
       if (res?.data?.success) {
         setMenus(res?.data?.payload)
@@ -137,11 +137,11 @@ export default function GuestHomeScreen() {
               <View key={index}>
                 <ChefCard
                   specialty={chef.specialties}
-                  image={chef?.gender=='f'? require("../../assets/images/chefAvatar.jpg"):require("../../assets/images/maleChefAvata.png")}
+                  image={chef?.profilePic}
                   name={chef.name}
                   location={chef.location}
                   state={chef.state}
-                  onPress={() => { }}
+                  onPress={() =>router.push({pathname:'/viewchefinfo',params:{id:chef.id,chefPic:chef.profilePic}})}
                 />
               </View>
             ))
