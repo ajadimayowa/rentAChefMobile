@@ -1,6 +1,6 @@
 // app/(tabs)/guest-chefs.tsx
 import React, { useEffect, useRef, useState } from "react";
-import { View, ScrollView, Pressable, Text, Image, TextInput } from "react-native";
+import { View, ScrollView, Pressable, Text, Image, TextInput, RefreshControl } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import HeaderBar from "@/components/HeaderBar";
 import ChefCard from "@/components/ChefCard";
@@ -22,7 +22,8 @@ import ReusableButton from "@/components/buttons/ReusableButton";
 export default function ViewChefsScreen() {
     const { id, chefPic } = useLocalSearchParams();
     const localProfile = useSelector((user: RootState) => user.auth.bioData);
-    const [ads, setAds] = useState<any[]>([])
+    const [ads, setAds] = useState<any[]>([]);
+
 
     const [showAnnouncement, setShowAnnouncement] = useState(false);
     const navigation = useNavigation();
@@ -42,9 +43,15 @@ export default function ViewChefsScreen() {
         "active"
     );
 
-    const [chefInfo,setChefInfo] = useState<IChef | any>()
+    const [chefInfo, setChefInfo] = useState<IChef | any>();
+    const [servicesByChef, setServicesByChef] = useState<any[]>([]);
+    const [chefMenu, setChefMenu] = useState<IChef | any>();
 
 
+    const fetToken = async (): Promise<string> => {
+        const token = SecureStorage.getItem('userToken');
+        return token
+    }
 
     const fetchChefInfo = async () => {
         // const apiUrl = Constants.expoConfig?.extra?.apiUrl
@@ -53,13 +60,13 @@ export default function ViewChefsScreen() {
         try {
             const res = await api.get(`/chef/${id}`)
 
-            console.log({ seeRes: res })
+            // console.log({ seeRes: res })
 
             if (res?.data?.success) {
-                Toast.show({
-                    type: 'success',
-                    text1: 'Profile Fetched'
-                });
+                // Toast.show({
+                //     type: 'success',
+                //     text1: 'Profile Fetched'
+                // });
                 setChefInfo(res?.data?.payload)
                 setLoading(false)
             } else {
@@ -85,18 +92,97 @@ export default function ViewChefsScreen() {
         }
     }
 
+    const fetchServicesOfferedByChef = async () => {
+        // const apiUrl = Constants.expoConfig?.extra?.apiUrl
+        // console.log('baseUrl',apiUrl)
+        setLoading(true)
+        try {
+            const res = await api.get(`/chefServices/byAChef/${id}`)
+
+            console.log({ seeRes: res })
+
+            if (res?.data?.success) {
+                // Toast.show({
+                //     type: 'success',
+                //     text1: 'Services fectched'
+                // });
+                setServicesByChef(res?.data?.payload);
+                setLoading(false)
+            } else {
+
+                console.log({ seeAfter: res })
+                setLoading(false)
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error fetching chef service'
+                });
+                setAds([])
+
+            }
+
+        } catch (error: any) {
+            console.log({ seeErrorBreak: error })
+            setLoading(false)
+            Toast.show({
+                type: 'error',
+                text1: 'Error fetching chef service'
+            });
+            setAds([])
+        }
+    }
+
+    const fetchChefMenu = async () => {
+        // const apiUrl = Constants.expoConfig?.extra?.apiUrl
+        // console.log('baseUrl',apiUrl)
+        setLoading(true)
+        try {
+            const res = await api.get(`/menu/getMenus?chefId=${id}`)
+
+            console.log({ seeRes: res })
+
+            if (res?.data?.success) {
+                // Toast.show({
+                //     type: 'success',
+                //     text1: 'Menu Fetched!'
+                // });
+                setChefMenu(res?.data?.payload)
+                setLoading(false)
+            } else {
+
+                console.log({ seeAfter: res })
+                setLoading(false)
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error fetching chef menus'
+                });
+                setAds([])
+
+            }
+
+        } catch (error: any) {
+            console.log({ seeErrorBreak: error })
+            setLoading(false)
+            Toast.show({
+                type: 'error',
+                text1: 'Error fetching chef information'
+            });
+            setAds([])
+        }
+    }
+
     useEffect(() => {
-        fetchChefInfo()
+        fetchChefInfo();
+        fetchChefMenu()
+        fetchServicesOfferedByChef()
     }, [])
 
     return (
         <View style={styles.container}>
-            <Image style={{ width: '100%', height: 300 }} source={
+            <Image style={{ width: '100%', height: 250 }} source={
                 chefPic
                     ? { uri: chefPic }
                     : require('../assets/images/manavatar.png')
             } />
-
             <View style={{ flex: 1, padding: 16, backgroundColor: "#f2f2f2" }}>
                 {/* PAGE TITLE */}
 
@@ -178,20 +264,34 @@ export default function ViewChefsScreen() {
                 </View>
 
                 {/* TAB CONTENT */}
-                <ScrollView style={{ flex: 1 }}>
+                <ScrollView refreshControl={
+                    <RefreshControl refreshing={loading} onRefresh={fetchChefInfo} />
+                } style={{}}>
                     {activeTab === "active" && (
                         <ChefAboutTab data={chefInfo} />
                     )}
 
                     {activeTab === "pending" && (
-                        <ChefMenuTab data={chefInfo}/>
+                        <ChefMenuTab data={chefMenu} />
                     )}
 
                     {activeTab === "expired" && (
-                        <ChefServicesTab data={chefInfo} />
+                        <ChefServicesTab data={servicesByChef} />
                     )}
                 </ScrollView>
-                <ReusableButton onPress={()=>router.push({pathname:'/viewavailability',params:{chefId:id}})} style={{marginTop:40, borderRadius:5}} title="Book Now"/>
+                <ReusableButton
+                    onPress={async () => {
+                        const token = await SecureStorage.getItem('userToken');
+
+                        if (token) {
+                            router.push({ pathname: '/viewavailability', params: { chefId: id } });
+                        } else {
+                            router.push({ pathname: '/register', params: { chefId: id } });
+                        }
+                    }}
+                    style={{ marginTop: 10, marginBottom: 15, borderRadius: 5 }}
+                    title="Book Now"
+                />
             </View>
         </View>
     );

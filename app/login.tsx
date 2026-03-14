@@ -43,8 +43,6 @@ export default function LoginScreen() {
     setLoading(true)
     try {
       const res = await api.post('/auth/login', val)
-      console.log({ seeRes: res })
-
       if (res?.data?.success) {
         router.push({
           pathname: "/otpverificationscreen",
@@ -57,8 +55,6 @@ export default function LoginScreen() {
         });
         setLoading(false)
       } else {
-
-        console.log({ seeAfter: res })
         setLoading(false)
         Toast.show({
           type: 'success',
@@ -74,7 +70,7 @@ export default function LoginScreen() {
       Toast.show({
         type: 'error',
         text1: 'Login Error',
-        text2: error?.response?.message || 'Invalid credentials',
+        text2: error?.message || 'Invalid credentials',
       });
     }
   }

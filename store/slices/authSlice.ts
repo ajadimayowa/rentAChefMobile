@@ -9,6 +9,8 @@ interface IUserProfile {
     "fullName": string,
     "gender":string,
     "profilePic":string,
+    "healthInfo":string,
+    "allergies":string,
     "isAdmin": boolean | null
    }
 }
@@ -19,6 +21,8 @@ const initialState: IUserProfile = {
     "id": "",
     "email": "",
     "fullName": "",
+    "healthInfo":"",
+    "allergies":"",
      "gender":'m',
     "profilePic":'',
     "isAdmin": null

@@ -7,6 +7,9 @@ import ChefCard from "@/components/ChefCard";
 import SectionText from "@/components/typography/SectionText";
 import UserActiveAds from "@/components/tabs/UserActiveAds";
 import Colors from "@/constants/Colors";
+import UserPendingBookingTab from "@/components/tabs/UserPendingBookingTab";
+import UserActiveBookingTab from "@/components/tabs/UserActiveBookingTab";
+import UserCompletedBookingTab from "@/components/tabs/UserCompletedBookingTab";
 
 export default function GuestChefsScreen() {
    const [activeTab, setActiveTab] = useState<"active" | "pending" | "expired">(
@@ -103,15 +106,15 @@ export default function GuestChefsScreen() {
                 {/* TAB CONTENT */}
                 <ScrollView style={{ flex: 1 }}>
                     {activeTab === "active" && (
-                        <UserActiveAds />
+                        <UserActiveBookingTab />
                     )}
 
                     {activeTab === "pending" && (
-                       <UserActiveAds />
+                       <UserPendingBookingTab />
                     )}
 
                     {activeTab === "expired" && (
-                        <UserActiveAds />
+                        <UserCompletedBookingTab />
                     )}
                 </ScrollView>
             </View>

@@ -18,10 +18,10 @@ import { Ionicons } from "@expo/vector-icons";
 import TitleText from "../typography/TitleText";
 import ReusableButton from "../buttons/ReusableButton";
 
-export interface IChefABout {
-    data: IChef
+export interface IChefMenu {
+    data: any[]
 }
-const ChefMenuTab: React.FC<IChefABout> = ({ data }) => {
+const ChefMenuTab: React.FC<IChefMenu> = ({ data }) => {
     const localProfile = useSelector((user: RootState) => user.auth.bioData);
     const [ads, setAds] = useState<any[]>([])
 
@@ -46,8 +46,38 @@ const ChefMenuTab: React.FC<IChefABout> = ({ data }) => {
                 // }
                 style={{ width: '100%', flex: 1 }}>
 
+                {
+                    data?.length > 0 ?
+                        data.map((menu,index) => (
+                            <View key={index} style={styles.card}>
+                                <SectionText text={menu?.month}/>
+                                {
+                                    menu?.weeks?.map((week:any,number:number)=>(
+                                        <View key={number} style={styles.calendarcard}>
+                                            <SectionText text={`Week ${week?.weekNumber}`}/>
 
-                <BodyText text="No Uploaded Menu at this time"/>
+                                            {
+                                                week?.days.map((day:any)=>(
+                                                    <View>
+                                                        <BodyText textStyle={{color:'#f88b8bff'}} text={day?.day}/>
+                                                        <BodyText  text={`Breakfast : ${day?.breakfast}`}/>
+                                                        <BodyText  text={`Lunch : ${day?.lunch}`}/>
+                                                        <BodyText  text={`Dinner : ${day?.dinner}`}/>
+                                                    </View>
+                                                ))
+                                            }
+
+                                        </View>
+                                    ))
+                                }
+
+                            </View>
+                        )) :
+                        <BodyText text="No Uploaded Menu at this time" />
+                }
+
+
+
             </ScrollView>
         </>
 
@@ -56,25 +86,64 @@ const ChefMenuTab: React.FC<IChefABout> = ({ data }) => {
 
 
 
-const style = ScaledSheet.create({
+const styles = ScaledSheet.create({
     container: {
         flex: 1
     },
-    catbtncontainer: {
-    paddingVertical: "5@ms",
-    paddingHorizontal: "10@ms",
-    borderRadius: "20@ms",
-    alignSelf: "flex-start",
-    alignItems: 'center',
-    // ✅ Drop shadow (iOS)
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.18,
-    shadowRadius: 4,
-    backgroundColor:'#ffffffff',
+    card: {
+        width: "100%",
+        marginTop: "10@vs",
+        marginBottom: "10@vs",
+        gap: "10@s",
+        flexDirection: "row",
+        flexWrap: "wrap",
+        padding: "12@s",
+        backgroundColor: "#fff",
+        borderRadius: "12@s",
 
-    // ✅ Drop shadow (Android)
-    elevation: 4,
-  },
+        // iOS shadow
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+
+        // Android shadow
+        elevation: 5,
+    },
+    calendarcard: {
+        width: "100%",
+        marginTop: "10@vs",
+        marginBottom: "10@vs",
+        gap: "10@s",
+        flexWrap: "wrap",
+        padding: "12@s",
+        backgroundColor: "#fff",
+        borderRadius: "12@s",
+
+        // iOS shadow
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+
+        // Android shadow
+        elevation: 5,
+    },
+    catbtncontainer: {
+        paddingVertical: "5@ms",
+        paddingHorizontal: "10@ms",
+        borderRadius: "20@ms",
+        alignSelf: "flex-start",
+        alignItems: 'center',
+        // ✅ Drop shadow (iOS)
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.18,
+        shadowRadius: 4,
+        backgroundColor: '#ffffffff',
+
+        // ✅ Drop shadow (Android)
+        elevation: 4,
+    },
 })
 export default ChefMenuTab;

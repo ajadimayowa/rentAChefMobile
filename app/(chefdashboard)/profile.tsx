@@ -12,36 +12,25 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
 import { useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
-import { logout } from "@/store/slices/authSlice";
+import SecureStorage from "@/store/secureStore";
 
 export default function GuestChefsScreen() {
-  const userProfile = useSelector((state:RootState)=>state.auth.userProfile?.biodata);
+  const chefProfile = useSelector((state:RootState)=>state.chef.chefData);
   const dispatch = useDispatch();
   const router = useRouter()
 
-  const handleLogout = ()=>{
-    dispatch(logout())
-    router.replace('/index');
-
+  const handleLogout = async ()=>{
+    await SecureStorage.removeItem('userToken');
+    router.replace('/login');
   }
   return (
     <SafeAreaView style={styles.frame}>
       <View style={styles.container}>
         <View style={{alignItems:'center', width:'100%'}}>
         <Image source={require('../../assets/images/avatar.jpg')} style={{ width: 100, height: 100, borderRadius:100 }}/>
-        <Text>{userProfile?.fullName}</Text>
+        <Text>{chefProfile?.name}</Text>
         </View>
-        <ReusableCard title="Prefference"> 
-
-      </ReusableCard>
-      <ReusableCard title="Settings"> 
-
-      </ReusableCard>
-      <ReusableCard title="Wallet"> 
-
-      </ReusableCard>
-
-      <ReusableCard onPress={()=>Toast.show({type:'success', text1:'Hello'})} title="Ping"> 
+      <ReusableCard title="Update Profile"> 
 
       </ReusableCard>
       <ReusableCard onPress={handleLogout} title="Logout"> 

@@ -46,16 +46,17 @@ const ChefAboutTab: React.FC<IChefABout> = ({ data }) => {
                 // }
                 style={{ width: '100%', flex: 1 }}>
 
-
-                <View style={{ display: 'flex', flexDirection: 'row', justifyContent:'space-between'}}>
+ 
+                <View style={{}}>
                     <View style={{ display: 'flex', flexDirection: 'row', gap:5}}>
                     <Ionicons name="location" size={17} color="#B7D2A4" />
                     <BodyText text={`${data?.location}, ${data?.state}`} />
                     </View>
-                    <SectionText textStyle={{color:'#de6e06ff'}} text="N10,0000/hr"/>
+                    <SectionText text={data?.name}/>
+                    <BodyText textStyle={{color:'#de6e06ff'}} text={data?.category?.name}/>
                 </View>
-                <TitleText text={data?.name}/>
-                <SectionText text="Specialties"/>
+               
+                <BodyText textStyle={{marginTop:20}} text="Specialties"/>
                 <View style={{flexDirection:'row', gap:5,marginBottom:40}}>
                     {
                         data?.specialties.map((spe,key)=>(<View key={key} style={style.catbtncontainer}><BodyText text={spe}/></View>))

@@ -22,25 +22,25 @@ export default function LoginScreen() {
   const slides = [
     {
       id: 1,
-      image: require("../assets/images/slides/homeSlides/slideMain.jpg"),
+      image: require("../assets/images/slides/homeSlides/slide1.png"),
       title: "Find Professional Chefs",
       description: "Connect with skilled chefs ready to create your dream meal.",
     },
     {
       id: 3,
-      image: require("../assets/images/slides/homeSlides/slideB.png"),
+      image: require("../assets/images/slides/homeSlides/slide2.png"),
       title: "Secure Payments",
       description: "Pay safely through our integrated payment system.",
     },
     {
       id: 2,
-      image: require("../assets/images/slides/homeSlides/slideA.png"),
+      image: require("../assets/images/slides/homeSlides/slide3.png"),
       title: "Book Instantly",
       description: "Choose your chef, set a time, and book in minutes.",
     },
     {
       id: 4,
-      image: require("../assets/images/slides/homeSlides/slideC.png"),
+      image: require("../assets/images/slides/homeSlides/slide4.png"),
       title: "Experience Great Taste",
       description: "Enjoy gourmet meals from the comfort of your home.",
     },
@@ -66,12 +66,11 @@ export default function LoginScreen() {
               key={slide.id}
               source={slide.image}
               style={styles.slideBackground}
-              resizeMode="cover"
             >
               <LinearGradient
                 colors={[
-                  "rgba(0, 0, 0, 0.9)",
-                  "rgba(0, 0, 0, 0.9)",
+                  "rgba(0, 0, 0, 0.1)",
+                  "rgba(0, 0, 0, 0.1)",
                   "transparent",
                 ]}
                 style={styles.overlay}
@@ -136,7 +135,8 @@ const styles = ScaledSheet.create({
   slideBackground: {
     width: "100%",
     height: "100%",
-    justifyContent: "center",
+    position: 'absolute',
+    top: 0, // Ensures it aligns to the top of the screen
   },
   overlay: {
     flex: 1,

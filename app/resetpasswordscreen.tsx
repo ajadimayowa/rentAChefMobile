@@ -16,6 +16,7 @@ import ReusableButton from "@/components/buttons/ReusableButton";
 import { Ionicons } from "@expo/vector-icons";
 import api from "@/services/apiConfig";
 import Toast from "react-native-toast-message";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ResetPasswordSchema = Yup.object().shape({
   otp: Yup.string().length(6, "Enter 6-digit code").required("OTP is required"),
@@ -96,6 +97,7 @@ export default function ResetPasswordScreen() {
         resizeMode="cover"
         style={{ padding: 20, height: 200, justifyContent: "flex-start" }}
       >
+        <SafeAreaView style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}>
         <ReusableButton
           style={{ width: 100 }}
           onPress={() => router.back()}
@@ -104,6 +106,7 @@ export default function ResetPasswordScreen() {
           type="pressableText"
           title="Go Back"
         />
+        </SafeAreaView>
       </ImageBackground>
 
       {/* Form Section */}

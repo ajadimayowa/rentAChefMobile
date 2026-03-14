@@ -58,7 +58,7 @@ export default function GuestHomeScreen() {
     // console.log('baseUrl',apiUrl)
     setLoading(true)
     try {
-      const res = await api.get('/menu/getMenus')
+      const res = await api.get('/specialmenu/menus')
       console.log({ seeRes: res?.data?.payload })
       if (res?.data?.success) {
         setMenus(res?.data?.payload)
@@ -98,6 +98,7 @@ export default function GuestHomeScreen() {
       {!loading &&
         <ScrollView contentContainerStyle={{ padding: 20 }}>
           <SectionText text="Special Menu" textStyle={{ marginBottom: 15 }} />
+           
           {
             menus.length > 0 ? <>
               <ScrollView
@@ -108,9 +109,9 @@ export default function GuestHomeScreen() {
                   menus.map((menu: IMenu, index) => (
                     <View key={index}>
                       <DishCard
-                        image={require("../../assets/images/foosampleimage.png")}
+                        image={menu?.image}
                         title={menu.title}
-                        madeByChef={menu?.chef?.name}
+                        description={menu?.description}
                         price={menu?.basePrice}
                         onPress={() => { }}
                       />
@@ -129,19 +130,19 @@ export default function GuestHomeScreen() {
               </View>
           }
 
-
-          <SectionText text="Our Chefs" textStyle={{marginBottom:5,marginTop:20}} />
+          <SectionText text="Featured chefs" textStyle={{ marginBottom: 5, marginTop: 20 }} />
 
           {
             chefs.length > 0 ? chefs.map((chef: IChef, index) => (
               <View key={index}>
                 <ChefCard
                   specialty={chef.specialties}
+                  chefCat={chef?.categoryName}
                   image={chef?.profilePic}
                   name={chef.name}
                   location={chef.location}
                   state={chef.state}
-                  onPress={() =>router.push({pathname:'/viewchefinfo',params:{id:chef.id,chefPic:chef.profilePic}})}
+                  onPress={() => router.push({ pathname: '/viewchefinfo', params: { id: chef.id, chefPic: chef.profilePic } })}
                 />
               </View>
             ))

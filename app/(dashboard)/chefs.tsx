@@ -1,6 +1,6 @@
 // app/(tabs)/guest-chefs.tsx
 import React, { useEffect, useState } from "react";
-import { View, ScrollView ,Text} from "react-native";
+import { View, ScrollView ,Text, RefreshControl} from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import HeaderBar from "@/components/HeaderBar";
 import ChefCard from "@/components/ChefCard";
@@ -28,7 +28,7 @@ export default function ChefsScreen() {
       const res = await api.get('/chefs')
       console.log({ seeRes: res?.data?.payload })
       if (res?.data?.success) {
-        setChefs(res?.data?.payload.reverse())
+        setChefs(res?.data?.payload)
         setLoading(false)
       } else {
         console.log({ seeAfter: res })
@@ -68,13 +68,16 @@ export default function ChefsScreen() {
             }
 
       {!loading&&
-        <ScrollView contentContainerStyle={{ padding: 20 }}>
+        <ScrollView refreshControl={
+                    <RefreshControl refreshing={loading} onRefresh={fetchChefs} />
+                  } contentContainerStyle={{ padding: 20 }}>
 
           {
             chefs.length > 0 ? chefs.map((chef:IChef, index) => (
               <View key={index}>
                 <ChefCard
                   specialty={chef.specialties}
+                  chefCat={chef?.category?.name}
                   image={chef?.profilePic}
                   name={chef.name}
                   location={chef.location}

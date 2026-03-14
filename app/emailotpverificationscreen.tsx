@@ -18,6 +18,7 @@ import ReusableButton from "@/components/buttons/ReusableButton";
 import { router, useLocalSearchParams } from "expo-router";
 import api from "@/services/apiConfig";
 import Toast from "react-native-toast-message";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const VerificationSchema = Yup.object().shape({
   code: Yup.string()
@@ -101,10 +102,13 @@ export default function EmailVerificationCodeScreen() {
         resizeMode="cover"
         style={{ padding: 20, height: 200, justifyContent: 'flex-start' }}
       >
+        <SafeAreaView style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}>
         <ReusableButton style={{ width: 100 }} onPress={() => router.back()} iconLeft={"arrow-back-outline"} extStyle={{ width: '50%', padding: 0, color: '#000' }} type="pressableText" title="Go Back" />
+        </SafeAreaView>
       </ImageBackground>
       <View style={{ width: '100%', padding: 20 }}>
-        <Text style={styles.title}>Enter the code sent to your email/phone number.</Text>
+        <Text style={styles.title}>Enter the code sent to your email/phone number</Text>
+        <Text style={styles.title}>to verify your email.</Text>
         <Text style={styles.subText}>Code sent to: <Text style={styles.email}>{email}</Text></Text>
 
         <Formik

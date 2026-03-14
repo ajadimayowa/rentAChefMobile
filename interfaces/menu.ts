@@ -7,14 +7,33 @@ export interface IMenuItem {
 
 
 export interface IMenu {
+    id:string,
     chef: {
         "name": string,
         "email": string,
         "id": string,
     },
     title: string;
+    image:string;
     menuPic: string;
     items: IMenuItem[];
     basePrice:number;
     createdAt: Date;
+    description:string;
+}
+
+export interface ISpecialMenu {
+    id:string,
+    chef: {
+        "name": string,
+        "email": string,
+        "id": string,
+    },
+    title: string;
+    image:string;
+    menuPic: string;
+    items: IMenuItem[];
+    basePrice:number;
+    createdAt: Date;
+    description:string;
 }

@@ -36,7 +36,7 @@ export default function VerificationCodeScreen() {
   const inputs = useRef<TextInput[]>([]);
   const { email } = useLocalSearchParams<{ email: string }>();
   const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const handleChange = (text: string, index: number, values: any, setFieldValue: any) => {
     let newCode = values.code.split("");
@@ -65,7 +65,7 @@ export default function VerificationCodeScreen() {
       const res = await api.post('/auth/verify-loginOtp', payload)
       if (res?.data?.success) {
         dispatch(setUserProfile(res?.data?.payload));
-        await SecureStorage.setItem('userToken', res?.data?.token)
+        await SecureStorage.setItem('userToken', res?.data?.token);
         Toast.show({
           type: 'success',
           text1: 'Success',

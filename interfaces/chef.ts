@@ -1,3 +1,11 @@
+interface IChefServices{
+id:string;
+name:string;
+price:string
+services:any[]
+
+
+}
 export interface IChef {
             "staffId": string,
             "name": string,
@@ -5,6 +13,11 @@ export interface IChef {
             "phoneNumber":number,
             "email": string,
             "bio": string,
+            "category":{
+                "name":string
+                "id":string
+            },
+            "categoryName":string,
             "specialties": string[],
             "location": string,
             "state":string,
@@ -15,8 +28,13 @@ export interface IChef {
             "createdAt": string,
             "updatedAt": string,
             "id": string,
-            "profilePic":string
+            "profilePic":string,
+            servicesOffered:IChefServices[]
         }
+
+export interface IChefMenu {
+    approved: false,
+}
 
 
     //     export interface IChef {

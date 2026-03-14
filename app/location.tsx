@@ -5,7 +5,7 @@ import ReusableHeader from "@/components/ReusableHeader";
 import BodyText from "@/components/typography/BodyText";
 import SectionText from "@/components/typography/SectionText";
 import api from "@/services/apiConfig";
-import { setUserLoaction } from "@/store/slices/locationSlice";
+import { setUserLocation } from "@/store/slices/locationSlice";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
@@ -69,7 +69,7 @@ export default function LocationFilterScreenModal() {
     const handleLocationeSelection = (state: any) => {
         const lgas = state?.localGovernmentAreas ?? [];
 
-        dispatch(setUserLoaction(state));
+        dispatch(setUserLocation(state));
 
         router.replace('/(dashboard)');
     };

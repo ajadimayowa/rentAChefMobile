@@ -25,14 +25,22 @@ const HeaderBarLoaction: React.FC<HeaderBarProps> = ({ fullName, location, profi
     <SafeAreaView>
       {showBack && <ReusableButton textStyle={{ color: '#fff' }} style={{ width: 100, margin: 0, padding: 0 }} onPress={() => router.back()} iconLeft={"chevron-back"} type="pressableText" title="Go Back" />}
       <View style={{ padding: 10 }}>
-        <View style={{ display: 'flex', flexDirection: 'row', gap: 3, alignItems: 'center' }}>
-          {profilePic ? <Image source={profilePic as any} style={{ width: 100, height: 100, borderRadius: 100 }} /> : <Ionicons name="person-circle-outline" size={46} color={'#fff'} />}
+        <View style={{ display: 'flex', flexDirection: 'row', gap: 3, alignItems: 'center', width:'100%',justifyContent:'space-between' }}>
+          <View style={{flexDirection:'row'}}>
+            {profilePic ? <Image source={profilePic as any} style={{ width: 100, height: 100, borderRadius: 100 }} /> : <Ionicons name="person-circle-outline" size={46} color={'#fff'} />}
           <View>
             <Text style={styles.title}>{fullName}</Text>
             {location && <TouchableOpacity onPress={() => router.push('/states')}><Text style={styles.subtitle}>{location}</Text></TouchableOpacity>}
           </View>
 
+          </View>
+          
+
+          <Ionicons color={'#fff'} size={28} name="notifications"/>
+
         </View>
+
+        
 
         <View>
           <SectionText text="What delicacy
@@ -49,11 +57,13 @@ are you craving for today?" textStyle={{ color: '#fff', fontSize: 24, marginTop:
               style={styles.searchInput}
               onChangeText={onSearch}
             /> */}
-              <BodyText text="Search menu,chef..." />
+              <BodyText text="Search menu..." />
               <Ionicons name="search-outline" size={20} color="#999" />
             </View>
           </TouchableOpacity>
         )}
+
+
       </View>
 
     </SafeAreaView>

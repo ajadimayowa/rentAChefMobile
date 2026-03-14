@@ -1,6 +1,12 @@
 // store/slices/authSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+interface ILocations {
+    states: ILocation[],
+    userLocation: string,
+    userState: string,
+}
+
 interface ILocation {
     "id": string,
     "state": string,
@@ -8,16 +14,25 @@ interface ILocation {
 }
 interface ILocations {
     states: ILocation[],
-    userLocation:string,
-    userState:string,
+    userLocation: string,
+    tempLocation: string,
+    userState: string,
+    tempState: string,
+    long: string,
+    lat: string
 }
 
 
 const initialState: ILocations = {
     states: [],
-    userLocation:'Eti-Osa',
-    userState:'Lagos'
+    userLocation: 'All Nigeria',
+    tempLocation: '',
+    tempState: '',
+    userState: '',
+    long: '',
+    lat: ''
 }
+
 
 const locationSlice = createSlice({
     name: "location",
@@ -29,11 +44,24 @@ const locationSlice = createSlice({
         ) => {
             state.states = action.payload;
         },
-        setUserLoaction: (
+        setUserLocation: (
             state,
             action: PayloadAction<any>
         ) => {
             state.userLocation = action.payload;
+        },
+        setTempState: (
+            state,
+            action: PayloadAction<any>
+        ) => {
+            state.tempState = action.payload;
+        },
+        setLongandLat: (
+            state,
+            action: PayloadAction<any>
+        ) => {
+            state.lat = action.payload?.lat;
+            state.long = action.payload?.long;
         },
         setUserState: (
             state,
@@ -44,5 +72,5 @@ const locationSlice = createSlice({
     },
 });
 
-export const { setStates,setUserLoaction,setUserState } = locationSlice.actions;
+export const { setStates,setUserLocation,setUserState,setLongandLat,setTempState } = locationSlice.actions;
 export default locationSlice.reducer;

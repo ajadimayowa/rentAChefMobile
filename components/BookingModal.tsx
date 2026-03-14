@@ -7,10 +7,12 @@ interface AuthModalProps {
   visible: boolean;
   chefId:any;
   date?:string;
+  startDate:string,
+  endDate:string,
   onClose: () => void;
 }
 
-const BookingModal: React.FC<AuthModalProps> = ({chefId, visible, onClose,date }) => {
+const BookingModal: React.FC<AuthModalProps> = ({chefId, visible, onClose,date,startDate,endDate}) => {
   const router = useRouter();
 
   return (
@@ -30,10 +32,19 @@ const BookingModal: React.FC<AuthModalProps> = ({chefId, visible, onClose,date }
             onPress={() => {
               
               onClose();
-              router.push({pathname:"/paymentpage",params:{id:chefId,}});
+              router.replace({pathname:"/bookingpage",params:{id:chefId,startDate,endDate}});
             }}
           >
             <Text style={styles.buttonText}>Proceed to booking</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={{backgroundColor:'#afafafff', width:'100%',padding:10,borderRadius:5,justifyContent:'center',alignItems:'center'}}
+            onPress={() => {
+              onClose();
+            }}
+          >
+            <Text style={styles.buttonText}>Close</Text>
           </TouchableOpacity>
 
           {/* <TouchableOpacity
@@ -109,7 +120,7 @@ alignItems:"center",
     backgroundColor: "#f59e0b",
   },
   buttonText: {
-    color: "#fff",
+    color: "#ffffffff",
     fontSize: "16@ms",
     fontWeight: "600",
   },

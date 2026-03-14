@@ -12,7 +12,7 @@ interface DishCardProps {
   title: string;
   price: number;
   rating?: number;
-  madeByChef: string;
+  description: string;
   onPress: () => void;
   onLike?: () => void;
 }
@@ -21,7 +21,7 @@ const DishCard: React.FC<DishCardProps> = ({
   image,
   title,
   price,
-  madeByChef,
+  description,
   rating = 4.5,
   onPress,
   onLike,
@@ -30,7 +30,7 @@ const DishCard: React.FC<DishCardProps> = ({
     <TouchableOpacity activeOpacity={0.9} onPress={onPress} style={styles.card}>
 
       <ImageBackground
-        source={image}
+        source={{uri:image}}
         style={styles.image}
         imageStyle={styles.imageBorder}
       >
@@ -52,19 +52,19 @@ const DishCard: React.FC<DishCardProps> = ({
           <Text style={styles.ratingText}>{rating}</Text>
         </View>
 
+        
+
         {/* ✅ Content */}
         <View style={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
           <View style={styles.content}>
             <SectionText textStyle={{ color: '#fff',overflow:'scroll' }} text={title} />
-            <BodyText textStyle={{ color: '#fff' }} text={madeByChef} />
-            <Text style={styles.price}>{price ? `From : ${convertToThousand(price)}` : 'N0.00'}</Text>
-          </View>
-
-          <View style={{ padding: 10 }}>
-            <TouchableOpacity activeOpacity={0.9} style={{ backgroundColor: '#fff', borderRadius: 5, padding: 10 }}>
-              <Text>Order</Text>
+            <BodyText textStyle={{ color: '#cdcdcdff' }} text={description} />
+            <TouchableOpacity onPress={onPress} activeOpacity={0.9} style={{ backgroundColor: '#E39325', alignItems:'center',marginTop:5, borderRadius: 5, padding: 10 }}>
+              <SectionText text="Book Now"/>
             </TouchableOpacity>
           </View>
+
+         
         </View>
 
       </ImageBackground>
@@ -76,7 +76,7 @@ const DishCard: React.FC<DishCardProps> = ({
 const styles = ScaledSheet.create({
   card: {
     width: "250@s",
-    height: "160@vs",
+    height: "260@vs",
     marginRight: "12@s",
     borderRadius: "14@s",
     overflow: "hidden",
@@ -98,6 +98,16 @@ const styles = ScaledSheet.create({
   heart: {
     position: "absolute",
     top: "10@vs",
+    right: "10@s",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    padding: "6@s",
+    borderRadius: "20@s",
+    zIndex: 3,
+  },
+
+  topText: {
+    position: "absolute",
+    top: "20@vs",
     right: "10@s",
     backgroundColor: "rgba(0,0,0,0.5)",
     padding: "6@s",
@@ -128,8 +138,9 @@ const styles = ScaledSheet.create({
   content: {
     padding: "12@s",
     zIndex: 2,
-    maxWidth:'70%',
-    overflow:'hidden'
+    maxWidth:'100%',
+    overflow:'hidden',
+    backgroundColor:'#000'
   },
 
   title: {

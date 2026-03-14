@@ -23,14 +23,17 @@ import ReusableImgBGOverlayCard from "@/components/cards/ReusableImgBGOverlayCar
 import BodyText from "@/components/typography/BodyText";
 import HeaderBarLoaction from "@/components/HeaderBarLoaction";
 import { router } from "expo-router";
+import BackgroundImageCard from "@/components/BackgroundImageCard";
+import CreateQuoteModal from "@/components/modals/profile/CreateQuoteModal";
 
 export default function GuestHomeScreen() {
   const [loading, setLoading] = useState(false);
   const [menus, setMenus] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [services, setServices] = useState<any[]>([]);
   const [chefs, setChefs] = useState<any[]>([]);
   const userProfile = useSelector((user: RootState) => user.auth);
   const userLocation = useSelector((location: RootState) => location.location);
+  const [onQuoteModal, setOnQuoteModal] = useState(false);
 
   const menuCategories = [
     {
@@ -98,7 +101,7 @@ export default function GuestHomeScreen() {
       Toast.show({
         type: 'error',
         text1: 'Login Error',
-        text2: error?.response?.message || 'Invalid credentials',
+        text2: error?.response?.message || 'Error fetching chefs',
       });
     }
   }
@@ -108,7 +111,7 @@ export default function GuestHomeScreen() {
     // console.log('baseUrl',apiUrl)
     setLoading(true)
     try {
-      const res = await api.get('/menu/getMenus')
+      const res = await api.get('/specialmenu/menus')
       console.log({ seeRes: res?.data?.payload })
       if (res?.data?.success) {
         setMenus(res?.data?.payload)
@@ -129,20 +132,20 @@ export default function GuestHomeScreen() {
       Toast.show({
         type: 'error',
         text1: 'Login Error',
-        text2: error?.response?.message || 'Invalid credentials',
+        text2: error?.response?.message || 'Error fetching menus',
       });
     }
   }
 
-  const fetchCategories = async () => {
+  const fetchServices = async () => {
     // const apiUrl = Constants.expoConfig?.extra?.apiUrl
     // console.log('baseUrl',apiUrl)
     setLoading(true)
     try {
-      const res = await api.get('/category/categories')
+      const res = await api.get('/service/services')
       console.log({ seeRes: res?.data?.payload })
       if (res?.data?.success) {
-        setCategories(res?.data?.payload)
+        setServices(res?.data?.payload?.reverse())
         setLoading(false)
       } else {
         console.log({ seeAfter: res })
@@ -160,17 +163,18 @@ export default function GuestHomeScreen() {
       Toast.show({
         type: 'error',
         text1: 'Login Error',
-        text2: error?.response?.message || 'Invalid credentials',
+        text2: error?.response?.message || 'Error fetching chefs',
       });
     }
   }
   useEffect(() => {
-    fetchCategories()
+    fetchServices()
     fetchMenu();
     fetchChefs();
 
   }, [])
   return (
+    <>
     <View style={styles.container}>
       {/* <HeaderBarUser subtitle="Welcome to rent a chef" title={`Hi ${userProfile?.bioData?.fullName?.split(" ")[0]}`} showSearch showBack={false} /> */}
       <HeaderBarLoaction profilePic={userProfile.bioData.profilePic} location={`${userLocation.userLocation},${userLocation.userState}`} fullName={`Hi ${userProfile?.bioData?.fullName}`} showSearch showBack={false} />
@@ -181,119 +185,72 @@ export default function GuestHomeScreen() {
 
       {!loading &&
         <ScrollView
-        refreshControl={
-                            <RefreshControl refreshing={loading} onRefresh={fetchChefs} />
-                        } 
-        contentContainerStyle={{ padding: 20 }}>
+          refreshControl={
+            <RefreshControl refreshing={loading} onRefresh={fetchChefs} />
+          }
+          contentContainerStyle={{ padding: 20 }}>
           <ReusableImgBGOverlayCard
             image={require('../../assets/images/pasta.png')}
             gradientText={'Enjoy Amazing Dishes'}
             description={`You don't have to break your bank to enjoy exquisite cuisines.`}
           />
 
-          {/* <View style={{ width: '100%', padding: 20, flexDirection: 'row', marginTop: 10, gap: 20, justifyContent: 'space-between' }}>
-            <Pressable
-              onPress={() => console.log('ok')}
-              style={({ pressed }) => [
-                styles.btncontainer,
-                { backgroundColor: '#fff' },
-                pressed && styles.pressed,
-              ]}
-            >
-              <Ionicons name={'checkbox-outline'} size={34} color={'#000'} />
-              <Text style={[styles.text, { color: '#000' }]}>{'Completed'}</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => console.log('ok')}
-              style={({ pressed }) => [
-                styles.btncontainer,
-                { backgroundColor: '#fff' },
-                pressed && styles.pressed,
-              ]}
-            >
-              <Ionicons name={'calendar-clear-outline'} size={34} color={'#000'} />
-              <Text style={[styles.text, { color: '#000' }]}>{'Upcoming'}</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => console.log('ok')}
-              style={({ pressed }) => [
-                styles.btncontainer,
-                { backgroundColor: '#fff' },
-                pressed && styles.pressed,
-              ]}
-            >
-              <Ionicons name={'fast-food-outline'} size={34} color={'#000'} />
-              <Text style={[styles.text, { color: '#000' }]}>{'Perks'}</Text>
-            </Pressable>
-            
-          </View> */}
-
-
-
-<SectionText text="Available services" textStyle={{ marginBottom: 10, marginTop: 10, }} />
-          <View style={{ width: '100%', marginBottom: 10, gap:10, flexDirection: 'row',flexWrap:'wrap',marginTop: 10,}}>
+          <SectionText text="Available services" textStyle={{ marginBottom: 10, marginTop: 10, }} />
+          <View style={styles.card}>
             {
-              categories.map((cats, index) => (
+              services.map((cats, index) => (
                 <Pressable
                   key={index}
                   onPress={() => console.log('ok')}
                   style={({ pressed }) => [
                     styles.catbtncontainer,
-                    { backgroundColor: index==0?'#E39325':'#fff' },
+                    { backgroundColor: index == 0 ? '#E39325' : '#fff' },
                     pressed && styles.pressed,
                   ]}
                 >
-                  <BodyText text={cats.name}/>
+                  <BodyText text={cats.name} />
                   {/* <Text style={[styles.text, { color: '#000' }]}>{}</Text> */}
                 </Pressable>
               ))
             }
           </View>
-          <SectionText text="Menus" textStyle={{ marginBottom: 10, marginTop: 10, }} />
-          {
-            menus.length > 0 ? <>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 10, gap: 12 }}
-              >{
-                  menus.map((menu: IMenu, index) => (
-                    <View key={index}>
-                      <DishCard
-                        image={require("../../assets/images/foosampleimage.png")}
-                        title={menu.title}
-                        madeByChef={menu?.chef?.name}
-                        price={menu?.basePrice}
-                        onPress={() => { }}
-                      />
+          <SectionText text="Special Menus" textStyle={{ marginBottom: 10, marginTop: 10, }} />
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 10, gap: 12 }}
+          >{
+              menus.map((menu: IMenu, index) => (
+                <View key={index}>
+                  <DishCard
+                    image={menu?.image}
+                    title={menu.title}
+                    description={menu?.description}
+                    price={menu?.basePrice}
+                    onPress={() => router.push({ pathname: './viewspecialmenubooking', params: { id: menu.id } })}
+                  />
 
-                    </View>
-                  ))
-                }
+                </View>
+              ))
+            }
 
-              </ScrollView>
-
-            </>
-              :
-              <View style={{ width: '100%', height: 100, alignItems: 'center', alignSelf: 'center', justifyContent: 'center' }}>
-                <Ionicons color={Colors.primary.base} size={48} name="fast-food" style={{ margin: 10 }} />
-                <Text style={{ width: '100%', textAlign: 'center' }}>No Menu At This Time</Text>
-              </View>
-          }
+          </ScrollView>
 
 
-          <SectionText text="Our Chefs" textStyle={{ marginBottom: 5, marginTop: 20 }} />
+
+          <SectionText text="Featured chefs" textStyle={{ marginBottom: 5, marginTop: 20 }} />
 
           {
             chefs.length > 0 ? chefs.map((chef: IChef, index) => (
               <View key={index}>
                 <ChefCard
                   specialty={chef.specialties}
+                  chefCat={chef?.category?.name}
                   image={chef?.profilePic}
                   name={chef.name}
                   location={chef.location}
                   state={chef.state}
-                  onPress={() =>router.push({pathname:'/viewchefinfo',params:{id:chef.id,chefPic:chef.profilePic}})}
+                  onPress={() => router.push({ pathname: '/viewchefinfo', params: { id: chef.id, chefPic: chef.profilePic } })}
                 />
               </View>
             ))
@@ -303,9 +260,22 @@ export default function GuestHomeScreen() {
                 <Text style={{ width: '100%', textAlign: 'center' }}>No Chefs At This Time</Text>
               </View>
           }
+
+          <BackgroundImageCard onPress={() => setOnQuoteModal(true)} image={require('../../assets/images/imgBgd.png')} title="Do you have a
+special request"/>
         </ScrollView>
       }
     </View>
+
+      <Pressable style={styles.fab} onPress={() => console.log("Pressed")}>
+        <Ionicons name="chatbubble-ellipses" size={24} color="#fff" />
+      </Pressable>
+
+    <CreateQuoteModal
+    visible={onQuoteModal}
+    onClose={()=>setOnQuoteModal(false)}
+    />
+    </>
   );
 }
 
@@ -330,6 +300,42 @@ const styles = ScaledSheet.create({
 
     // ✅ Drop shadow (Android)
     elevation: 4,
+  },
+fab: {
+    position: "absolute",
+    right: 20,
+    bottom: 10,
+    backgroundColor: "#ff733b",
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 5, // Android shadow
+    shadowColor: "#000", // iOS shadow
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  card: {
+    width: "100%",
+    marginTop: "10@vs",
+    marginBottom: "10@vs",
+    gap: "10@s",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    padding: "12@s",
+    backgroundColor: "#fff",
+    borderRadius: "12@s",
+
+    // iOS shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+
+    // Android shadow
+    elevation: 5,
   },
 
   catbtncontainer: {

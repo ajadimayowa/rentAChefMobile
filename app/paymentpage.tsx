@@ -77,6 +77,9 @@ export default function PaymentScreen() {
     return (
         <>
         <View style={styles.container}>
+            <View style={styles.calendarcard}>
+                <SectionText textStyle={{margin:5}} text="Booking Details"/>
+            </View>
             
             <ReusableButton loading={loading} onPress={checkAvailability} style={{ marginTop: 40, margin: 10, borderRadius: 5,backgroundColor:'#4FB472' }} title="Pay with paystack" />
             <ReusableButton onPress={checkAvailability} style={{ marginTop: 10, margin: 10, borderRadius: 5 }} title="Request Invoice" />
@@ -90,4 +93,23 @@ export default function PaymentScreen() {
 
 const styles = ScaledSheet.create({
     container: { flex: 1, backgroundColor: "#fff" },
+    calendarcard: {
+        width: "100%",
+        marginTop: "10@vs",
+        marginBottom: "10@vs",
+        gap: "10@s",
+        flexWrap: "wrap",
+        padding: "12@s",
+        backgroundColor: "#fff",
+        borderRadius: "12@s",
+
+        // iOS shadow
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+
+        // Android shadow
+        elevation: 5,
+    },
 });

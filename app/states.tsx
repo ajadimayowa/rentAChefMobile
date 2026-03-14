@@ -65,17 +65,17 @@ export default function LocationFilterScreenModal() {
     }, [])
 
     const handleStateSelection = (state: any) => {
-  const lgas = state?.localGovernmentAreas ?? [];
+        const lgas = state?.localGovernmentAreas ?? [];
 
-  dispatch(setUserState(state?.state));
+        dispatch(setUserState(state?.state));
 
-  router.replace({
-    pathname: '/location',
-    params: {
-      selectedState: JSON.stringify(lgas),
-    },
-  });
-};
+        router.replace({
+            pathname: '/location',
+            params: {
+                selectedState: JSON.stringify(lgas),
+            },
+        });
+    };
     return (
         <View style={styles.container}>
             {
@@ -92,10 +92,10 @@ export default function LocationFilterScreenModal() {
                             states.map((state, index) =>
                                 <View key={index}>
                                     <ReusableCard>
-                                    <TouchableOpacity onPress={()=>handleStateSelection(state)} key={index} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <Text>{state?.state}</Text>
-                                        <AntDesign name="right" size={16} />
-                                    </TouchableOpacity>
+                                        <TouchableOpacity onPress={() => handleStateSelection(state)} key={index} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                            <Text>{state?.state}</Text>
+                                            <AntDesign name="right" size={16} />
+                                        </TouchableOpacity>
                                     </ReusableCard>
                                 </View>
                             )

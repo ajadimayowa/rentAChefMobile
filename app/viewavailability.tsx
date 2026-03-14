@@ -15,6 +15,7 @@ import api from "@/services/apiConfig";
 import Toast from "react-native-toast-message";
 import ReusableButton from "@/components/buttons/ReusableButton";
 import BookingModal from "@/components/BookingModal";
+import BodyText from "@/components/typography/BodyText";
 
 export default function ViewAvailabilityScreen() {
     const [activeTab, setActiveTab] = useState<"active" | "pending" | "expired">(
@@ -23,7 +24,7 @@ export default function ViewAvailabilityScreen() {
     const { chefId, chefPic } = useLocalSearchParams();
     const localProfile = useSelector((user: RootState) => user.auth.bioData);
     const [ads, setAds] = useState<any[]>([]);
-    const [onproceedToPay,setOnProceedToPay] = useState(false)
+    const [onproceedToPay, setOnProceedToPay] = useState(false)
 
     const [showAnnouncement, setShowAnnouncement] = useState(false);
     const navigation = useNavigation();
@@ -33,14 +34,21 @@ export default function ViewAvailabilityScreen() {
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch()
 
-    const [selectedDate, setSelectectedDate] = useState('');
+    const [selectedDates, setSelectedDates] = useState({
+        startDate: '',
+        endDate: '',
+    });
 
     const checkAvailability = async () => {
         // const apiUrl = Constants.expoConfig?.extra?.apiUrl
         // console.log('baseUrl',apiUrl)
         setLoading(true)
         try {
-            const res = await api.get(`/chef/${chefId}`)
+            const res = await api.post(`/user/checkChefavailability`, {
+                "chefId": chefId,
+                "startDate": selectedDates.startDate,
+                "endDate": selectedDates.endDate,
+            })
 
             console.log({ seeRes: res })
 
@@ -54,11 +62,12 @@ export default function ViewAvailabilityScreen() {
                 setOnProceedToPay(true)
             } else {
 
-                console.log({ seeAfter: res })
+                console.log({ seeAfter: res?.data?.message })
                 setLoading(false)
                 Toast.show({
                     type: 'error',
-                    text1: 'Error fetching chef information'
+                    text1: 'Error!',
+                    text2: `${res?.data?.message}`
                 });
                 setAds([])
 
@@ -69,28 +78,69 @@ export default function ViewAvailabilityScreen() {
             setLoading(false)
             Toast.show({
                 type: 'error',
-                text1: 'Error fetching chef information'
+                text1: error?.message
             });
             setAds([])
         }
     }
+
+    const [markedDates, setMarkedDates] = useState({});
+
+    const handleDatePress = (day: any) => {
+        const { startDate, endDate } = selectedDates;
+
+        if (!startDate) {
+            // Set the start date
+            setSelectedDates({ startDate: day.dateString, endDate: '' });
+            setMarkedDates({
+                [day.dateString]: { selected: true, startingDay: true, color: 'blue' },
+            });
+        } else if (!endDate && day.dateString > startDate) {
+            // Set the end date
+            setSelectedDates({ startDate, endDate: day.dateString });
+
+            // Mark the date range
+            const newMarkedDates: any = {};
+            let currentDate = new Date(startDate);
+            while (currentDate <= new Date(day.dateString)) {
+                newMarkedDates[currentDate.toISOString().split('T')[0]] = { selected: true, color: 'blue' };
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            setMarkedDates(newMarkedDates);
+        } else if (day.dateString < startDate) {
+            // Reset if user selects a date before the start date
+            setSelectedDates({ startDate: day.dateString, endDate: '' });
+            setMarkedDates({
+                [day.dateString]: { selected: true, startingDay: true, color: 'blue' },
+            });
+        }
+    };
+
     return (
         <>
-        <View style={styles.container}>
-            <Calendar
-                //   onDayPress={day => console.log('Selected day', day)}
-                onDayPress={day => setSelectectedDate(day?.dateString)}
-            />
+            <View style={styles.container}>
+                <Calendar
+                    current={new Date().toString()}
+                    minDate={new Date().toString()}
+                    onDayPress={handleDatePress}
+                    markedDates={markedDates}
+                    markingType={'period'}
+                />
+                <View style={{ marginTop: 30, padding: '3%' }}>
+                    <BodyText text={`Start Date: ${selectedDates.startDate}`} />
+                    <BodyText text={`End Date: ${selectedDates.endDate}`} />
+                </View>
 
-            <ReusableButton loading={loading} disabled={!selectedDate} onPress={checkAvailability} style={{ marginTop: 40, margin: 10, borderRadius: 5 }} title="Check availability" />
-        </View>
-        
-        <BookingModal chefId={chefId} date={selectedDate} visible={onproceedToPay} onClose={()=>setOnProceedToPay(false)}/>
+                <ReusableButton loading={loading} disabled={!selectedDates.endDate} onPress={checkAvailability} style={{ marginTop: 40, margin: 10, borderRadius: 5 }} title="Check availability" />
+            </View>
+
+            <BookingModal startDate={selectedDates.startDate} endDate={selectedDates.endDate} chefId={chefId} date={selectedDates.startDate} visible={onproceedToPay} onClose={() => setOnProceedToPay(false)} />
         </>
-        
+
     );
 }
 
 const styles = ScaledSheet.create({
-    container: { flex: 1, backgroundColor: "#fff" },
+    container: { flex: 1, backgroundColor: "#fff", padding: '3%' },
 });

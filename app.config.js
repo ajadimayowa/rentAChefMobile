@@ -15,6 +15,7 @@ export default {
 
     ios: {
       supportsTablet: true,
+      bundleIdentifier: "com.floathhub.ogasela"
     },
 
     android: {
@@ -42,6 +43,7 @@ export default {
 
     plugins: [
       'expo-router',
+      "@react-native-community/datetimepicker",
       [
         'expo-splash-screen',
         {
@@ -53,6 +55,12 @@ export default {
             backgroundColor: '#F3F3F1'
           },
         },
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow this app to use your location."
+        }
       ],
       'expo-secure-store'
     ],

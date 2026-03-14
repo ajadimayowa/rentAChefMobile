@@ -25,6 +25,9 @@ import Constants from "expo-constants";
 import Toast from "react-native-toast-message";
 import { Ionicons } from "@expo/vector-icons";
 import BodyText from "@/components/typography/BodyText";
+import { useDispatch } from "react-redux";
+import { setChefProfile } from "@/store/slices/chefSlice";
+import SecureStorage from "@/store/secureStore";
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
@@ -35,34 +38,33 @@ export default function LoginChefScreen() {
   const navigation = useNavigation();
   const router = useRouter()
   const [loading, setLoading] = useState(false);
-  const [securePass, setSecurePass] = useState(true)
+  const [securePass, setSecurePass] = useState(true);
+  const dispatch = useDispatch();
 
   const handleLogin = async (val: any) => {
     // const apiUrl = Constants.expoConfig?.extra?.apiUrl
     // console.log('baseUrl',apiUrl)
     setLoading(true)
     try {
-      const res = await api.post('/auth/login', val)
-      console.log({ seeRes: res })
-
+      const res = await api.post('/chef/auth/login', val)
+      // console.log({ seeRes: res })
       if (res?.data?.success) {
-        router.push({
-          pathname: "/otpverificationscreen",
-          params: { email: val.email },
-        });
+        dispatch(setChefProfile(res?.data?.payload));
+        await SecureStorage.setItem('userToken', res?.data?.token);
         Toast.show({
           type: 'success',
-          text1: 'OTP Sent',
-          text2: 'Login verification code sent!'
+          text1: 'Success',
+          text2: 'Login Successful!'
         });
-        setLoading(false)
-      } else {
 
+        setLoading(false)
+        router.replace("/(chefdashboard)");
+      } else {
         console.log({ seeAfter: res })
         setLoading(false)
         Toast.show({
-          type: 'success',
-          text1: 'OTP Sent',
+          type: 'error',
+          text1: 'Login Error',
           text2: res?.data?.message || 'Something went wrong!',
         });
 
