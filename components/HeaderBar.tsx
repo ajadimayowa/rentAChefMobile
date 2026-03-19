@@ -41,7 +41,7 @@ const HeaderBar: React.FC<HeaderBarProps> = ({ title, subtitle,showBack, showSea
 );
 
 const styles = ScaledSheet.create({
-  container: { padding: "20@s", backgroundColor: Colors.primary.base, borderBottomLeftRadius: "20@s", borderBottomRightRadius: "20@s" },
+  container: { padding: "10@s", backgroundColor: Colors.primary.base, borderBottomLeftRadius: "10@s", borderBottomRightRadius: "20@s" },
   title: { fontSize: "16@s", color: "#fff", fontWeight: "700" },
   subtitle: { fontSize: "12@s", color: "#ffe" },
   searchBox: {

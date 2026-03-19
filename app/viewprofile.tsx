@@ -24,6 +24,10 @@ import UpdatePersonalInfoModal from "@/components/modals/profile/UpdatePersonalI
 import UpdateHealthInfoModal from "@/components/modals/profile/UpdateHealthInfoModal";
 import UpdateAddressInfoModal from "@/components/modals/profile/UpdateAddressInfoModal";
 import UpdateNOKInfoModal from "@/components/modals/profile/UpdateNOKInfoModal";
+import moment from "moment";
+import HeaderBarUser from "@/components/HeaderBarUser";
+import HeaderBarTitleAndBack from "@/components/HeaderBarTitleAndBack";
+import PrimaryLoader from "@/components/Loader";
 
 export default function ViewProfile() {
   const userProfile = useSelector((state: RootState) => state.auth.bioData);
@@ -82,16 +86,22 @@ export default function ViewProfile() {
   }
   return (
     <>
-      <SafeAreaView style={styles.frame}>
+    {
+     loading? <PrimaryLoader/> : 
+     <>
+     <HeaderBarTitleAndBack
+    title="User Profile"
+    showBack
+    />
         <ScrollView refreshControl={
           <RefreshControl refreshing={loading} onRefresh={fetchUserProfile} />
         } style={styles.container}>
           <View style={{width:'100%', alignItems:'center'}}>
-            {userData?.profilePic ? <Image source={{ uri: userData?.profilePic as any }} style={{ width: 300, height: 300, borderRadius:350 }} /> : <View>{userData?.gender == 'm' ? <Image source={require('../assets/images/manavatar.png')} style={{ width: 100, height: 100, borderRadius: 100 }} /> : <Image source={require('../assets/images/womanavatar.png')} style={{ width: 100, height: 100, borderRadius: 100 }} />}</View>}
+            {userData?.profilePic ? <Image source={{ uri: userData?.profilePic as any }} style={{ backgroundColor: "#ffffffff", height: 200, width: 200, borderRadius: 200, overflow: 'hidden' }} /> : <View>{userData?.gender == 'm' ? <Image source={require('../assets/images/manavatar.png')} style={{ width: 100, height: 100, borderRadius: 100 }} /> : <Image source={require('../assets/images/womanavatar.png')} style={{ width: 100, height: 100, borderRadius: 100 }} />}</View>}
           </View>
           <View style={{ width: '100%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            <TouchableOpacity onPress={() => setUpdatePicModal(true)}>
-              <FontAwesome size={18} color={'#52220aff'} name="edit" />
+            <TouchableOpacity style={{ marginBottom: 20, marginTop: -10, backgroundColor:'#ffffffff',padding:10,borderRadius:10 }} onPress={() => setUpdatePicModal(true)}>
+              <FontAwesome size={18} color={'#000000ff'} name="edit" />
             </TouchableOpacity>
           </View>
 
@@ -112,10 +122,10 @@ export default function ViewProfile() {
               <BodyText text={userData?.gender == 'm' ? 'Male' : 'Female'} />
 
               <SectionText textStyle={{ marginTop: 5 }} text="Contact" />
-              <BodyText text={`0${userData?.phone} | ${userData?.email}`} />
+              <BodyText text={`${userData?.phone} | ${userData?.email}`} />
 
               <SectionText textStyle={{ marginTop: 5 }} text="Birthday" />
-              <BodyText text={`${userData?.dob?.toLocaleString() ?? '-'}`} />
+              <BodyText text={userData?.dob?moment(userData?.dob).format('DD-MM-YYYY'):"-"} />
 
               <SectionText textStyle={{ marginTop: 5 }} text="Marital Status" />
               <BodyText text={`${userData?.maritalStatus ?? '-'}`} />
@@ -189,7 +199,7 @@ export default function ViewProfile() {
               <BodyText text={userData?.nok?.relationship ?? '-'} />
 
               <SectionText textStyle={{ marginTop: 5 }} text="Contact" />
-              <BodyText text={`0${userData?.nok?.phone ?? '-'}`} />
+              <BodyText text={`${userData?.nok?.phone ?? '-'}`} />
 
               {/* <SectionText textStyle={{ marginTop: 5 }} text="Health information" />
             <BodyText text={userProfile?.healthInfo ?? '-'} />
@@ -210,8 +220,10 @@ export default function ViewProfile() {
           </ScrollView>
 
         </ScrollView>
+     </>
 
-      </SafeAreaView>
+    }
+    
       <ChangeProfilePicModal visible={updatePicModal} onClose={() => setUpdatePicModal(false)} />
       <UpdatePersonalInfoModal visible={updatePersonalInfoModal} onClose={() => setUpdatePersonalInfoModal(false)} />
       <UpdateHealthInfoModal visible={updateHealthInfoModal} onClose={() => setUpdateHealthInfoModal(false)} />
@@ -222,9 +234,9 @@ export default function ViewProfile() {
 }
 
 const styles = ScaledSheet.create({
-  frame: { flex: 1, backgroundColor: "#fff" },
   container: {
     flex: 1,
     padding: '2%',
+    backgroundColor: "#fff" 
   },
 });

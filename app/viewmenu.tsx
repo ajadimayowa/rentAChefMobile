@@ -5,7 +5,6 @@ import { ScaledSheet } from "react-native-size-matters";
 import HeaderBar from "@/components/HeaderBar";
 import ChefCard from "@/components/ChefCard";
 import SectionText from "@/components/typography/SectionText";
-import UserActiveAds from "@/components/tabs/UserActiveAds";
 import Colors from "@/constants/Colors";
 
 export default function ViewMenuScreen() {
@@ -99,21 +98,6 @@ export default function ViewMenuScreen() {
                         </Text>
                     </Pressable>
                 </View>
-
-                {/* TAB CONTENT */}
-                <ScrollView style={{ flex: 1 }}>
-                    {activeTab === "active" && (
-                        <UserActiveAds />
-                    )}
-
-                    {activeTab === "pending" && (
-                       <UserActiveAds />
-                    )}
-
-                    {activeTab === "expired" && (
-                        <UserActiveAds />
-                    )}
-                </ScrollView>
             </View>
     </View>
   );

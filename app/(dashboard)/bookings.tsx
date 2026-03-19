@@ -5,7 +5,6 @@ import { ScaledSheet } from "react-native-size-matters";
 import HeaderBar from "@/components/HeaderBar";
 import ChefCard from "@/components/ChefCard";
 import SectionText from "@/components/typography/SectionText";
-import UserActiveAds from "@/components/tabs/UserActiveAds";
 import Colors from "@/constants/Colors";
 import UserPendingBookingTab from "@/components/tabs/UserPendingBookingTab";
 import UserActiveBookingTab from "@/components/tabs/UserActiveBookingTab";
@@ -20,7 +19,6 @@ export default function GuestChefsScreen() {
       <HeaderBar
         title="Booking"
         subtitle="Find all your bookings here"
-        showSearch
       />
 
       <View style={{ flex: 1, padding: 16, backgroundColor: "#f2f2f2" }}>

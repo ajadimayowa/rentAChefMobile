@@ -16,9 +16,9 @@ import Colors from "@/constants/Colors";
 import { convertToThousand } from "@/helpers/utils";
 import moment from "moment";
 
-const UserPendingBookingTab: React.FC<any> = () => {
-    const localProfile = useSelector((user: RootState) => user.auth.bioData);
-    const [bookings, setBookings] = useState<any[]>([])
+const ChefPendingBookingTab: React.FC<any> = () => {
+    const [bookings, setBookings] = useState<any[]>([]);
+    const chefProfile = useSelector((user: RootState) => user.chef);
 
     const [showAnnouncement, setShowAnnouncement] = useState(false);
     const navigation = useNavigation();
@@ -38,7 +38,7 @@ const UserPendingBookingTab: React.FC<any> = () => {
         // console.log('baseUrl',apiUrl)
         setLoading(true)
         try {
-            const res = await api.get(`/bookings?clientId=${localProfile.id}&status=confirmed`)
+             const res = await api.get(`/bookings?chefId=${chefProfile.chefData.id}&status=confirmed`)
 
             console.log({ seeRes: res })
 
@@ -88,7 +88,7 @@ const UserPendingBookingTab: React.FC<any> = () => {
 
                         {
                             bookings.map((booking, index) => (
-                                <TouchableOpacity key={index} onPress={() => router.push({ pathname: '/clientviewbookinginfo', params: { id: booking?.id } })}>
+                                <TouchableOpacity key={index} onPress={() => router.push({ pathname: '/chefviewbookinginfo', params: { id: booking?.id } })}>
                                     <View style={[style.card]}>
                                         <View style={style.rowSection}>
                                             <SectionText text={booking?.serviceId?.name ?? booking?.specialMenuId?.title} />
@@ -233,4 +233,4 @@ const style = ScaledSheet.create({
         transform: [{ scale: 0.97 }],
     },
 })
-export default UserPendingBookingTab
+export default ChefPendingBookingTab

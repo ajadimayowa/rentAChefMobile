@@ -1,6 +1,6 @@
 // app/(tabs)/guest-home.tsx
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, Text, Pressable, RefreshControl } from "react-native";
+import { View, ScrollView, Text, Pressable, RefreshControl, TouchableOpacity } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import HeaderBar from "@/components/HeaderBar";
 import ChefCard from "@/components/ChefCard";
@@ -11,7 +11,7 @@ import api from "@/services/apiConfig";
 import Toast from "react-native-toast-message";
 import PrimaryLoader from "@/components/Loader";
 import { IMenu } from "@/interfaces/menu";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { FontAwesome6, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 import { IChef } from "@/interfaces/chef";
 import { useSelector } from "react-redux";
@@ -35,6 +35,7 @@ export default function GuestHomeScreen() {
   const chefProfile = useSelector((user: RootState) => user.chef);
   const userLocation = useSelector((location: RootState) => location.location);
   const [onQuoteModal, setOnQuoteModal] = useState(false);
+  const [chefData, setChefData] = useState<IChef | any>();
 
   const menuCategories = [
     {
@@ -76,15 +77,15 @@ export default function GuestHomeScreen() {
     }
   ]
 
-  const fetchChefs = async () => {
+  const fetchChefProfile = async () => {
     // const apiUrl = Constants.expoConfig?.extra?.apiUrl
     // console.log('baseUrl',apiUrl)
     setLoading(true)
     try {
-      const res = await api.get('/chefs?limit=20')
-      console.log({ seeRes: res?.data?.payload })
+      const res = await api.get(`/chef/${chefProfile.chefData.id}`)
+      
       if (res?.data?.success) {
-        setChefs(res?.data?.payload?.reverse())
+        setChefData(res?.data?.payload)
         setLoading(false)
       } else {
         console.log({ seeAfter: res })
@@ -107,73 +108,43 @@ export default function GuestHomeScreen() {
     }
   }
 
-  const fetchMenu = async () => {
-    // const apiUrl = Constants.expoConfig?.extra?.apiUrl
-    // console.log('baseUrl',apiUrl)
-    setLoading(true)
-    try {
-      const res = await api.get('/specialmenu/menus')
-      console.log({ seeRes: res?.data?.payload })
-      if (res?.data?.success) {
-        setMenus(res?.data?.payload)
-        setLoading(false)
-      } else {
-        console.log({ seeAfter: res })
-        setLoading(false)
-        Toast.show({
-          type: 'error',
-          text1: 'Network error',
-          text2: res?.data?.message || 'Something went wrong!',
-        });
-      }
-
-    } catch (error: any) {
-      console.log({ seeErrorBreak: error })
-      setLoading(false)
-      Toast.show({
-        type: 'error',
-        text1: 'Login Error',
-        text2: error?.response?.message || 'Error fetching menus',
-      });
-    }
-  }
-
-  const fetchServices = async () => {
-    // const apiUrl = Constants.expoConfig?.extra?.apiUrl
-    // console.log('baseUrl',apiUrl)
-    setLoading(true)
-    try {
-      const res = await api.get('/service/services')
-      console.log({ seeRes: res?.data?.payload })
-      if (res?.data?.success) {
-        setServices(res?.data?.payload?.reverse())
-        setLoading(false)
-      } else {
-        console.log({ seeAfter: res })
-        setLoading(false)
-        Toast.show({
-          type: 'error',
-          text1: 'Network error',
-          text2: res?.data?.message || 'Unable to fetch categories',
-        });
-      }
-
-    } catch (error: any) {
-      console.log({ seeErrorBreak: error })
-      setLoading(false)
-      Toast.show({
-        type: 'error',
-        text1: 'Login Error',
-        text2: error?.response?.message || 'Error fetching chefs',
-      });
-    }
-  }
   useEffect(() => {
-    fetchServices()
-    fetchMenu();
-    fetchChefs();
+    fetchChefProfile()
+  }, [router])
 
-  }, [])
+  const fetchNotifications = async () => {
+    // const apiUrl = Constants.expoConfig?.extra?.apiUrl
+    // console.log('baseUrl',apiUrl)
+    setLoading(true)
+    try {
+      const res = await api.get(`/notifications?chefId=${chefProfile.chefData}`);
+      // console.log({ seeRes: res?.data?.payload })
+      if (res?.data) {
+        // setNotifications(res?.data?.payload);
+        // setLoading(false);
+        // Toast.show({
+        //     type: 'success',
+        //     text1: 'Data Fetched',
+        //     text2: res?.data?.message || 'hi',
+        // });
+      } else {
+        console.log({ seeAfter: res })
+        // setLoading(false);
+
+      }
+
+    } catch (error: any) {
+      console.log({ seeErrorBreak: error })
+      //   setLoading(false)
+      // Toast.show({
+      //     type: 'error',
+      //     text1: 'Login Error',
+      //     text2: error?.response?.message || 'Invalid credentials',
+      // });
+    }
+  }
+
+
   return (
     <>
     <View style={styles.container}>
@@ -187,7 +158,7 @@ export default function GuestHomeScreen() {
       {!loading &&
         <ScrollView
           refreshControl={
-            <RefreshControl refreshing={loading} onRefresh={fetchChefs} />
+            <RefreshControl refreshing={loading} onRefresh={fetchChefProfile} />
           }
           contentContainerStyle={{ padding: 20 }}>
           {/* <ReusableImgBGOverlayCard
@@ -203,24 +174,37 @@ export default function GuestHomeScreen() {
 
             <View style={styles.rowSection}>
               <BodyText text={'Total Bookings'} />
-              <BodyText text={'10'} />
+              <BodyText text={chefData?.totalChefBooking ?? '0'} />
+            </View>
+<View style={styles.rowSection}>
+              <BodyText text={'Upcoming'} />
+              <BodyText text={`${chefData?.totalUpcoming ?? '0'}`} />
             </View>
 
             <View style={styles.rowSection}>
               <BodyText text={'Completed'} />
-              <BodyText text={`${'2'}`} />
+              <BodyText text={`${chefData?.totalCompletedBooking ?? '0'}`} />
             </View>
 
-            <View style={styles.rowSection}>
-              <BodyText text={'Cancelled'} />
-              <BodyText text={`${'3'}`} />
-            </View>
-
-            <View style={styles.rowSection}>
-              <BodyText text={'Upcoming'} />
-              <BodyText text={`${'4'}`} />
-            </View>
+            
           </View>
+
+
+          <View style={styles.card2}>
+
+                 <TouchableOpacity style={styles.memberCard}>
+                    <FontAwesome6 size={34} name="calendar" />
+                    <BodyText text="Upload Menu" />
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.memberCard}>
+                    <Ionicons size={34} name="fast-food" />
+                    <BodyText text="View menu" />
+                </TouchableOpacity>
+
+               
+
+            </View>
 
           {/* <SectionText text="Special Menus" textStyle={{ marginBottom: 10, marginTop: 10, }} /> */}
           {/* <ScrollView
@@ -269,15 +253,10 @@ export default function GuestHomeScreen() {
               </View>
           } */}
 
-          <BackgroundImageCard onPress={() => setOnQuoteModal(true)} image={require('../../assets/images/imgBgd.png')} title="Do you have a
-special request"/>
+         
         </ScrollView>
       }
     </View>
-
-      <Pressable style={styles.fab} onPress={() => console.log("Pressed")}>
-        <Ionicons name="chatbubble-ellipses" size={24} color="#fff" />
-      </Pressable>
 
     <CreateQuoteModal
     visible={onQuoteModal}
@@ -375,4 +354,52 @@ fab: {
     opacity: 0.8,
     transform: [{ scale: 0.97 }],
   },
+  card2: {
+
+        flex: 1,
+        gap:10,
+        width: "100%",
+        marginTop: "5@vs",
+        marginBottom: "3@vs",
+        padding: "12@s",
+        backgroundColor: "#fff",
+        borderRadius: "12@s",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+        elevation: 5,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    memberCard: {
+        alignItems:'center',
+        justifyContent:'center',
+        height:150,
+        width:150,
+        gap: 10,
+        padding: 10,
+        borderWidth: 1,
+        borderRadius: 10,
+        borderColor: '#ddd',
+        margin: 10,
+    },
+    memberHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%'
+    },
+    memberInputs: {
+        gap: 2,
+        width: '100%',
+    },
+    addMemberButtonContainer: {
+        width: '100%',
+        marginTop: 10,
+        alignItems: 'flex-end',
+        justifyContent: 'flex-end',
+        flexDirection: 'row',
+        marginBottom: '10@ms'
+    },
 });

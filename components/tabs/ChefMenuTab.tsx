@@ -52,13 +52,13 @@ const ChefMenuTab: React.FC<IChefMenu> = ({ data }) => {
                             <View key={index} style={styles.card}>
                                 <SectionText text={menu?.month}/>
                                 {
-                                    menu?.weeks?.map((week:any,number:number)=>(
-                                        <View key={number} style={styles.calendarcard}>
+                                    menu?.weeks?.map((week:any,index:number)=>(
+                                        <View key={index + 1} style={styles.calendarcard}>
                                             <SectionText text={`Week ${week?.weekNumber}`}/>
 
                                             {
-                                                week?.days.map((day:any)=>(
-                                                    <View>
+                                                week?.days.map((day:any, index:number)=>(
+                                                    <View key={index + 1}>
                                                         <BodyText textStyle={{color:'#f88b8bff'}} text={day?.day}/>
                                                         <BodyText  text={`Breakfast : ${day?.breakfast}`}/>
                                                         <BodyText  text={`Lunch : ${day?.lunch}`}/>

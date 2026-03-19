@@ -66,22 +66,25 @@ function RootLayoutNav() {
             <Stack.Screen name="otpverificationscreen" options={{ headerShown: false }} />
             <Stack.Screen name="emailotpverificationscreen" options={{ headerShown: false }} />
             <Stack.Screen name="SetPassword" options={{ headerShown: false }} />
-            <Stack.Screen name="forgotpasswordscreen" options={{ headerShown: false }} />
-            <Stack.Screen name="resetpasswordscreen" options={{ headerShown: false }} />
+            <Stack.Screen name="forgotpasswordscreen" options={{ headerShown: false }}/>
+            <Stack.Screen name="resetpasswordscreen" options={{ headerShown: false }}/>
 
             <Stack.Screen name="viewmenu" options={{ headerShown: false }} />
             <Stack.Screen name="viewchefinfo" options={{ headerShown: true,headerTitleAlign: "center", title:'Chef Information', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
             <Stack.Screen name="viewavailability" options={{ headerShown: true,headerTitleAlign: "center", title:'Check Availability', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
             <Stack.Screen name="viewspecialmenubooking" options={{ headerShown: true,headerTitleAlign: "center", title:'Booking details', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
 
-            <Stack.Screen name="viewprofile" options={{ headerShown: true,headerTitleAlign: "center", title:'User Profile', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
+            <Stack.Screen name="viewprofile" options={{ headerShown: false,headerTitleAlign: "center", title:'User Profile', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
             
             <Stack.Screen name="paymentpage" options={{ headerShown: true,headerTitleAlign: "center", title:'Complete Payment', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
             <Stack.Screen name="bookingpage" options={{ headerShown: true,headerTitleAlign: "center", title:'Booking Options', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
+            <Stack.Screen name="clientviewbookinginfo" options={{ headerShown: true,headerTitleAlign: "center", title:'Booking Information', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
+            <Stack.Screen name="chefviewbookinginfo" options={{ headerShown: true,headerTitleAlign: "center", title:'Booking Information', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
 
             <Stack.Screen name="paystackscreen" options={{ presentation: "modal",headerTitleAlign: "center", title: 'Pay With Paystack' }} />
             <Stack.Screen name="paystackscreenchef" options={{ presentation: "modal",headerTitleAlign: "center", title: 'Pay With Paystack' }} />
             <Stack.Screen name="states" options={{ presentation: "modal",headerTitleAlign: "center", title: 'Choose State' }} />
+            <Stack.Screen name="notifications" options={{ presentation: "modal",headerTitleAlign: "center", title: 'Notifications' }} />
             <Stack.Screen name="location" options={{ presentation: "modal",headerTitleAlign: "center", title: 'Choose LGA' }} />
             <Stack.Screen name="search" options={{ presentation: "modal",headerTitleAlign: "center", title: 'Search Menu' }} />
             <Stack.Screen name="modal" options={{ presentation: 'modal' }} />

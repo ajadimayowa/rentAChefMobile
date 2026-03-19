@@ -1,6 +1,6 @@
 // app/(tabs)/guest-chefs.tsx
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, Image, Text, TouchableOpacity, RefreshControl } from "react-native";
+import { View, ScrollView, Image, Text, TouchableOpacity, RefreshControl, Linking, Pressable } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import HeaderBar from "@/components/HeaderBar";
 import ChefCard from "@/components/ChefCard";
@@ -62,6 +62,42 @@ export default function GuestChefsScreen() {
     fetchUserProfile()
   }, [router])
 
+  const openPPolicy = async () => {
+      const url = "https://rentachefng.com/privacy-policy/";
+  
+      const supported = await Linking.canOpenURL(url);
+  
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        console.log("Can't open WhatsApp link");
+      }
+    };
+
+    const openTOS = async () => {
+      const url = "https://rentachefng.com/terms-of-service/";
+  
+      const supported = await Linking.canOpenURL(url);
+  
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        console.log("Can't open WhatsApp link");
+      }
+    };
+
+    const openFAQ = async () => {
+      const url = "https://rentachefng.com/faq/";
+  
+      const supported = await Linking.canOpenURL(url);
+  
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        console.log("Can't open WhatsApp link");
+      }
+    };
+
   const handleLogout = async () => {
     await SecureStorage.removeItem("userToken");
     await persistor.purge();
@@ -71,35 +107,14 @@ export default function GuestChefsScreen() {
   return (
     <SafeAreaView style={styles.frame}>
       <ScrollView refreshControl={
-                          <RefreshControl refreshing={loading} onRefresh={fetchUserProfile} />
-                        } style={styles.container}>
+        <RefreshControl refreshing={loading} onRefresh={fetchUserProfile} />
+      } style={styles.container}>
         <View style={{ alignItems: 'center', width: '100%' }}>
-          {userData?.profilePic ? <Image source={{uri:userData?.profilePic as any}} style={{ width: '100%', height: 250}} /> : <View>{userData?.gender == 'm' ? <Image source={require('../../assets/images/manavatar.png')} style={{ width: 100, height: 100, borderRadius: 100 }} /> : <Image source={require('../../assets/images/womanavatar.png')} style={{ width: 100, height: 100, borderRadius: 100 }} />}</View>}
+          {userData?.profilePic ? <Image source={{ uri: userData?.profilePic as any }} style={{ backgroundColor: "#ffffffff", height: 200, width: 200, borderRadius: 200, overflow: 'hidden' }} /> : <View>{userData?.gender == 'm' ? <Image source={require('../../assets/images/manavatar.png')} style={{ width: 100, height: 100, borderRadius: 100 }} /> : <Image source={require('../../assets/images/womanavatar.png')} style={{ width: 100, height: 100, borderRadius: 100 }} />}</View>}
+          <SectionText textStyle={{ marginTop: 10 }} text={userProfile?.fullName} />
+          <BodyText text={`${userData?.email}`} />
         </View>
-        <ReusableCard>
-          <View>
-            <SectionText text="Name" />
-            <BodyText text={userProfile?.fullName} />
 
-            <SectionText textStyle={{ marginTop: 5 }} text="Gender" />
-            <BodyText text={userData?.gender == 'm' ? 'Male' : 'Female'} />
-
-            <SectionText textStyle={{ marginTop: 5 }} text="Contact" />
-            <BodyText text={`0${userData?.phone} | ${userData?.email}`} />
-
-            {/* <SectionText textStyle={{ marginTop: 5 }} text="Health information" />
-            <BodyText text={userProfile?.healthInfo ?? '-'} />
-
-            <SectionText textStyle={{ marginTop: 5 }} text="Allergies" />
-            <BodyText text={userProfile?.allergies ?? '-'} /> */}
-          </View>
-
-          <TouchableOpacity onPress={()=>router.push({pathname:`/viewprofile`,params:{id:userProfile.id}})} style={{width:'100%',flexDirection:'row', marginTop:30, justifyContent:'space-between', alignItems:'center'}}>
-            <BodyText textStyle={{color:'#52220aff'}} text={"See More"}/> 
-            <FontAwesome5 color={'#52220aff'}  name="angle-right"/>
-          </TouchableOpacity>
-
-        </ReusableCard>
         {/* <ReusableCard title="Subscriptions">
 
         </ReusableCard>
@@ -108,14 +123,39 @@ export default function GuestChefsScreen() {
 
         </ReusableCard> */}
 
-        <ReusableCard onPress={handleLogout} title="Logout">
+        <ReusableCard onPress={() => router.push({ pathname: `/viewprofile`, params: { id: userProfile.id } })} title="Personal Information">
 
         </ReusableCard>
 
-        <View style={{width:'100%',marginTop:20, alignItems:'center'}}>
-          <Entypo size={28} name="old-phone"/>
-          <SectionText text="For complaints and manual booking"/>
-          <BodyText text="+2348166467555"/>
+        <ReusableCard onPress={() => router.push({ pathname: `/notifications`, params: { id: userProfile.id } })} title="Notifications">
+
+        </ReusableCard>
+
+        <View style={{ padding: 20 }}>
+          <SectionText textStyle={{ marginTop: 10 }} text="Help & Support" />
+
+        </View>
+
+        <ReusableCard onPress={openPPolicy} title="Privacy Policy">
+
+        </ReusableCard>
+
+        <ReusableCard onPress={openTOS} title="Terms of Service">
+
+        </ReusableCard>
+
+        <ReusableCard onPress={openFAQ} title="FAQ & Help">
+
+        </ReusableCard>
+
+        <ReusableCard titleStyle={{ color: "#ff6464ff" }} style={{ backgroundColor: "#ffffffff", borderWidth: 1, borderColor: "#ff6464ff" }} onPress={handleLogout} title="Logout">
+
+        </ReusableCard>
+
+        <View style={{ width: '100%', marginTop: 20, alignItems: 'center' }}>
+          <Entypo size={28} name="old-phone" />
+          <SectionText text="For complaints and manual booking" />
+          <BodyText text="+2348166467555" />
         </View>
 
         <ScrollView contentContainerStyle={{ padding: 20 }}>

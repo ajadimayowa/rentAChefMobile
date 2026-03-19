@@ -7,7 +7,7 @@ export default {
     name: 'rentAChef',
     slug: 'rentAChef',
     scheme: 'rentAChef',
-    version: '1.0.0',
+    version: '2.0.0',
     orientation: 'portrait',
     icon: './assets/loadIcon.png',
     userInterfaceStyle: 'automatic',
@@ -15,7 +15,10 @@ export default {
 
     ios: {
       supportsTablet: true,
-      bundleIdentifier: "com.floathhub.ogasela"
+      bundleIdentifier: "com.floathhub.ogasela",
+      infoPlist: {
+      "ITSAppUsesNonExemptEncryption": false
+    }
     },
 
     android: {

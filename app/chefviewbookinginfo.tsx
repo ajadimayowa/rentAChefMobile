@@ -28,7 +28,7 @@ import { Booking } from "@/interfaces/booking";
 import moment from "moment";
 import { convertToThousand } from "@/helpers/utils";
 
-export default function ClientViewBookingInfo() {
+export default function ChefViewBookingInfo() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const userProfile = useSelector((state: RootState) => state.auth.bioData);
   const dispatch = useDispatch();
@@ -122,6 +122,37 @@ export default function ClientViewBookingInfo() {
           </View>
 
 
+          <View style={[style.card]}>
+            <View style={style.rowSection}>
+              <SectionText text={'Client Details'} />
+            </View>
+
+            <View style={style.rowSection}>
+              <BodyText text={'Name'} />
+              <BodyText text={booking?.clientId?.fullName ?? ''} />
+            </View>
+
+            <View style={style.rowSection}>
+              <BodyText text={'Phone'} />
+              <BodyText text={booking?.clientId?.phone ?? ''} />
+            </View>
+
+            <View style={style.rowSection}>
+              <BodyText text={'Address'} />
+              <BodyText text={booking?.clientId?.location?.home ?? '-'} />
+            </View>
+
+            <View style={style.rowSection}>
+              <BodyText text={'Health Details'} />
+              <BodyText text={booking?.clientId?.healthInformation?.healthDetails ?? '-'} />
+            </View>
+
+            <View style={style.rowSection}>
+              <BodyText text={'Client Note'} />
+              <BodyText text={booking?.clientNote ?? ''} />
+            </View>
+          </View>
+
           {
             booking?.procurementId &&
             <View style={[style.card,{backgroundColor:'#e8ffeeff'}]}>
@@ -141,7 +172,9 @@ export default function ClientViewBookingInfo() {
                   </View>
           </View>}
 
-{<ReusableButton loading={loading} style={{ marginTop: 40, margin: 10, borderRadius: 5}} title={`Pay Procurement`} />}
+{
+  !booking?.procurementId &&
+  <ReusableButton loading={loading} style={{ marginTop: 40, margin: 10, borderRadius: 5}} title={`Add Procurement`} />}
 
 
         </ScrollView>

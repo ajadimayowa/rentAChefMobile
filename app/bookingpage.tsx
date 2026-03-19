@@ -19,12 +19,15 @@ import { IChef } from "@/interfaces/chef";
 import BodyText from "@/components/typography/BodyText";
 import { ActivityIndicator, RadioButton } from 'react-native-paper';
 import { convertToThousand } from "@/helpers/utils";
+import ReusableCard from "@/components/cards/ReusableCard";
+import FormInput from "@/components/FormInput";
+import { Formik } from "formik";
 
 export default function BookingScreen() {
     const [activeTab, setActiveTab] = useState<"active" | "pending" | "expired">(
         "active"
     );
-    const { id,startDate,endDate} = useLocalSearchParams();
+    const { id, startDate, endDate } = useLocalSearchParams();
     const userProfile = useSelector((user: RootState) => user.auth.bioData);
     const [ads, setAds] = useState<any[]>([]);
     const [onproceedToPay, setOnProceedToPay] = useState(false)
@@ -50,7 +53,7 @@ export default function BookingScreen() {
         fetchSelectedServicePricingCharges(serviceName?.serviceId?.id);
     };
 
-    const [chefInfo, setChefInfo] = useState<IChef>();
+    const [chefInfo, setChefInfo] = useState<IChef | any>();
     const [chefServices, setChefServices] = useState<any[]>([]);
 
     const [selectedDate, setSelectectedDate] = useState('');
@@ -59,21 +62,20 @@ export default function BookingScreen() {
     const [selectedServices, setSelectedServices] = useState<string[]>([]);
 
     const [selectedDates, setSelectedDates] = useState({
-            startDate: '',
-            endDate: '',
-        });
-    
-        const specialMenuPayload = {
-            clientId:userProfile.id,
-            chefId:chefInfo?.id,
-            startDate,
-            clientNote:"Make it special",
-            endDate,
-            serviceId:selectedServicePrice[0]?.serviceId?.id,
-            categoryId:selectedServicePrice[0]?.chefCategoryId?.id,
-            bookingFeeAmount:selectedServicePrice[0]?.price,
-            totalAmount:selectedServicePrice[0]?.price,
-        }
+        startDate: '',
+        endDate: '',
+    });
+
+    const specialMenuPayload = {
+        clientId: userProfile.id,
+        chefId: chefInfo?.chef?.id,
+        startDate,
+        endDate,
+        serviceId: selectedServicePrice[0]?.serviceId?.id,
+        categoryId: selectedServicePrice[0]?.chefCategoryId?.id,
+        bookingFeeAmount: selectedServicePrice[0]?.price,
+        totalAmount: selectedServicePrice[0]?.price,
+    }
 
     // const handleServiceChange = (serviceName: string) => {
     //     setSelectedServices(prevState => {
@@ -173,7 +175,7 @@ export default function BookingScreen() {
 
         try {
             const res = await api.get(
-                `/servicePricings?chefCategoryId=${chefInfo?.category?.id}&serviceId=${serviceId}`
+                `/servicePricings?chefCategoryId=${chefInfo?.chef?.category?.id}&serviceId=${serviceId}`
             );
 
             if (res?.data?.success) {
@@ -201,48 +203,54 @@ export default function BookingScreen() {
     return (
         <>
             <ScrollView style={styles.container}>
-                <Image style={{ width: '100%', height: 250 }} source={
-                    chefInfo?.profilePic
-                        ? { uri: chefInfo?.profilePic }
+                <Formik
+                initialValues={{clientNote:""}}
+                onSubmit={()=>console.log('ok')}
+                >
+                    {
+({values})=>(
+    <>
+    <Image style={{ width: '100%', height: 250 }} source={
+                    chefInfo?.chef?.profilePic
+                        ? { uri: chefInfo?.chef?.profilePic }
                         : require('../assets/images/manavatar.png')
                 } />
                 <View style={styles.calendarcard}>
                     <SectionText textStyle={{ marginTop: 3 }} text="Name" />
-                    <BodyText text={`${chefInfo?.name}`} />
+                    <BodyText text={`${chefInfo?.chef?.name}`} />
 
                     <SectionText textStyle={{}} text="Chef Category" />
-                    <BodyText text={`${chefInfo?.category?.name}`} />
+                    <BodyText text={`${chefInfo?.chef?.category?.name}`} />
 
                     <SectionText textStyle={{}} text="Specialties" />
                     <View >
                         {
-                            chefInfo?.specialties.map((spec, index) => (<View key={index}><BodyText text={`${spec}`} /></View>))
+                            chefInfo?.chef?.specialties.map((spec: any, index: number) => (<View key={index}><BodyText text={`${spec}`} /></View>))
                         }
                     </View>
 
                     <SectionText textStyle={{}} text="Select Service" />
-                    <View>
-                        {chefServices.map((service, index) => (
-                            <View
-                                key={index}
-                                style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}
-                            >
-                                <RadioButton.Android
-                                    value={service?.serviceId?.name}
-                                    status={
-                                        selectedService === service?.serviceId?.name ? "checked" : "unchecked"
-                                    }
-                                    onPress={() => handleRadioChange(service)}
-                                    color="#ff733b"
-                                    uncheckedColor="#000000ff"
-                                />
 
-                                <Text style={{ marginLeft: 10 }}>
-                                    {service?.serviceId?.name}
-                                </Text>
-                            </View>
-                        ))}
-                    </View>
+                    {chefServices.map((service, index) => (
+                        <View
+                            key={index}
+                            style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}
+                        >
+                            <RadioButton.Android
+                                value={service?.serviceId?.name}
+                                status={
+                                    selectedService === service?.serviceId?.name ? "checked" : "unchecked"
+                                }
+                                onPress={() => handleRadioChange(service)}
+                                color="#ff733b"
+                                uncheckedColor="#000000ff"
+                            />
+
+                            <Text style={{ marginLeft: 10 }}>
+                                {service?.serviceId?.name}
+                            </Text>
+                        </View>
+                    ))}
 
 
                 </View>
@@ -259,13 +267,32 @@ export default function BookingScreen() {
                     )}
                 </View>
 
+                <ReusableCard>
+                    <View>
+                        <FormInput
+                            type="textarea"
+                            id="clientNote"
+                            label="Special note"
+                            placeholder="Special note to admin and chef"
+                        />
+                    </View>
+
+                </ReusableCard>
 
 
-                <ReusableButton loading={loading} disabled={!endDate || !selectedServicePrice[0]?.price} onPress={() => router.push({ pathname: './paystackscreenchef', params: specialMenuPayload })} style={{ marginTop: 40, margin: 5, borderRadius: 5 }} title="Pay With Paystack" />
-                <ReusableButton loading={loading} disabled={!endDate} style={{ margin: 5, borderRadius: 5,borderWidth:0.2, borderColor:'#000',backgroundColor: '#fff' }} textStyle={{ color: '#000' }} title="Request Invoice" />
+
+
+
+                <ReusableButton loading={loading} disabled={!endDate || !selectedServicePrice[0]?.price} onPress={() => router.push({ pathname: './paystackscreenchef', params: {...specialMenuPayload, clientNote: values.clientNote } })} style={{ marginTop: 40, margin: 5, borderRadius: 5 }} title="Pay With Paystack" />
+                <ReusableButton loading={loading} disabled={!endDate} style={{ margin: 5, borderRadius: 5, borderWidth: 0.2, borderColor: '#000', backgroundColor: '#fff' }} textStyle={{ color: '#000' }} title="Request Invoice" />
 
                 <View style={{ padding: '4%' }}>
                 </View>
+    </>
+)
+                    }
+                
+</Formik>
             </ScrollView>
 
             {/* <BookingModal chefId={chefId} date={selectedDate} visible={onproceedToPay} onClose={()=>setOnProceedToPay(false)}/> */}

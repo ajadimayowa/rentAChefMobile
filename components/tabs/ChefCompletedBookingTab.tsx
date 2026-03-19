@@ -14,9 +14,10 @@ import PrimaryLoader from "../Loader";
 import BodyText from "../typography/BodyText";
 import Colors from "@/constants/Colors";
 
-const UserActiveAds: React.FC<any> = () => {
+const ChefCompletedBookingTab: React.FC<any> = () => {
     const localProfile = useSelector((user: RootState) => user.auth.bioData);
-    const [ads, setAds] = useState<any[]>([])
+    const [bookings, setBookings] = useState<any[]>([]);
+    const chefProfile = useSelector((user: RootState) => user.chef);
 
     const [showAnnouncement, setShowAnnouncement] = useState(false);
     const navigation = useNavigation();
@@ -31,12 +32,12 @@ const UserActiveAds: React.FC<any> = () => {
         router.replace('/');
 
     }
-    const fetchAds = async () => {
+    const fetchBookings = async () => {
         // const apiUrl = Constants.expoConfig?.extra?.apiUrl
         // console.log('baseUrl',apiUrl)
         setLoading(true)
         try {
-            const res = await api.get(`/ads?seller=${localProfile.id}&isActive=true`)
+            const res = await api.get(`/bookings?chefId=${chefProfile.chefData.id}&status=completed`)
 
             console.log({ seeRes: res })
 
@@ -45,7 +46,7 @@ const UserActiveAds: React.FC<any> = () => {
                 //     type: 'success',
                 //     text1: 'Profile Fetched'
                 // });
-                setAds(res?.data?.data)
+                setBookings(res?.data?.payload)
                 setLoading(false)
             } else {
 
@@ -55,7 +56,7 @@ const UserActiveAds: React.FC<any> = () => {
                 //     type: 'error',
                 //     text1: 'Session Expired!'
                 // });
-                setAds([])
+                setBookings([])
 
             }
 
@@ -66,12 +67,12 @@ const UserActiveAds: React.FC<any> = () => {
             //         type: 'error',
             //         text1: 'Session Expired!'
             //     });
-            setAds([])
+            setBookings([])
         }
     }
 
     useEffect(() => {
-        fetchAds()
+        fetchBookings()
     }, [])
     return (
         <View style={style.container}>
@@ -79,16 +80,16 @@ const UserActiveAds: React.FC<any> = () => {
                 loading ? <PrimaryLoader /> :
                     <ScrollView
                         refreshControl={
-                            <RefreshControl refreshing={loading} onRefresh={fetchAds} />
+                            <RefreshControl refreshing={loading} onRefresh={fetchBookings} />
                         }
                         style={{ width: '100%', flex: 1 }}>
 
 
                         {
-                            ads.map((ads, index) => (
-                                <View key={index}>
-                                    <Text>Hello</Text>
-                                </View>
+                            bookings.map((booking, index) => (
+                                <TouchableOpacity key={index} style={{width:'100%', borderRadius:5,margin:5, padding:'5%', backgroundColor:'#fff'}}>
+                                    <SectionText text={booking?.serviceId?.name??booking?.title}/>
+                                </TouchableOpacity>
                             ))
                         }
 
@@ -99,7 +100,7 @@ const UserActiveAds: React.FC<any> = () => {
 
             <View style={{width:'100%',alignItems:'center',justifyContent:'center'}}>
                 {
-                    !loading && ads.length == 0 && <View style={{width:'100%',alignItems:'center',justifyContent:'center'}}><BodyText text="You have no booking" /></View>
+                    !loading && bookings.length == 0 && <View style={{width:'100%',alignItems:'center',justifyContent:'center'}}><BodyText text="You have no completed booking" /></View>
                 }
             </View>
         </View>
@@ -113,4 +114,4 @@ const style = ScaledSheet.create({
         flex: 1
     }
 })
-export default UserActiveAds;
+export default ChefCompletedBookingTab

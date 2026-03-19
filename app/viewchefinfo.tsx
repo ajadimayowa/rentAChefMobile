@@ -67,7 +67,7 @@ export default function ViewChefsScreen() {
                 //     type: 'success',
                 //     text1: 'Profile Fetched'
                 // });
-                setChefInfo(res?.data?.payload)
+                setChefInfo(res?.data?.payload?.chef)
                 setLoading(false)
             } else {
 

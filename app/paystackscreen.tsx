@@ -27,6 +27,7 @@ export default function PayStackScreen() {
     specialMenuId,
     startDate,
     endDate,
+    clientNote,
     bookingFeeAmount
   } = useLocalSearchParams();
   const localProfile = useSelector((user: RootState) => user.auth.bioData);
@@ -54,7 +55,7 @@ export default function PayStackScreen() {
       const res = await api.post("/payment/initialize-payment", {
         email: userProfile.email,
         amount: bookingFeeAmount,
-        callback_url: 'https://rent-a-chef-admin.vercel.app/'
+        callback_url: 'https://rent-a-chef-portal.vercel.app/payment-succesful'
       });
 
       console.log({ seeResp: res.data?.data })
@@ -96,7 +97,7 @@ export default function PayStackScreen() {
 
   const bookingPayload = {
     clientId,
-    clientNote: "No burnt food",
+    clientNote,
     specialMenuId,
     startDate,
     endDate,

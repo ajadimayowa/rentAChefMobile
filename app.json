@@ -2,7 +2,7 @@
   "expo": {
     "name": "rentachefapp",
     "slug": "rentachefapp",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/loadIcon.png",
     "scheme": "rentachefapp",
@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.floathhub.ogasela"
+      "bundleIdentifier": "com.floathhub.ogasela",
+      "infoPlist": {
+      "ITSAppUsesNonExemptEncryption": false
+    }
     },
     "android": {
       "adaptiveIcon": {

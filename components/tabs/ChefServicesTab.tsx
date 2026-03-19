@@ -22,7 +22,6 @@ export interface IChefABout {
 }
 const ChefServicesTab: React.FC<IChefABout> = ({ data }) => {
     const localProfile = useSelector((user: RootState) => user.auth.bioData);
-    const [ads, setAds] = useState<any[]>([])
 
     const [showAnnouncement, setShowAnnouncement] = useState(false);
     const navigation = useNavigation();
@@ -48,7 +47,7 @@ const ChefServicesTab: React.FC<IChefABout> = ({ data }) => {
                 {
                     data?.length > 0 ?
                         data.map((service,index) => (
-                            <View key={index} style={style.calendarcard}>
+                            <View key={index + 1} style={style.calendarcard}>
                                 <SectionText text={service?.serviceId?.name} />
                             </View>)) :
                         <BodyText text="No Uploaded Services at this time" />

@@ -1,6 +1,6 @@
 // app/(tabs)/guest-home.tsx
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, Text, Pressable, RefreshControl } from "react-native";
+import { View, ScrollView, Text, Pressable, RefreshControl, Linking } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import HeaderBar from "@/components/HeaderBar";
 import ChefCard from "@/components/ChefCard";
@@ -31,6 +31,7 @@ export default function GuestHomeScreen() {
   const [menus, setMenus] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
   const [chefs, setChefs] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const userProfile = useSelector((user: RootState) => user.auth);
   const userLocation = useSelector((location: RootState) => location.location);
   const [onQuoteModal, setOnQuoteModal] = useState(false);
@@ -167,114 +168,162 @@ export default function GuestHomeScreen() {
       });
     }
   }
+
+  const openWhatsApp = async () => {
+    const url = "https://api.whatsapp.com/send?phone=2348166467555";
+
+    const supported = await Linking.canOpenURL(url);
+
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      console.log("Can't open WhatsApp link");
+    }
+  };
+
+
+  const fetchNotifications = async () => {
+    // const apiUrl = Constants.expoConfig?.extra?.apiUrl
+    // console.log('baseUrl',apiUrl)
+    setLoading(true)
+    try {
+      const res = await api.get(`/notifications?userId=${userProfile.bioData.id}`);
+      // console.log({ seeRes: res?.data?.payload })
+      if (res?.data) {
+        setNotifications(res?.data?.payload)
+        // setLoading(false);
+        // Toast.show({
+        //     type: 'success',
+        //     text1: 'Data Fetched',
+        //     text2: res?.data?.message || 'hi',
+        // });
+      } else {
+        console.log({ seeAfter: res })
+        // setLoading(false);
+
+      }
+
+    } catch (error: any) {
+      console.log({ seeErrorBreak: error })
+      //   setLoading(false)
+      // Toast.show({
+      //     type: 'error',
+      //     text1: 'Login Error',
+      //     text2: error?.response?.message || 'Invalid credentials',
+      // });
+    }
+  }
+
   useEffect(() => {
     fetchServices()
     fetchMenu();
     fetchChefs();
+    fetchNotifications()
 
   }, [])
   return (
     <>
-    <View style={styles.container}>
-      {/* <HeaderBarUser subtitle="Welcome to rent a chef" title={`Hi ${userProfile?.bioData?.fullName?.split(" ")[0]}`} showSearch showBack={false} /> */}
-      <HeaderBarLoaction profilePic={userProfile.bioData.profilePic} location={`${userLocation.userLocation},${userLocation.userState}`} fullName={`Hi ${userProfile?.bioData?.fullName}`} showSearch showBack={false} />
+      <View style={styles.container}>
+        {/* <HeaderBarUser subtitle="Welcome to rent a chef" title={`Hi ${userProfile?.bioData?.fullName?.split(" ")[0]}`} showSearch showBack={false} /> */}
+        <HeaderBarLoaction notificationCount={notifications.length} profilePic={userProfile.bioData.profilePic} location={`${userLocation.userLocation},${userLocation.userState}`} fullName={`Hi ${userProfile?.bioData?.fullName}`} showSearch showBack={false} />
 
-      {
-        loading && <PrimaryLoader />
-      }
+        {
+          loading && <PrimaryLoader />
+        }
 
-      {!loading &&
-        <ScrollView
-          refreshControl={
-            <RefreshControl refreshing={loading} onRefresh={fetchChefs} />
-          }
-          contentContainerStyle={{ padding: 20 }}>
-          <ReusableImgBGOverlayCard
-            image={require('../../assets/images/pasta.png')}
-            gradientText={'Enjoy Amazing Dishes'}
-            description={`You don't have to break your bank to enjoy exquisite cuisines.`}
-          />
-
-          <SectionText text="Available services" textStyle={{ marginBottom: 10, marginTop: 10, }} />
-          <View style={styles.card}>
-            {
-              services.map((cats, index) => (
-                <Pressable
-                  key={index}
-                  onPress={() => console.log('ok')}
-                  style={({ pressed }) => [
-                    styles.catbtncontainer,
-                    { backgroundColor: index == 0 ? '#E39325' : '#fff' },
-                    pressed && styles.pressed,
-                  ]}
-                >
-                  <BodyText text={cats.name} />
-                  {/* <Text style={[styles.text, { color: '#000' }]}>{}</Text> */}
-                </Pressable>
-              ))
-            }
-          </View>
-          <SectionText text="Special Menus" textStyle={{ marginBottom: 10, marginTop: 10, }} />
+        {!loading &&
           <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 10, gap: 12 }}
-          >{
-              menus.map((menu: IMenu, index) => (
-                <View key={index}>
-                  <DishCard
-                    image={menu?.image}
-                    title={menu.title}
-                    description={menu?.description}
-                    price={menu?.basePrice}
-                    onPress={() => router.push({ pathname: './viewspecialmenubooking', params: { id: menu.id } })}
-                  />
+            refreshControl={
+              <RefreshControl refreshing={loading} onRefresh={fetchChefs} />
+            }
+            contentContainerStyle={{ padding: 20 }}>
+            {/* <BodyText text={notifications[0]?.title || 'No new notifications'} /> */}
+            <ReusableImgBGOverlayCard
+              image={require('../../assets/images/pasta.png')}
+              gradientText={'Enjoy Amazing Dishes'}
+              description={`You don't have to break your bank to enjoy exquisite cuisines.`}
+            />
 
+            <SectionText text="Available services" textStyle={{ marginBottom: 10, marginTop: 10, }} />
+            <View style={styles.card}>
+              {
+                services.map((cats, index) => (
+                  <Pressable
+                    key={index}
+                    onPress={() => console.log('ok')}
+                    style={({ pressed }) => [
+                      styles.catbtncontainer,
+                      { backgroundColor: index == 0 ? '#E39325' : '#fff' },
+                      pressed && styles.pressed,
+                    ]}
+                  >
+                    <BodyText text={cats.name} />
+                    {/* <Text style={[styles.text, { color: '#000' }]}>{}</Text> */}
+                  </Pressable>
+                ))
+              }
+            </View>
+            <SectionText text="Special Menus" textStyle={{ marginBottom: 10, marginTop: 10, }} />
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 10, gap: 12 }}
+            >{
+                menus.map((menu: IMenu, index) => (
+                  <View key={index}>
+                    <DishCard
+                      image={menu?.image}
+                      title={menu.title}
+                      description={menu?.description}
+                      price={menu?.basePrice}
+                      onPress={() => router.push({ pathname: './viewspecialmenubooking', params: { id: menu.id } })}
+                    />
+
+                  </View>
+                ))
+              }
+
+            </ScrollView>
+
+
+
+            <SectionText text="Featured chefs" textStyle={{ marginBottom: 5, marginTop: 20 }} />
+
+            {
+              chefs.length > 0 ? chefs.map((chef: IChef, index) => (
+                <View key={index}>
+                  <ChefCard
+                    specialty={chef.specialties}
+                    chefCat={chef?.category?.name}
+                    image={chef?.profilePic}
+                    name={chef.name}
+                    location={chef.location}
+                    state={chef.state}
+                    onPress={() => router.push({ pathname: '/viewchefinfo', params: { id: chef.id, chefPic: chef.profilePic } })}
+                  />
                 </View>
               ))
+                :
+                <View style={{ width: '100%', height: 200, alignItems: 'center', alignSelf: 'center', justifyContent: 'center' }}>
+                  <MaterialCommunityIcons name="chef-hat" size={48} style={{ margin: 10 }} color={Colors.primary.base} />
+                  <Text style={{ width: '100%', textAlign: 'center' }}>No Chefs At This Time</Text>
+                </View>
             }
 
-          </ScrollView>
-
-
-
-          <SectionText text="Featured chefs" textStyle={{ marginBottom: 5, marginTop: 20 }} />
-
-          {
-            chefs.length > 0 ? chefs.map((chef: IChef, index) => (
-              <View key={index}>
-                <ChefCard
-                  specialty={chef.specialties}
-                  chefCat={chef?.category?.name}
-                  image={chef?.profilePic}
-                  name={chef.name}
-                  location={chef.location}
-                  state={chef.state}
-                  onPress={() => router.push({ pathname: '/viewchefinfo', params: { id: chef.id, chefPic: chef.profilePic } })}
-                />
-              </View>
-            ))
-              :
-              <View style={{ width: '100%', height: 200, alignItems: 'center', alignSelf: 'center', justifyContent: 'center' }}>
-                <MaterialCommunityIcons name="chef-hat" size={48} style={{ margin: 10 }} color={Colors.primary.base} />
-                <Text style={{ width: '100%', textAlign: 'center' }}>No Chefs At This Time</Text>
-              </View>
-          }
-
-          <BackgroundImageCard onPress={() => setOnQuoteModal(true)} image={require('../../assets/images/imgBgd.png')} title="Do you have a
+            <BackgroundImageCard onPress={() => setOnQuoteModal(true)} image={require('../../assets/images/imgBgd.png')} title="Do you have a
 special request"/>
-        </ScrollView>
-      }
-    </View>
+          </ScrollView>
+        }
+      </View>
 
-      <Pressable style={styles.fab} onPress={() => console.log("Pressed")}>
+      <Pressable style={styles.fab} onPress={openWhatsApp}>
         <Ionicons name="chatbubble-ellipses" size={24} color="#fff" />
       </Pressable>
 
-    <CreateQuoteModal
-    visible={onQuoteModal}
-    onClose={()=>setOnQuoteModal(false)}
-    />
+      <CreateQuoteModal
+        visible={onQuoteModal}
+        onClose={() => setOnQuoteModal(false)}
+      />
     </>
   );
 }
@@ -301,7 +350,7 @@ const styles = ScaledSheet.create({
     // ✅ Drop shadow (Android)
     elevation: 4,
   },
-fab: {
+  fab: {
     position: "absolute",
     right: 20,
     bottom: 10,

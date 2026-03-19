@@ -138,7 +138,7 @@ const styles = ScaledSheet.create({
   content: {
     padding: "12@s",
     zIndex: 2,
-    maxWidth:'100%',
+    width:'100%',
     overflow:'hidden',
     backgroundColor:'#000'
   },

@@ -51,6 +51,18 @@ export default function ViewSpecialMenuAvailabilityBookingScreen() {
         bookingFeeAmount: menuData?.price
     }
 
+    const intialVal = {
+                        customerId: "",
+                        customerName: "",
+                        orderAmount: "",
+                        orderType: "",
+                        fullName: "",
+                        gender: "",
+                        phoneNumber: "",
+                        birthDate: "",
+                        maritalStatus: "",
+                        clientNote:""
+                    }
 
     const fetchSpecialMenuDetails = async () => {
         // const apiUrl = Constants.expoConfig?.extra?.apiUrl
@@ -124,20 +136,10 @@ export default function ViewSpecialMenuAvailabilityBookingScreen() {
         <>
             <ScrollView style={styles.container}>
                 <Formik
-                    initialValues={{
-                        customerId: "",
-                        customerName: "",
-                        orderAmount: "",
-                        orderType: "",
-                        fullName: "",
-                        gender: "",
-                        phoneNumber: "",
-                        birthDate: "",
-                        maritalStatus: "",
-                    }}
+                    initialValues={intialVal}
                     onSubmit={() => console.log('')}
                 >
-                    {({ handleSubmit }) => (<>
+                    {({ handleSubmit,values }) => (<>
                         <ReusableCard>
                             <View>
                                 <SectionText text="Title" />
@@ -145,7 +147,7 @@ export default function ViewSpecialMenuAvailabilityBookingScreen() {
 
                                 <View style={{ width: '100%', justifyContent: 'space-between', flexDirection: 'row', marginTop: 15 }}>
                                     <SectionText text="No of guests" />
-                                    <BodyText text="10" />
+                                    <BodyText text={menuData?.minimumGuests} />
                                 </View>
 
                                 <View style={{ width: '100%', justifyContent: 'space-between', flexDirection: 'row', marginTop: 15, alignItems: 'center' }}>
@@ -155,7 +157,7 @@ export default function ViewSpecialMenuAvailabilityBookingScreen() {
 
                                 <View style={{ width: '100%', justifyContent: 'space-between', flexDirection: 'row', marginTop: 15, alignItems: 'center' }}>
                                     <SectionText text="No of Dish" />
-                                    <BodyText text={'2'} />
+                                    <BodyText text={menuData?.numberOfDishes} />
                                 </View>
                             </View>
 
@@ -165,7 +167,7 @@ export default function ViewSpecialMenuAvailabilityBookingScreen() {
                             <View>
                                 <FormInput
                                     type="textarea"
-                                    id="fullName"
+                                    id="clientNote"
                                     label="Special note"
                                     placeholder="Full name"
                                 />
@@ -193,6 +195,7 @@ export default function ViewSpecialMenuAvailabilityBookingScreen() {
                                             startDate: String(selectedDates.startDate),
                                             endDate: String(selectedDates.endDate),
                                             bookingFeeAmount: String(menuData?.price),
+                                            clientNote:String(values?.clientNote)
                                         },
                                     })
                                 }
@@ -203,10 +206,6 @@ export default function ViewSpecialMenuAvailabilityBookingScreen() {
                         </ReusableCard>
 
                     </>)}
-
-
-
-
                 </Formik>
             </ScrollView>
 

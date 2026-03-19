@@ -14,20 +14,20 @@ import BodyText from "./typography/BodyText";
 interface HeaderBarProps {
   fullName: string;
   profilePic: string;
+  notificationCount: number;
   location?: string;
   showBack?: boolean;
   showSearch?: boolean;
   onSearch?: (value: string) => void;
 }
 
-const HeaderBarLoaction: React.FC<HeaderBarProps> = ({ fullName, location, profilePic, showBack, showSearch, onSearch }) => (
+const HeaderBarLoaction: React.FC<HeaderBarProps> = ({ fullName, location, notificationCount, showBack, showSearch, onSearch }) => (
   <View style={styles.container}>
     <SafeAreaView>
       {showBack && <ReusableButton textStyle={{ color: '#fff' }} style={{ width: 100, margin: 0, padding: 0 }} onPress={() => router.back()} iconLeft={"chevron-back"} type="pressableText" title="Go Back" />}
       <View style={{ padding: 10 }}>
         <View style={{ display: 'flex', flexDirection: 'row', gap: 3, alignItems: 'center', width:'100%',justifyContent:'space-between' }}>
           <View style={{flexDirection:'row'}}>
-            {profilePic ? <Image source={profilePic as any} style={{ width: 100, height: 100, borderRadius: 100 }} /> : <Ionicons name="person-circle-outline" size={46} color={'#fff'} />}
           <View>
             <Text style={styles.title}>{fullName}</Text>
             {location && <TouchableOpacity onPress={() => router.push('/states')}><Text style={styles.subtitle}>{location}</Text></TouchableOpacity>}
@@ -35,8 +35,10 @@ const HeaderBarLoaction: React.FC<HeaderBarProps> = ({ fullName, location, profi
 
           </View>
           
-
+<TouchableOpacity style={{ position: 'relative', flexDirection: 'row', alignItems: 'center' }} onPress={() => router.push('/notifications')}>
           <Ionicons color={'#fff'} size={28} name="notifications"/>
+          {notificationCount > 0 && <BodyText textStyle={{color:'#fff'}} text={`${notificationCount}`}/>}
+          </TouchableOpacity>
 
         </View>
 

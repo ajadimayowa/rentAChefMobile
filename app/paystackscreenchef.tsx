@@ -56,7 +56,7 @@ export default function PayStackScreenChef() {
       const res = await api.post("/payment/initialize-payment", {
         email: userProfile.email,
         amount: bookingFeeAmount,
-        callback_url: 'https://rent-a-chef-admin.vercel.app/'
+        callback_url: 'https://rent-a-chef-portal.vercel.app/payment-succesful'
       });
 
       console.log({ seeResp: res.data?.data })

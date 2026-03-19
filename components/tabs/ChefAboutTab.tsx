@@ -40,6 +40,8 @@ const ChefAboutTab: React.FC<IChefABout> = ({ data }) => {
     }
     return (
         <>
+        {
+            data?.location === undefined ? <PrimaryLoader/> : 
             <ScrollView
                 // refreshControl={
                 //     <RefreshControl refreshing={loading} onRefresh={fetchAds} />
@@ -66,6 +68,8 @@ const ChefAboutTab: React.FC<IChefABout> = ({ data }) => {
                 <SectionText text="Brief Info"/>
                 <BodyText text={data?.bio}/>
             </ScrollView>
+        }
+            
         </>
 
     )
