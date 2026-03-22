@@ -174,14 +174,14 @@ export default function GuestHomeScreen() {
 
           <View style={styles.card2}>
 
-                 <TouchableOpacity style={styles.memberCard}>
-                    <FontAwesome6 size={34} name="calendar" />
-                    <BodyText text="Upload Menu" />
+                 <TouchableOpacity style={styles.memberCard} onPress={() => router.push('/add-chef-menu')}>
+                  <FontAwesome6 size={34} name="calendar" />
+                  <BodyText text="Upload Menu" />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.memberCard}>
-                    <Ionicons size={34} name="fast-food" />
-                    <BodyText text="View menu" />
+                <TouchableOpacity style={styles.memberCard} onPress={() => router.push('/chef-menus')}>
+                  <Ionicons size={34} name="fast-food" />
+                  <BodyText text="View menu" />
                 </TouchableOpacity>
 
                

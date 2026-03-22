@@ -81,6 +81,9 @@ function RootLayoutNav() {
             <Stack.Screen name="clientviewbookinginfo" options={{ headerShown: true,headerTitleAlign: "center", title:'Booking Information', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
             <Stack.Screen name="chefviewbookinginfo" options={{ headerShown: true,headerTitleAlign: "center", title:'Booking Information', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
 
+            <Stack.Screen name="add-chef-menu" options={{ headerShown: true,headerTitleAlign: "center", title:'Add Chef Menu', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
+            <Stack.Screen name="chef-menus" options={{ headerShown: true,headerTitleAlign: "center", title:'Chef Menus', headerLeft:()=><TouchableOpacity onPress={()=>router.back()}><Text>Back</Text></TouchableOpacity> }} />
+
             <Stack.Screen name="paystackscreen" options={{ presentation: "modal",headerTitleAlign: "center", title: 'Pay With Paystack' }} />
             <Stack.Screen name="paystackscreenchef" options={{ presentation: "modal",headerTitleAlign: "center", title: 'Pay With Paystack' }} />
             <Stack.Screen name="states" options={{ presentation: "modal",headerTitleAlign: "center", title: 'Choose State' }} />
