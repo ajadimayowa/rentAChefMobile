@@ -5,7 +5,6 @@ import { ScaledSheet } from "react-native-size-matters";
 import HeaderBar from "@/components/HeaderBar";
 import ChefCard from "@/components/ChefCard";
 import SectionText from "@/components/typography/SectionText";
-import UserActiveAds from "@/components/tabs/UserActiveAds";
 import Colors from "@/constants/Colors";
 import { Calendar } from 'react-native-calendars';
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
@@ -187,6 +186,12 @@ export default function ViewSpecialMenuAvailabilityBookingScreen() {
                                 loading={loading}
                                 disabled={!selectedDates.endDate}
                                 onPress={() =>
+                                {
+                                    if(!userProfile.id){
+                                        Toast.show({ type: 'error', text1: 'Kindly login to proceed' });
+                                        router.push('/login');
+                                        return;
+                                    }
                                     router.push({
                                         pathname: "/paystackscreen",
                                         params: {
@@ -198,6 +203,7 @@ export default function ViewSpecialMenuAvailabilityBookingScreen() {
                                             clientNote:String(values?.clientNote)
                                         },
                                     })
+                                }
                                 }
                                 style={{ marginTop: 40, margin: 5, borderRadius: 5 }}
                                 title="Pay With Paystack"

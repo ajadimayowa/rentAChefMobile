@@ -5,12 +5,16 @@ import SecureStorage from "./secureStore";
 import authReducer from "./slices/authSlice";
 import locationReducer from "./slices/locationSlice";
 import chefReducer from "./slices/chefSlice";
+import menuReducer from './slices/menuSlice';
+import notificationsReducer from './slices/notificationsSlice';
 
 // combine all reducers
 const rootReducer = combineReducers({
     auth: authReducer,
     location:locationReducer,
     chef:chefReducer
+    ,menu:menuReducer
+    ,notifications:notificationsReducer
 });
 
 // persist config

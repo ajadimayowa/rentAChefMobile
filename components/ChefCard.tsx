@@ -9,24 +9,19 @@ import Colors from "@/constants/Colors";
 import { formatListWithEllipsis } from "@/helpers/utils";
 import { router } from "expo-router";
 import SectionText from "./typography/SectionText";
+import { IChef, IChefList } from "@/interfaces/chef";
 
 interface ChefCardProps {
-  image: any;
-  name: string;
-  location: string;
-  state: string;
-  chefCat: string;
-  specialty: string[],
-  onPress: () => void;
+  chef: IChefList
 }
 
-const ChefCard: React.FC<ChefCardProps> = ({ image, chefCat, name, location, state, specialty, onPress }) => (
-  <TouchableOpacity onPress={onPress} style={styles.card}>
+const ChefCard: React.FC<ChefCardProps> = ({ chef }) => (
+  <TouchableOpacity onPress={() => router.push({ pathname: '/viewchefinfo', params: { id: chef?.id, chefPic: chef?.profilePic } })} style={styles.card}>
 
     <Image
       source={
-        image
-          ? { uri: image }
+        chef?.profilePic
+          ? { uri: chef?.profilePic }
           : require("../assets/images/chefAvatar.jpg")
       }
       style={styles.image}
@@ -34,18 +29,17 @@ const ChefCard: React.FC<ChefCardProps> = ({ image, chefCat, name, location, sta
     <View style={styles.info}>
       <View style={{ display: 'flex', flexDirection: 'row', gap: 5 }}>
         <Ionicons name="location" size={17} color="#B7D2A4" />
-        <BodyText text={location} />
+        <BodyText text={chef?.location} />
         <BodyText text={','} />
-        <BodyText text={state} />
+        <BodyText text={chef?.state} />
       </View>
-      <SectionText text={name} />
-
+      <SectionText text={chef?.name} />
       <View style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 3 }}>
-        <BodyText text={formatListWithEllipsis(specialty ?? [], 3)} />
+        <BodyText text={formatListWithEllipsis(chef?.specialties ?? [], 3)} />
       </View>
 
-      <BodyText textStyle={{ color: '#4760ffff', fontSize: 14 }} text={chefCat} />
-      <TouchableOpacity onPress={onPress} style={{ marginTop: 10, display: 'flex', gap: 5, flexDirection: 'row' }}>
+      <BodyText textStyle={{ color: '#4760ffff', fontSize: 14 }} text={chef?.category?.name} />
+      <TouchableOpacity onPress={() => router.push({ pathname: '/viewchefinfo', params: { id: chef?.id, chefPic: chef?.profilePic } })} style={{ marginTop: 10, display: 'flex', gap: 5, flexDirection: 'row' }}>
         <Text style={{ color: '#E2725B' }}>View profile</Text>
         <Ionicons name="arrow-forward" size={16} color={'#E2725B'} />
       </TouchableOpacity>

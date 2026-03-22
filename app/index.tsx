@@ -8,14 +8,22 @@ import { useAppSelector } from "@/store/hooks";
 
 export default function LandingScreen() {
   const userProfile = useAppSelector((state) => state.auth.bioData);
+  const chefProfile = useAppSelector((state) => state.chef.chefData);
   const router = useRouter();
 
   const checkAuth = () => {
-    if (!userProfile?.id) {
-      router.replace("/authscreen");
-    } else {
-      router.replace("/(dashboard)");
+    // prefer chef session if present
+    if (chefProfile?.id) {
+      router.replace("/(chefdashboard)");
+      return;
     }
+
+    if (userProfile?.id) {
+      router.replace("/(dashboard)");
+      return;
+    }
+
+    router.replace("/authscreen");
   }
 
   useEffect(() => {

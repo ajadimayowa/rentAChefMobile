@@ -1,70 +1,80 @@
 import ReusableCard from "@/components/cards/ReusableCard";
-import HeaderBar from "@/components/HeaderBar";
 import PrimaryLoader from "@/components/Loader";
-import ReusableHeader from "@/components/ReusableHeader";
 import BodyText from "@/components/typography/BodyText";
 import SectionText from "@/components/typography/SectionText";
-import api from "@/services/apiConfig";
-import { RootState } from "@/store";
-import { setUserState } from "@/store/slices/locationSlice";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
-import { View, Text, ScrollView, Image, Pressable, RefreshControl, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useEffect, useCallback, useState } from "react";
+import { View, Text, ScrollView, RefreshControl, TouchableOpacity } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import Toast from "react-native-toast-message";
 import { useDispatch, useSelector } from "react-redux";
+import { RootState, AppDispatch } from "@/store";
+import {
+    fetchNotifications,
+    markNotificationAsRead,
+    markAllAsRead,
+} from '@/store/slices/notificationsSlice';
+import { setUserState } from "@/store/slices/locationSlice";
 
 export default function NotificationsScreenModal() {
-    const [loading, setLoading] = useState(true);
-    const [categories, setCategories] = useState<any[]>([]);
-    const [notifications, setNotifications] = useState<any[]>([]);
+    const dispatch = useDispatch<AppDispatch>();
     const userProfile = useSelector((user: RootState) => user.auth);
-    const dispatch = useDispatch();
+    const chefProfile = useSelector((state: RootState) => state.chef);
+
+    // Use notifications slice as single source of truth
+    const { items: notifications = [], loading = false, page = 1, pages = 1, count: unreadCount = 0 } = useSelector((s: RootState) => s.notifications || {} as any);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
     // console.log('okkkk')
 
-    const fetchNotifications = async () => {
-        // const apiUrl = Constants.expoConfig?.extra?.apiUrl
-        // console.log('baseUrl',apiUrl)
-        setLoading(true)
-        try {
-            const res = await api.get(`/notifications?userId=${userProfile.bioData.id}`);
-            // console.log({ seeRes: res?.data?.payload })
-            if (res?.data) {
-                setNotifications(res?.data?.payload)
-                setLoading(false);
-                // Toast.show({
-                //     type: 'success',
-                //     text1: 'Data Fetched',
-                //     text2: res?.data?.message || 'hi',
-                // });
-            } else {
-                console.log({ seeAfter: res })
-                setLoading(false);
-                Toast.show({
-                    type: 'error',
-                    text1: 'Login Error',
-                    text2: res?.data?.message || 'Invalid credentials',
-                });
+  const loadNotifications = useCallback(async (p = 1) => {
+    const id = chefProfile?.chefData?.id || userProfile?.bioData?.id;
+    if (!id) return;
+    if (p > 1) setIsLoadingMore(true);
+    await dispatch(fetchNotifications({ userId: id, page: p } as any));
+    setIsLoadingMore(false);
+  }, [chefProfile, userProfile, dispatch]);
 
-            }
-
-        } catch (error: any) {
-            console.log({ seeErrorBreak: error })
-            //   setLoading(false)
-            Toast.show({
-                type: 'error',
-                text1: 'Login Error',
-                text2: error?.response?.message || 'Invalid credentials',
-            });
-        }
-    }
-
-    console.log({ seeCats: categories })
     useEffect(() => {
-        fetchNotifications();
-    }, [])
+        loadNotifications(1);
+    }, [loadNotifications]);
+
+    const handleMarkAsRead = async (notification: any) => {
+        if (!notification || notification.isRead) return;
+        try {
+            await dispatch(markNotificationAsRead(notification.id) as any);
+        } catch (err: any) {
+            Toast.show({ type: 'error', text1: 'Error', text2: 'Could not mark notification as read' });
+        }
+    };
+
+    const handleMarkAll = async () => {
+        const id = chefProfile?.chefData?.id || userProfile?.bioData?.id;
+        if (!id) return Toast.show({ type: 'info', text1: 'No user', text2: 'Cannot mark all' });
+        try {
+            await dispatch(markAllAsRead({ userId: id }) as any);
+            Toast.show({ type: 'success', text1: 'Marked all as read' });
+        } catch (err: any) {
+            Toast.show({ type: 'error', text1: 'Error', text2: 'Could not mark all as read' });
+        }
+    };
+
+    const loadMore = () => {
+        if (page >= pages || isLoadingMore) return;
+        loadNotifications(page + 1);
+    };
+
+    const navigateForNotification = (notification: any) => {
+        const idMatch = String(notification?.message || notification?.resourceId || '').match(/[a-f0-9]{24}/i);
+        const id = notification?.resourceId || (idMatch ? idMatch[0] : null);
+        const isChef = Boolean(chefProfile?.chefData?.id);
+        if (notification?.type === 'booking-confirmation' || notification?.type === 'payment-receipt' || id) {
+            const path = isChef ? '/chefviewbookinginfo' : '/clientviewbookinginfo';
+            router.push({ pathname: path, params: { id } });
+            return;
+        }
+        return;
+    };
 
     const handleStateSelection = (state: any) => {
         const lgas = state?.localGovernmentAreas ?? [];
@@ -80,34 +90,59 @@ export default function NotificationsScreenModal() {
     };
     return (
         <View style={styles.container}>
-            {
-                loading ? <PrimaryLoader /> :
-                    <ScrollView
-                        refreshControl={
-                            <RefreshControl refreshing={loading} onRefresh={fetchNotifications} />
-                        }
-                        style={{ width: '100%', flex: 1 }}>
+            {loading && page === 1 ? (
+                <PrimaryLoader />
+            ) : (
+                <ScrollView
+                    refreshControl={<RefreshControl refreshing={loading} onRefresh={() => loadNotifications(1)} />}
+                    style={{ width: '100%', flex: 1 }}
+                >
+                    <View style={{ padding: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <SectionText text="Notifications" textStyle={{ fontSize: 18, fontWeight: '700' }} />
+                        <TouchableOpacity onPress={handleMarkAll} style={{ padding: 8 }}>
+                            <BodyText text="Mark all as read" textStyle={{ color: '#007AFF' }} />
+                        </TouchableOpacity>
+                    </View>
 
+                    {notifications.map((notification: any, index: number) => (
+                        <View key={notification.id || index}>
+                            <ReusableCard>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        handleMarkAsRead(notification);
+                                        navigateForNotification(notification);
+                                    }}
+                                    style={{
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        padding: 12,
+                                        backgroundColor: notification?.isRead ? '#fff' : '#bcdcffff',
+                                        borderRadius: 8,
+                                    }}
+                                >
+                                    <View style={{ flex: 1 }}>
+                                        <BodyText text={notification?.title || 'Notification'} />
+                                        <SectionText text={notification?.message || ''} textStyle={{ marginTop: 6 }} />
+                                        <BodyText text={new Date(notification?.createdAt).toLocaleString()} textStyle={{ marginTop: 6, color: '#666' }} />
+                                    </View>
+                                    <AntDesign name="right" size={16} />
+                                </TouchableOpacity>
+                            </ReusableCard>
+                        </View>
+                    ))}
 
-
-                        {
-                            notifications.map((notification, index) =>
-                                <View key={index}>
-                                    <ReusableCard>
-                                        <TouchableOpacity key={index} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                                            <Text>{notification?.title}</Text>
-                                            <AntDesign name="right" size={16} />
-                                        </TouchableOpacity>
-                                    </ReusableCard>
-                                </View>
-                            )
-                        }
-
-
-                    </ScrollView>
-            }
+                    {page < pages && (
+                        <View style={{ padding: 12, alignItems: 'center' }}>
+                            <TouchableOpacity onPress={loadMore} style={{ padding: 12, backgroundColor: '#007AFF', borderRadius: 8 }}>
+                                <BodyText text={isLoadingMore ? 'Loading...' : 'Load more'} textStyle={{ color: '#fff' }} />
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                </ScrollView>
+            )}
         </View>
-    )
+    );
 }
 
 const styles = ScaledSheet.create({

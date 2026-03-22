@@ -14,12 +14,12 @@ import PrimaryLoader from "@/components/Loader";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 import { IChef } from "@/interfaces/chef";
-import { IMenu } from "@/interfaces/menu";
+import { IMenu, ISpecialMenu } from "@/interfaces/menu";
 
 export default function GuestHomeScreen() {
   const [loading, setLoading] = useState(false);
   const [menus, setMenus] = useState<any[]>([]);
-  const [chefs, setChefs] = useState<any[]>([])
+  const [chefs, setChefs] = useState<IChef[]>([])
   // console.log('okkkk')
 
   const fetchChefs = async () => {
@@ -30,7 +30,7 @@ export default function GuestHomeScreen() {
       const res = await api.get('/chefs')
       console.log({ seeRes: res?.data?.payload })
       if (res?.data?.success) {
-        setChefs(res?.data?.payload.reverse())
+        setChefs(res?.data?.payload)
         setLoading(false)
       } else {
         console.log({ seeAfter: res })
@@ -106,14 +106,10 @@ export default function GuestHomeScreen() {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: 10, gap: 12 }}
               >{
-                  menus.map((menu: IMenu, index) => (
+                  menus.map((menu: ISpecialMenu, index) => (
                     <View key={index}>
                       <DishCard
-                        image={menu?.image}
-                        title={menu.title}
-                        description={menu?.description}
-                        price={menu?.basePrice}
-                        onPress={() => { }}
+                      menu={menu}
                       />
 
                     </View>
@@ -133,16 +129,10 @@ export default function GuestHomeScreen() {
           <SectionText text="Featured chefs" textStyle={{ marginBottom: 5, marginTop: 20 }} />
 
           {
-            chefs.length > 0 ? chefs.map((chef: IChef, index) => (
+            chefs.length > 0 ? chefs.map((chef: any, index) => (
               <View key={index}>
                 <ChefCard
-                  specialty={chef.specialties}
-                  chefCat={chef?.categoryName}
-                  image={chef?.profilePic}
-                  name={chef.name}
-                  location={chef.location}
-                  state={chef.state}
-                  onPress={() => router.push({ pathname: '/viewchefinfo', params: { id: chef.id, chefPic: chef.profilePic } })}
+                chef={chef}
                 />
               </View>
             ))

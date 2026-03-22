@@ -5,7 +5,6 @@ import { ScaledSheet } from "react-native-size-matters";
 import HeaderBar from "@/components/HeaderBar";
 import ChefCard from "@/components/ChefCard";
 import SectionText from "@/components/typography/SectionText";
-import UserActiveAds from "@/components/tabs/UserActiveAds";
 import Colors from "@/constants/Colors";
 import ChefAboutTab, { IChefABout } from "@/components/tabs/ChefAboutTab";
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
@@ -22,8 +21,7 @@ import ReusableButton from "@/components/buttons/ReusableButton";
 export default function ViewChefsScreen() {
     const { id, chefPic } = useLocalSearchParams();
     const localProfile = useSelector((user: RootState) => user.auth.bioData);
-    const [ads, setAds] = useState<any[]>([]);
-
+    
 
     const [showAnnouncement, setShowAnnouncement] = useState(false);
     const navigation = useNavigation();
@@ -77,7 +75,6 @@ export default function ViewChefsScreen() {
                     type: 'error',
                     text1: 'Error fetching chef information'
                 });
-                setAds([])
 
             }
 
@@ -88,7 +85,6 @@ export default function ViewChefsScreen() {
                 type: 'error',
                 text1: 'Error fetching chef information'
             });
-            setAds([])
         }
     }
 
@@ -116,7 +112,6 @@ export default function ViewChefsScreen() {
                     type: 'error',
                     text1: 'Error fetching chef service'
                 });
-                setAds([])
 
             }
 
@@ -127,7 +122,6 @@ export default function ViewChefsScreen() {
                 type: 'error',
                 text1: 'Error fetching chef service'
             });
-            setAds([])
         }
     }
 
@@ -155,7 +149,7 @@ export default function ViewChefsScreen() {
                     type: 'error',
                     text1: 'Error fetching chef menus'
                 });
-                setAds([])
+
 
             }
 
@@ -166,7 +160,7 @@ export default function ViewChefsScreen() {
                 type: 'error',
                 text1: 'Error fetching chef information'
             });
-            setAds([])
+
         }
     }
 
@@ -289,9 +283,11 @@ export default function ViewChefsScreen() {
                             router.push({ pathname: '/register', params: { chefId: id } });
                         }
                     }}
-                    style={{ marginTop: 10, marginBottom: 15, borderRadius: 5 }}
+                    style={{ marginTop: 10, marginBottom: 5, borderRadius: 5 }}
                     title="Book Now"
                 />
+
+                
             </View>
         </View>
     );

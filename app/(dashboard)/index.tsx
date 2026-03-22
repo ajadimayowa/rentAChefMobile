@@ -10,10 +10,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import api from "@/services/apiConfig";
 import Toast from "react-native-toast-message";
 import PrimaryLoader from "@/components/Loader";
-import { IMenu } from "@/interfaces/menu";
+import { IMenu, ISpecialMenu } from "@/interfaces/menu";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
-import { IChef } from "@/interfaces/chef";
+import { IChef, IChefList } from "@/interfaces/chef";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
 import HeaderBarUser from "@/components/HeaderBarUser";
@@ -25,6 +25,8 @@ import HeaderBarLoaction from "@/components/HeaderBarLoaction";
 import { router } from "expo-router";
 import BackgroundImageCard from "@/components/BackgroundImageCard";
 import CreateQuoteModal from "@/components/modals/profile/CreateQuoteModal";
+import AddToFavoritesModal from '@/components/modals/menus/AddToFavoritesModal';
+import RateMenuModal from '@/components/modals/menus/RateMenuModal';
 
 export default function GuestHomeScreen() {
   const [loading, setLoading] = useState(false);
@@ -35,295 +37,205 @@ export default function GuestHomeScreen() {
   const userProfile = useSelector((user: RootState) => user.auth);
   const userLocation = useSelector((location: RootState) => location.location);
   const [onQuoteModal, setOnQuoteModal] = useState(false);
+  const [selectedMenuId, setSelectedMenuId] = useState<string | null>(null);
 
   const menuCategories = [
-    {
-      id: '1',
-      title: 'Pastry',
-      description: ''
-    },
-    {
-      id: '2',
-      title: 'Desert',
-      description: ''
-    },
-    {
-      id: '3',
-      title: 'Breakfast',
-      description: ''
-    }
-  ]
-  // console.log('okkkk')
+    { id: '1', title: 'Pastry', description: '' },
+    { id: '2', title: 'Desert', description: '' },
+    { id: '3', title: 'Breakfast', description: '' }
+  ];
 
   const activities = [
-    {
-      id: '1',
-      title: 'Completed',
-      description: '',
-      icon: 'checkbox'
-    },
-    {
-      id: '2',
-      title: 'Upcoming',
-      description: '',
-      icon: 'calendar-clear'
-    },
-    {
-      id: '3',
-      title: 'Perks',
-      description: '',
-      icon: 'fast-food'
-    }
-  ]
+    { id: '1', title: 'Completed', description: '', icon: 'checkbox' },
+    { id: '2', title: 'Upcoming', description: '', icon: 'calendar-clear' },
+    { id: '3', title: 'Perks', description: '', icon: 'fast-food' }
+  ];
 
   const fetchChefs = async () => {
-    // const apiUrl = Constants.expoConfig?.extra?.apiUrl
-    // console.log('baseUrl',apiUrl)
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await api.get('/chefs?limit=20')
-      console.log({ seeRes: res?.data?.payload })
+      const res = await api.get('/chefs?limit=20');
       if (res?.data?.success) {
-        setChefs(res?.data?.payload?.reverse())
-        setLoading(false)
+        setChefs(res?.data?.payload?.reverse());
       } else {
-        console.log({ seeAfter: res })
-        setLoading(false)
         Toast.show({
           type: 'error',
           text1: 'Network error',
           text2: res?.data?.message || 'Something went wrong!',
         });
       }
-
     } catch (error: any) {
-      console.log({ seeErrorBreak: error })
-      setLoading(false)
       Toast.show({
         type: 'error',
         text1: 'Login Error',
         text2: error?.response?.message || 'Error fetching chefs',
       });
+    } finally {
+      setLoading(false);
     }
-  }
+  };
+
+  
 
   const fetchMenu = async () => {
-    // const apiUrl = Constants.expoConfig?.extra?.apiUrl
-    // console.log('baseUrl',apiUrl)
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await api.get('/specialmenu/menus')
-      console.log({ seeRes: res?.data?.payload })
+      const res = await api.get('/specialmenu/menus');
       if (res?.data?.success) {
-        setMenus(res?.data?.payload)
-        setLoading(false)
+        setMenus(res?.data?.payload);
       } else {
-        console.log({ seeAfter: res })
-        setLoading(false)
         Toast.show({
           type: 'error',
           text1: 'Network error',
           text2: res?.data?.message || 'Something went wrong!',
         });
       }
-
     } catch (error: any) {
-      console.log({ seeErrorBreak: error })
-      setLoading(false)
       Toast.show({
         type: 'error',
         text1: 'Login Error',
         text2: error?.response?.message || 'Error fetching menus',
       });
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   const fetchServices = async () => {
-    // const apiUrl = Constants.expoConfig?.extra?.apiUrl
-    // console.log('baseUrl',apiUrl)
-    setLoading(true)
+    setLoading(true);
     try {
-      const res = await api.get('/service/services')
-      console.log({ seeRes: res?.data?.payload })
+      const res = await api.get('/service/services');
       if (res?.data?.success) {
-        setServices(res?.data?.payload?.reverse())
-        setLoading(false)
+        setServices(res?.data?.payload?.reverse());
       } else {
-        console.log({ seeAfter: res })
-        setLoading(false)
         Toast.show({
           type: 'error',
           text1: 'Network error',
           text2: res?.data?.message || 'Unable to fetch categories',
         });
       }
-
     } catch (error: any) {
-      console.log({ seeErrorBreak: error })
-      setLoading(false)
       Toast.show({
         type: 'error',
         text1: 'Login Error',
         text2: error?.response?.message || 'Error fetching chefs',
       });
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   const openWhatsApp = async () => {
     const url = "https://api.whatsapp.com/send?phone=2348166467555";
-
     const supported = await Linking.canOpenURL(url);
 
     if (supported) {
       await Linking.openURL(url);
-    } else {
-      console.log("Can't open WhatsApp link");
     }
   };
 
-
   const fetchNotifications = async () => {
-    // const apiUrl = Constants.expoConfig?.extra?.apiUrl
-    // console.log('baseUrl',apiUrl)
-    setLoading(true)
+    setLoading(true);
     try {
       const res = await api.get(`/notifications?userId=${userProfile.bioData.id}`);
-      // console.log({ seeRes: res?.data?.payload })
       if (res?.data) {
-        setNotifications(res?.data?.payload)
-        // setLoading(false);
-        // Toast.show({
-        //     type: 'success',
-        //     text1: 'Data Fetched',
-        //     text2: res?.data?.message || 'hi',
-        // });
-      } else {
-        console.log({ seeAfter: res })
-        // setLoading(false);
-
+        setNotifications(res?.data?.payload);
       }
-
-    } catch (error: any) {
-      console.log({ seeErrorBreak: error })
-      //   setLoading(false)
-      // Toast.show({
-      //     type: 'error',
-      //     text1: 'Login Error',
-      //     text2: error?.response?.message || 'Invalid credentials',
-      // });
-    }
-  }
+    } catch (error: any) {}
+  };
 
   useEffect(() => {
-    fetchServices()
+    fetchServices();
     fetchMenu();
     fetchChefs();
-    fetchNotifications()
+    fetchNotifications();
+  }, []);
 
-  }, [])
   return (
     <>
       <View style={styles.container}>
-        {/* <HeaderBarUser subtitle="Welcome to rent a chef" title={`Hi ${userProfile?.bioData?.fullName?.split(" ")[0]}`} showSearch showBack={false} /> */}
-        <HeaderBarLoaction notificationCount={notifications.length} profilePic={userProfile.bioData.profilePic} location={`${userLocation.userLocation},${userLocation.userState}`} fullName={`Hi ${userProfile?.bioData?.fullName}`} showSearch showBack={false} />
+        <HeaderBarLoaction
+          notificationCount={notifications.length}
+          profilePic={userProfile.bioData.profilePic}
+          location={`${userLocation.userLocation},${userLocation.userState}`}
+          fullName={`Hi ${userProfile?.bioData?.fullName}`}
+          showSearch
+          showBack={false}
+        />
 
-        {
-          loading && <PrimaryLoader />
-        }
+        {loading && <PrimaryLoader />}
 
-        {!loading &&
+        {!loading && (
           <ScrollView
-            refreshControl={
-              <RefreshControl refreshing={loading} onRefresh={fetchChefs} />
-            }
-            contentContainerStyle={{ padding: 20 }}>
-            {/* <BodyText text={notifications[0]?.title || 'No new notifications'} /> */}
+            refreshControl={<RefreshControl refreshing={loading} onRefresh={()=>{fetchChefs(); fetchMenu(); fetchServices(); fetchNotifications();}} />}
+            contentContainerStyle={{ padding: 20 }}
+          >
             <ReusableImgBGOverlayCard
               image={require('../../assets/images/pasta.png')}
               gradientText={'Enjoy Amazing Dishes'}
               description={`You don't have to break your bank to enjoy exquisite cuisines.`}
             />
 
-            <SectionText text="Available services" textStyle={{ marginBottom: 10, marginTop: 10, }} />
+            <SectionText text="Available services" textStyle={{ marginBottom: 10, marginTop: 10 }} />
+
             <View style={styles.card}>
-              {
-                services.map((cats, index) => (
-                  <Pressable
-                    key={index}
-                    onPress={() => console.log('ok')}
-                    style={({ pressed }) => [
-                      styles.catbtncontainer,
-                      { backgroundColor: index == 0 ? '#E39325' : '#fff' },
-                      pressed && styles.pressed,
-                    ]}
-                  >
-                    <BodyText text={cats.name} />
-                    {/* <Text style={[styles.text, { color: '#000' }]}>{}</Text> */}
-                  </Pressable>
-                ))
-              }
+              {services.map((cats, index) => (
+                <Pressable
+                  key={index}
+                  style={({ pressed }) => [
+                    styles.catbtncontainer,
+                    { backgroundColor: index == 0 ? '#E39325' : '#fff' },
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <BodyText text={cats.name} />
+                </Pressable>
+              ))}
             </View>
-            <SectionText text="Special Menus" textStyle={{ marginBottom: 10, marginTop: 10, }} />
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 10, gap: 12 }}
-            >{
-                menus.map((menu: IMenu, index) => (
-                  <View key={index}>
-                    <DishCard
-                      image={menu?.image}
-                      title={menu.title}
-                      description={menu?.description}
-                      price={menu?.basePrice}
-                      onPress={() => router.push({ pathname: './viewspecialmenubooking', params: { id: menu.id } })}
-                    />
 
-                  </View>
-                ))
-              }
+            <SectionText text="Special Menus" textStyle={{ marginBottom: 10, marginTop: 10 }} />
 
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 10, gap: 12 }}>
+              {menus.map((menu: ISpecialMenu, index) => (
+                <View key={index}>
+                  <DishCard
+                  menu={menu}
+                  />
+                </View>
+              ))}
             </ScrollView>
-
-
 
             <SectionText text="Featured chefs" textStyle={{ marginBottom: 5, marginTop: 20 }} />
 
-            {
-              chefs.length > 0 ? chefs.map((chef: IChef, index) => (
+            {chefs.length > 0 ? (
+              chefs.map((chef: IChefList, index) => (
                 <View key={index}>
                   <ChefCard
-                    specialty={chef.specialties}
-                    chefCat={chef?.category?.name}
-                    image={chef?.profilePic}
-                    name={chef.name}
-                    location={chef.location}
-                    state={chef.state}
-                    onPress={() => router.push({ pathname: '/viewchefinfo', params: { id: chef.id, chefPic: chef.profilePic } })}
+                  chef={chef}
                   />
                 </View>
               ))
-                :
-                <View style={{ width: '100%', height: 200, alignItems: 'center', alignSelf: 'center', justifyContent: 'center' }}>
-                  <MaterialCommunityIcons name="chef-hat" size={48} style={{ margin: 10 }} color={Colors.primary.base} />
-                  <Text style={{ width: '100%', textAlign: 'center' }}>No Chefs At This Time</Text>
-                </View>
-            }
+            ) : (
+              <View style={{ width: '100%', height: 200, alignItems: 'center', justifyContent: 'center' }}>
+                <MaterialCommunityIcons name="chef-hat" size={48} style={{ margin: 10 }} color={Colors.primary.base} />
+                <Text style={{ textAlign: 'center' }}>No Chefs At This Time</Text>
+              </View>
+            )}
 
-            <BackgroundImageCard onPress={() => setOnQuoteModal(true)} image={require('../../assets/images/imgBgd.png')} title="Do you have a
-special request"/>
+            <BackgroundImageCard
+              onPress={() => setOnQuoteModal(true)}
+              image={require('../../assets/images/imgBgd.png')}
+              title="Do you have a special request"
+            />
           </ScrollView>
-        }
+        )}
       </View>
 
       <Pressable style={styles.fab} onPress={openWhatsApp}>
         <Ionicons name="chatbubble-ellipses" size={24} color="#fff" />
       </Pressable>
 
-      <CreateQuoteModal
-        visible={onQuoteModal}
-        onClose={() => setOnQuoteModal(false)}
-      />
+      <CreateQuoteModal visible={onQuoteModal} onClose={() => setOnQuoteModal(false)} />
     </>
   );
 }

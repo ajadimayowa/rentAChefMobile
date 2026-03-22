@@ -11,14 +11,14 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Colors from "@/constants/Colors";
 import DishCard from "@/components/DishCard";
 import PrimaryLoader from "@/components/Loader";
-import { IChef } from "@/interfaces/chef";
+import { IChef, IChefList } from "@/interfaces/chef";
 import { router } from "expo-router";
 
 export default function GuestChefsScreen() {
 
   const [loading, setLoading] = useState(false);
     const [menus, setMenus] = useState<any[]>([]);
-    const [chefs, setChefs] = useState<IChef[]>([])
+    const [chefs, setChefs] = useState<IChefList[]>([])
 
   const fetchChefs = async () => {
     // const apiUrl = Constants.expoConfig?.extra?.apiUrl
@@ -71,15 +71,10 @@ export default function GuestChefsScreen() {
         <ScrollView contentContainerStyle={{ padding: 20 }}>
 
           {
-            chefs.length > 0 ? chefs.map((chef:IChef, index) => (
+            chefs.length > 0 ? chefs.map((chef:IChefList, index) => (
               <View key={index}>
                 <ChefCard
-                  specialty={chef.specialties}
-                  image={chef?.profilePic}
-                  name={chef.name}
-                  location={chef.location}
-                  state={chef.state}
-                  onPress={() =>router.push({pathname:'/viewchefinfo',params:{id:chef.id,chefPic:chef.profilePic}})}
+                  chef={chef}
                 />
               </View>
             ))

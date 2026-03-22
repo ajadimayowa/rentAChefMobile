@@ -7,6 +7,8 @@ import ReusableButton from "./buttons/ReusableButton";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Colors from "@/constants/Colors";
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
 
 interface HeaderBarProps {
   title: string;
@@ -16,29 +18,31 @@ interface HeaderBarProps {
   onSearch?: (value: string) => void;
 }
 
-const HeaderBarUser: React.FC<HeaderBarProps> = ({ title, subtitle,showBack, showSearch, onSearch }) => (
-  <View style={styles.container}>
-    <SafeAreaView>
-    {showBack&&<ReusableButton textStyle={{color:'#fff'}} style={{ width: 100, margin:0, padding:0 }} onPress={() => router.back()} iconLeft={"chevron-back"} type="pressableText" title="Go Back" />}
-    <View style={{padding:10}}>
-      <Text style={styles.title}>{title}</Text>
-    {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
-    {showSearch && (
-      <View style={styles.searchBox}>
-        <TextInput
-          placeholder="Search menu,chef..."
-          placeholderTextColor="#999"
-          style={styles.searchInput}
-          onChangeText={onSearch}
-        />
-        <Ionicons name="search-outline" size={20} color="#999" />
-      </View>
-    )}
+const HeaderBarUser: React.FC<HeaderBarProps> = ({ title, subtitle,showBack, showSearch, onSearch }) => {
+  const unread = useSelector((s: RootState) => s.notifications?.count || 0);
+  return (
+    <View style={styles.container}>
+      <SafeAreaView>
+        {showBack&&<ReusableButton textStyle={{color:'#fff'}} style={{ width: 100, margin:0, padding:0 }} onPress={() => router.back()} iconLeft={"chevron-back"} type="pressableText" title="Go Back" />}
+        <View style={{padding:10}}>
+          <Text style={styles.title}>{title}</Text>
+          {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+          {showSearch && (
+            <View style={styles.searchBox}>
+              <TextInput
+                placeholder="Search menu,chef..."
+                placeholderTextColor="#999"
+                style={styles.searchInput}
+                onChangeText={onSearch}
+              />
+              <Ionicons name="search-outline" size={20} color="#999" />
+            </View>
+          )}
+        </View>
+      </SafeAreaView>
     </View>
-
-    </SafeAreaView>
-  </View>
-);
+  );
+};
 
 const styles = ScaledSheet.create({
   container: { padding: "5@s", backgroundColor: Colors.primary.base, borderBottomLeftRadius: "20@s", borderBottomRightRadius: "20@s" },

@@ -36,6 +36,7 @@ export default function GuestHomeScreen() {
   const userLocation = useSelector((location: RootState) => location.location);
   const [onQuoteModal, setOnQuoteModal] = useState(false);
   const [chefData, setChefData] = useState<IChef | any>();
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   const menuCategories = [
     {
@@ -108,48 +109,29 @@ export default function GuestHomeScreen() {
     }
   }
 
-  useEffect(() => {
-    fetchChefProfile()
-  }, [router])
-
   const fetchNotifications = async () => {
-    // const apiUrl = Constants.expoConfig?.extra?.apiUrl
-    // console.log('baseUrl',apiUrl)
-    setLoading(true)
     try {
-      const res = await api.get(`/notifications?chefId=${chefProfile.chefData}`);
-      // console.log({ seeRes: res?.data?.payload })
-      if (res?.data) {
-        // setNotifications(res?.data?.payload);
-        // setLoading(false);
-        // Toast.show({
-        //     type: 'success',
-        //     text1: 'Data Fetched',
-        //     text2: res?.data?.message || 'hi',
-        // });
-      } else {
-        console.log({ seeAfter: res })
-        // setLoading(false);
-
+      const res = await api.get(`/notifications?userId=${chefProfile.chefData.id}`);
+      if (res?.data?.success) {
+        setNotifications(res?.data?.payload || []);
       }
-
-    } catch (error: any) {
-      console.log({ seeErrorBreak: error })
-      //   setLoading(false)
-      // Toast.show({
-      //     type: 'error',
-      //     text1: 'Login Error',
-      //     text2: error?.response?.message || 'Invalid credentials',
-      // });
+    } catch (err) {
+      console.log('fetch notifications error', err);
     }
   }
+
+  useEffect(() => {
+    fetchChefProfile()
+    fetchNotifications()
+  }, [router])
+  
 
 
   return (
     <>
     <View style={styles.container}>
       {/* <HeaderBarUser subtitle="Welcome to rent a chef" title={`Hi ${userProfile?.bioData?.fullName?.split(" ")[0]}`} showSearch showBack={false} /> */}
-      <HeaderBarChef location={`How are you today?`} fullName={`Hi Chef ${chefProfile?.chefData?.name}`} showSearch showBack={false} />
+      <HeaderBarChef location={`How are you today?`} fullName={`Hi Chef ${chefProfile?.chefData?.name}`} showSearch showBack={false} notificationCount={notifications.length} onPressNotifications={()=>router.push('/notifications')} />
 
       {
         loading && <PrimaryLoader />

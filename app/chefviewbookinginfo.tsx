@@ -18,6 +18,7 @@ import api from "@/services/apiConfig";
 import { IUser } from "@/interfaces/user";
 import { FontAwesome, FontAwesome5, FontAwesome6, Ionicons } from "@expo/vector-icons";
 import ReusableButton from "@/components/buttons/ReusableButton";
+import RateClientModal from '@/components/modals/menus/RateClientModal';
 import AuthModal from "@/components/AuthModal";
 import ChangeProfilePicModal from "@/components/modals/profile/ChangeProfilePicModal";
 import UpdatePersonalInfoModal from "@/components/modals/profile/UpdatePersonalInfoModal";
@@ -35,6 +36,7 @@ export default function ChefViewBookingInfo() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [booking, setBooking] = useState<Booking>();
+  const [rateClientModal, setRateClientModal] = useState(false);
 
   const [updatePicModal, setUpdatePicModal] = useState(false);
   const [updatePersonalInfoModal, setUpdatePersonalInfoModal] = useState(false);
@@ -175,6 +177,22 @@ export default function ChefViewBookingInfo() {
 {
   !booking?.procurementId &&
   <ReusableButton loading={loading} style={{ marginTop: 40, margin: 10, borderRadius: 5}} title={`Add Procurement`} />}
+
+{ booking?.bookingType === 'chef' && (
+  <ReusableButton
+    onPress={() => setRateClientModal(true)}
+    textStyle={{ color: '#E39325' }}
+    style={{ borderRadius: 5, backgroundColor: '#ffffffff', borderColor: '#E39325', borderWidth: 1, marginTop: 10 }}
+    title="Rate Client"
+  />
+)}
+
+<RateClientModal
+  visible={rateClientModal}
+  onClose={() => setRateClientModal(false)}
+  bookingId={booking?.id || (booking as any)?._id}
+  clientId={(booking?.clientId as any)?.id || (booking?.clientId as any)?._id || (booking?.clientId as any)}
+/>
 
 
         </ScrollView>
