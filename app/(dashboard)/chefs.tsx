@@ -1,5 +1,5 @@
 // app/(tabs)/guest-chefs.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { View, ScrollView ,Text, RefreshControl} from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import HeaderBar from "@/components/HeaderBar";
@@ -19,6 +19,7 @@ export default function ChefsScreen() {
   const [loading, setLoading] = useState(false);
     const [menus, setMenus] = useState<any[]>([]);
     const [chefs, setChefs] = useState<IChefList[]>([])
+  const [searchQuery, setSearchQuery] = useState<string>('')
 
   const fetchChefs = async () => {
     // const apiUrl = Constants.expoConfig?.extra?.apiUrl
@@ -55,12 +56,36 @@ export default function ChefsScreen() {
     fetchChefs()
   }, [])
 
+  const visibleChefs = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase()
+    if (!q) return chefs
+
+    return chefs.filter((chef) => {
+      const name = (chef.name || '').toLowerCase()
+      const location = (chef.location || '').toLowerCase()
+      const state = (chef.state || '').toLowerCase()
+      const bio = (chef.bio || '').toLowerCase()
+      const category = (chef.category?.name || '').toLowerCase()
+      const specialties = (chef.specialties || []).join(' ').toLowerCase()
+
+      return (
+        name.includes(q) ||
+        location.includes(q) ||
+        state.includes(q) ||
+        bio.includes(q) ||
+        category.includes(q) ||
+        specialties.includes(q)
+      )
+    })
+  }, [chefs, searchQuery])
+
   return (
     <View style={styles.container}>
       <HeaderBar
         title="Our Professional Chefs"
         subtitle="Find the right chef for your event"
         showSearch
+        onSearch={setSearchQuery}
       />
 
       {
@@ -73,7 +98,7 @@ export default function ChefsScreen() {
                   } contentContainerStyle={{ padding: 20 }}>
 
           {
-            chefs.length > 0 ? chefs.map((chef:IChefList, index) => (
+            visibleChefs.length > 0 ? visibleChefs.map((chef:IChefList, index) => (
               <View key={index}>
                 <ChefCard
                   chef={chef}
@@ -83,7 +108,7 @@ export default function ChefsScreen() {
               :
               <View style={{ width: '100%', height: 200, alignItems: 'center', alignSelf: 'center', justifyContent: 'center' }}>
                 <MaterialCommunityIcons name="chef-hat" size={48} style={{ margin: 10 }} color={Colors.primary.base} />
-                <Text style={{ width: '100%', textAlign: 'center' }}>No Chefs At This Time</Text>
+                <Text style={{ width: '100%', textAlign: 'center' }}>{searchQuery ? 'No chefs match your search' : 'No Chefs At This Time'}</Text>
               </View>
           }
         </ScrollView>

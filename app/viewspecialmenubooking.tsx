@@ -102,32 +102,47 @@ export default function ViewSpecialMenuAvailabilityBookingScreen() {
 
     const handleDatePress = (day: any) => {
         const { startDate, endDate } = selectedDates;
+        const date = day.dateString;
 
-        if (!startDate) {
-            // Set the start date
-            setSelectedDates({ startDate: day.dateString, endDate: '' });
+        // If no start date OR a full range already exists, start a fresh selection
+        if (!startDate || (startDate && endDate)) {
+            setSelectedDates({ startDate: date, endDate: '' });
             setMarkedDates({
-                [day.dateString]: { selected: true, startingDay: true, color: 'blue' },
+                [date]: { selected: true, startingDay: true, endingDay: true, color: 'blue' },
             });
-        } else if (!endDate && day.dateString > startDate) {
-            // Set the end date
-            setSelectedDates({ startDate, endDate: day.dateString });
+            return;
+        }
 
-            // Mark the date range
-            const newMarkedDates: any = {};
-            let currentDate = new Date(startDate);
-            while (currentDate <= new Date(day.dateString)) {
-                newMarkedDates[currentDate.toISOString().split('T')[0]] = { selected: true, color: 'blue' };
-                currentDate.setDate(currentDate.getDate() + 1);
+        // If start date exists but no end date yet
+        if (!endDate) {
+            // user tapped the same date -> select single-day range
+            if (date === startDate) {
+                setSelectedDates({ startDate: date, endDate: date });
+                setMarkedDates({ [date]: { selected: true, startingDay: true, endingDay: true, color: 'blue' } });
+                return;
             }
 
-            setMarkedDates(newMarkedDates);
-        } else if (day.dateString < startDate) {
-            // Reset if user selects a date before the start date
-            setSelectedDates({ startDate: day.dateString, endDate: '' });
-            setMarkedDates({
-                [day.dateString]: { selected: true, startingDay: true, color: 'blue' },
-            });
+            // tapped a later date -> set end date and mark the range
+            if (date > startDate) {
+                const newMarkedDates: any = {};
+                let currentDate = new Date(startDate);
+                const end = new Date(date);
+                while (currentDate <= end) {
+                    const key = currentDate.toISOString().split('T')[0];
+                    newMarkedDates[key] = { selected: true, color: 'blue', startingDay: key === startDate, endingDay: key === date };
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+                setSelectedDates({ startDate, endDate: date });
+                setMarkedDates(newMarkedDates);
+                return;
+            }
+
+            // tapped an earlier date -> treat that as new start date
+            if (date < startDate) {
+                setSelectedDates({ startDate: date, endDate: '' });
+                setMarkedDates({ [date]: { selected: true, startingDay: true, color: 'blue' } });
+                return;
+            }
         }
     };
 

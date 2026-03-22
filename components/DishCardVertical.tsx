@@ -43,7 +43,6 @@ const DishCardVertical: React.FC<DishCardProps> = ({
   
       try {
         const resultAction: any = await dispatch(toggleFavorite(menu.id));
-        console.log('toggleFavorite result', resultAction);
         if (resultAction?.payload?.success) {
           Toast.show({ type: 'success', text1: resultAction.payload.message || 'Updated favourites' });
         } else {
@@ -87,11 +86,10 @@ const DishCardVertical: React.FC<DishCardProps> = ({
     if (!userProfile.bioData.id) {
       return;
     }
-    try {
+      try {
       const res = await api.get('/favorites');
       if (res?.data?.success) {
         setFavorites(res?.data?.payload);
-        console.log('Favs:', res?.data?.payload);
       }
     } catch (error: any) {
       // setLoading(false);

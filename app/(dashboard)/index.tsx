@@ -1,5 +1,5 @@
 // app/(tabs)/guest-home.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { View, ScrollView, Text, Pressable, RefreshControl, Linking } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import HeaderBar from "@/components/HeaderBar";
@@ -34,6 +34,7 @@ export default function GuestHomeScreen() {
   const [services, setServices] = useState<any[]>([]);
   const [chefs, setChefs] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const prevNotificationIdsRef = useRef<Set<string>>(new Set());
   const userProfile = useSelector((user: RootState) => user.auth);
   const userLocation = useSelector((location: RootState) => location.location);
   const [onQuoteModal, setOnQuoteModal] = useState(false);
@@ -135,14 +136,43 @@ export default function GuestHomeScreen() {
   };
 
   const fetchNotifications = async () => {
-    setLoading(true);
+    // setLoading(true);
     try {
       const res = await api.get(`/notifications?userId=${userProfile.bioData.id}`);
       if (res?.data) {
-        setNotifications(res?.data?.payload);
+        const items = res?.data?.payload || [];
+
+        // if first time fetching, seed the seen set without notifying
+        if (prevNotificationIdsRef.current.size === 0) {
+          items.forEach((n: any) => prevNotificationIdsRef.current.add(n.id));
+          setNotifications(items);
+        } else {
+          try {
+            const newItems = items.filter((n: any) => !prevNotificationIdsRef.current.has(n.id));
+            newItems.forEach((n: any) => {
+              prevNotificationIdsRef.current.add(n.id);
+              if (n.type === 'procurement-update') {
+                Toast.show({ type: 'success', text1: n.title || 'Procurement update', text2: n.message });
+              }
+            });
+          } catch (e) {
+            // ignore
+          }
+
+          setNotifications(items);
+        }
       }
     } catch (error: any) {}
   };
+
+  // Poll for notifications while this screen is mounted
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     fetchNotifications();
+  //   }, 30000); // 30s
+
+  //   return () => clearInterval(interval);
+  // }, []);
 
   useEffect(() => {
     fetchServices();

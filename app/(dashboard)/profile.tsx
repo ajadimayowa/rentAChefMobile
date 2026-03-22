@@ -33,12 +33,12 @@ export default function GuestChefsScreen() {
     setLoading(true)
     try {
       const res = await api.get(`/user/${userProfile.id}`)
-      console.log({ seeRes: res?.data?.payload })
+      
       if (res?.data?.success) {
         setUserData(res?.data?.payload)
         setLoading(false)
       } else {
-        console.log({ seeAfter: res })
+        
         setLoading(false)
         Toast.show({
           type: 'error',
@@ -48,7 +48,7 @@ export default function GuestChefsScreen() {
       }
 
     } catch (error: any) {
-      console.log({ seeErrorBreak: error })
+      
       setLoading(false)
       Toast.show({
         type: 'error',
@@ -70,7 +70,7 @@ export default function GuestChefsScreen() {
       if (supported) {
         await Linking.openURL(url);
       } else {
-        console.log("Can't open WhatsApp link");
+        // console.log("Can't open WhatsApp link");
       }
     };
 
@@ -82,7 +82,7 @@ export default function GuestChefsScreen() {
       if (supported) {
         await Linking.openURL(url);
       } else {
-        console.log("Can't open WhatsApp link");
+        // console.log("Can't open WhatsApp link");
       }
     };
 
@@ -94,7 +94,7 @@ export default function GuestChefsScreen() {
       if (supported) {
         await Linking.openURL(url);
       } else {
-        console.log("Can't open WhatsApp link");
+        // console.log("Can't open WhatsApp link");
       }
     };
 

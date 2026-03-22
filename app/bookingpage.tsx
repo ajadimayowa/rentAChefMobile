@@ -1,11 +1,10 @@
 // app/(tabs)/guest-chefs.tsx
 import React, { useEffect, useRef, useState } from "react";
-import { View, ScrollView, Pressable, Text, TextInput, Image } from "react-native";
+import { View, ScrollView, Pressable, Text, TextInput, Image, RefreshControl } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import HeaderBar from "@/components/HeaderBar";
 import ChefCard from "@/components/ChefCard";
 import SectionText from "@/components/typography/SectionText";
-import UserActiveAds from "@/components/tabs/UserActiveAds";
 import Colors from "@/constants/Colors";
 import { Calendar } from 'react-native-calendars';
 import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
@@ -46,8 +45,6 @@ export default function BookingScreen() {
     const [selectedServicePrice, setSelectedServicePrice] = useState<any[]>([]); // Track the selected service
 
     const handleRadioChange = (serviceName: any) => {
-        // console.log({selected:serviceName})
-
         setSelectedService(serviceName?.serviceId?.name) // Update the selected service
         setServiceSelected(serviceName);
         fetchSelectedServicePricingCharges(serviceName?.serviceId?.id);
@@ -87,7 +84,7 @@ export default function BookingScreen() {
     //     });
     // };
 
-    // console.log({ see: serviceSelected });
+    
 
 
     // const filteredServicesWithJuniorChef = chefInfo?.servicesOffered.filter((service: any) =>
@@ -97,19 +94,18 @@ export default function BookingScreen() {
 
     const fetchChefInfo = async () => {
         // const apiUrl = Constants.expoConfig?.extra?.apiUrl
-        // console.log('baseUrl',apiUrl)
         setLoading(true)
         try {
             const res = await api.get(`/chef/${id}`)
 
-            // console.log({ seeRes: res })
+            
 
             if (res?.data?.success) {
                 setChefInfo(res?.data?.payload)
                 setLoading(false)
             } else {
 
-                // console.log({ seeAfter: res })
+                
                 setLoading(false)
                 Toast.show({
                     type: 'error',
@@ -120,7 +116,7 @@ export default function BookingScreen() {
             }
 
         } catch (error: any) {
-            // console.log({ seeErrorBreak: error })
+            
             setLoading(false)
             Toast.show({
                 type: 'error',
@@ -132,12 +128,10 @@ export default function BookingScreen() {
 
     const fetchServicesOfferedByChef = async () => {
         // const apiUrl = Constants.expoConfig?.extra?.apiUrl
-        // console.log('baseUrl',apiUrl)
         setLoading(true)
         try {
             const res = await api.get(`/chefServices/byAChef/${id}`)
 
-            // console.log({ seeRes: res })
 
             if (res?.data?.success) {
                 Toast.show({
@@ -148,7 +142,7 @@ export default function BookingScreen() {
                 setLoading(false)
             } else {
 
-                // console.log({ seeAfter: res })
+                
                 setLoading(false)
                 Toast.show({
                     type: 'error',
@@ -159,7 +153,7 @@ export default function BookingScreen() {
             }
 
         } catch (error: any) {
-            // console.log({ seeErrorBreak: error })
+            
             setLoading(false)
             Toast.show({
                 type: 'error',
@@ -170,7 +164,6 @@ export default function BookingScreen() {
     }
 
     const fetchSelectedServicePricingCharges = async (serviceId: string) => {
-        console.log({ seeId: serviceId })
         setLoadingPricing(true);
 
         try {
@@ -202,10 +195,14 @@ export default function BookingScreen() {
     // }},[selectedService])
     return (
         <>
-            <ScrollView style={styles.container}>
+            <ScrollView
+            refreshControl={
+                <RefreshControl refreshing={loading} onRefresh={fetchChefInfo} />
+            }
+             style={styles.container}>
                 <Formik
                 initialValues={{clientNote:""}}
-                onSubmit={()=>console.log('ok')}
+                onSubmit={() => {}}
                 >
                     {
 ({values})=>(

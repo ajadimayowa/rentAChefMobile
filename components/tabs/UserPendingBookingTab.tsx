@@ -15,6 +15,7 @@ import BodyText from "../typography/BodyText";
 import Colors from "@/constants/Colors";
 import { convertToThousand } from "@/helpers/utils";
 import moment from "moment";
+import { Booking } from "@/interfaces/booking";
 
 const UserPendingBookingTab: React.FC<any> = () => {
     const localProfile = useSelector((user: RootState) => user.auth.bioData);
@@ -35,12 +36,9 @@ const UserPendingBookingTab: React.FC<any> = () => {
     }
     const fetchBookings = async () => {
         // const apiUrl = Constants.expoConfig?.extra?.apiUrl
-        // console.log('baseUrl',apiUrl)
         setLoading(true)
         try {
             const res = await api.get(`/bookings?clientId=${localProfile.id}&status=confirmed`)
-
-            console.log({ seeRes: res })
 
             if (res?.data?.success) {
                 // Toast.show({
@@ -50,8 +48,6 @@ const UserPendingBookingTab: React.FC<any> = () => {
                 setBookings(res?.data?.payload)
                 setLoading(false)
             } else {
-
-                console.log({ seeAfter: res })
                 setLoading(false)
                 // Toast.show({
                 //     type: 'error',
@@ -62,7 +58,6 @@ const UserPendingBookingTab: React.FC<any> = () => {
             }
 
         } catch (error: any) {
-            console.log({ seeErrorBreak: error })
             setLoading(false)
             //  Toast.show({
             //         type: 'error',
@@ -87,7 +82,7 @@ const UserPendingBookingTab: React.FC<any> = () => {
 
 
                         {
-                            bookings.map((booking, index) => (
+                            bookings.map((booking:Booking, index) => (
                                 <TouchableOpacity key={index} onPress={() => router.push({ pathname: '/clientviewbookinginfo', params: { id: booking?.id } })}>
                                     <View style={[style.card]}>
                                         <View style={style.rowSection}>
@@ -111,7 +106,9 @@ const UserPendingBookingTab: React.FC<any> = () => {
 
                                         <View style={style.rowSection}>
                                             <BodyText text={'Procurement Paid'} />
-                                            <BodyText text={booking?.procurementPaid ? 'Yes' : 'No'} />
+                                            <View style={{ backgroundColor: booking?.procurementId?.isProcurementPaid ? '#297e59ff' : '#ffbc40ff', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4 }} >
+                                                <BodyText textStyle={{color:'#ffffffff'}}  text={booking?.procurementId?.isProcurementPaid ? 'Yes' : 'No'} />
+                                            </View>
                                         </View>
 
                                         <View style={style.rowSection}>
