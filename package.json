@@ -11,7 +11,9 @@
     "lint": "expo lint",
     "build:androidtest": "eas build -p android --profile preview",
     "build:android": "eas build -p android --profile production",
-    "build:ios": "eas build -p ios --profile production"
+    "build:ios": "eas build -p ios --profile production",
+    "submit:ios":"eas submit -p ios --latest --profile production",
+    "submit:android":"eas submit -p android --latest --profile production"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

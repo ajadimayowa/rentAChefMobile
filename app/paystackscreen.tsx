@@ -5,7 +5,6 @@ import { ScaledSheet } from "react-native-size-matters";
 import HeaderBar from "@/components/HeaderBar";
 import ChefCard from "@/components/ChefCard";
 import SectionText from "@/components/typography/SectionText";
-import UserActiveAds from "@/components/tabs/UserActiveAds";
 import Colors from "@/constants/Colors";
 import { Calendar } from 'react-native-calendars';
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -175,7 +174,8 @@ export default function PayStackScreen() {
                     verifyPayment(reference);
                   }
                 }
-              }}
+              }
+            }
             />
           </View>
         )}

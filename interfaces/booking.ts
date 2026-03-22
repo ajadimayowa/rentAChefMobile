@@ -22,7 +22,22 @@ export interface Booking {
   status: string;
   createdAt: string;
   updatedAt: string;
-  procurementId?:any
+  procurementId?:{
+			"bookingId": string,
+			"items": {
+					"title": string,
+					"description": string,
+					"amount": number,
+					"_id": string,
+				}[],
+			"totalCost": number,
+			"isProcurementPaid": boolean,
+			"createdAt": string,
+			"updatedAt": string,
+			"paymentChannel": string,
+			"paymentReference": string,
+			"id": string,
+		}
 }
 
 export interface Client {

@@ -91,7 +91,8 @@ export default function ClientViewBookingInfo() {
     try {
       setInitializing(true);
       const amount = booking.procurementId.totalCost || 0;
-      const callbackUrl = `${Constants.expoConfig?.extra?.apiUrl}/paystack/callback`;
+      const callbackUrl = 'https://rent-a-chef-portal.vercel.app/payment-succesful';
+      // const callbackUrl = `${Constants.expoConfig?.extra?.apiUrl}/paystack/callback`;
       const res = await api.post('/payment/initialize-payment', { email: userProfile.email, amount, callback_url: callbackUrl });
       const auth = res?.data?.data?.authorization_url;
       if (!auth) {
@@ -132,7 +133,8 @@ export default function ClientViewBookingInfo() {
         const status = verifyRes?.data?.data?.status || verifyRes?.data?.status || (verifyRes?.data?.message ? 'success' : null);
         // If verification successful, tell backend to mark procurement paid
         if (status === 'success' || verifyRes?.data?.status === 'success' || verifyRes?.data?.data?.status === 'success') {
-          const procurementId = booking?.procurementId?.id || booking?.procurementId?._id || booking?.procurementId;
+          const procurementId = booking?.procurementId?.id;
+          console.log('Payment verified, marking procurement paid. procurementId:', procurementId, 'bookingId:', booking?.id || booking?.id);
           if (!procurementId) {
             Toast.show({ type: 'error', text1: 'Procurement not found' });
             return;
@@ -179,7 +181,7 @@ export default function ClientViewBookingInfo() {
 
             <View style={style.rowSection}>
               <BodyText text={'Procurement Paid'} />
-              <BodyText text={booking?.procurementPaid ? 'Yes' : 'No'} />
+              <BodyText text={booking?.procurementId?.isProcurementPaid ? 'Yes' : 'No'} />
             </View>
 
             <View style={style.rowSection}>
@@ -214,6 +216,7 @@ export default function ClientViewBookingInfo() {
           </View>}
 
 {
+  !booking?.procurementId?.isProcurementPaid&&
   <ReusableButton
     loading={initializing || loading}
     style={{ marginTop: 40, margin: 10, borderRadius: 5}}
@@ -242,6 +245,7 @@ export default function ClientViewBookingInfo() {
 /> 
 
       <Modal visible={showWebView} animationType="slide">
+        <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }}>
         <View style={{ flex: 1 }}>
           {authUrl ? (
             <WebView
@@ -259,6 +263,7 @@ export default function ClientViewBookingInfo() {
             <Text style={{ color: '#fff', backgroundColor: '#000', padding: 8, borderRadius: 8 }}>Close</Text>
           </TouchableOpacity>
         </View>
+        </SafeAreaView>
       </Modal>
 
 
