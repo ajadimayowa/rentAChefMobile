@@ -3,18 +3,26 @@ import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
 import SecureStorage from "./secureStore";
 import authReducer from "./slices/authSlice";
+import locationReducer from "./slices/locationSlice";
+import chefReducer from "./slices/chefSlice";
+import menuReducer from './slices/menuSlice';
+import notificationsReducer from './slices/notificationsSlice';
 
 // combine all reducers
 const rootReducer = combineReducers({
     auth: authReducer,
+    location:locationReducer,
+    chef:chefReducer
+    ,menu:menuReducer
+    ,notifications:notificationsReducer
 });
 
 // persist config
 const persistConfig = {
-  key: "root",
-  storage: SecureStorage,
-  whitelist: ["auth"],
-  keyPrefix: "", // ✅ removes "persist:" prefix
+    key: "root",
+    storage: SecureStorage,
+    whitelist: ["auth","location"],
+    keyPrefix: "", // ✅ removes "persist:" prefix
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

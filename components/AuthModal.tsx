@@ -28,7 +28,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ visible, onClose }) => {
             onPress={() => {
               
               onClose();
-              router.push("/signup");
+              router.push("/register");
             }}
           >
             <Text style={styles.buttonText}>Sign Up</Text>
