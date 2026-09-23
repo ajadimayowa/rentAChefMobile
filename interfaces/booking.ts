@@ -1,126 +1,115 @@
-export interface Booking {
-  id: string;
-  clientId: Client;
-  bookingType: string;
-  clientNote: string;
-  chefId: Chef;
-  serviceId: Service;
-  categoryId: string;
-  startDate: string;
-  endDate: string;
-  bookingFeePaid: boolean;
-  procurementPaid: boolean;
-  bookingFeeAmount: number;
-  numberOfPeople: number;
-  procurementAmount: number;
-  totalAmount: number;
-  specialMenuId:{
-    title:string
-  }
-  paymentChannel: string;
-  paymentReference: string;
-  status: string;
+// Mirrors rentAChefBackend/src/models/Booking.ts (IBooking), adapted for JSON
+// responses. Status/payment enums mirror
+// rentAChefBackend/src/platform/domain/enums.ts, which is the enum this
+// booking model is kept in sync with.
+
+import { IUser } from "./user";
+import { IService } from "./service";
+
+export type BookingStatus =
+  | "Submitted"
+  | "Admin Reviewed"
+  | "Quotation Sent"
+  | "Payment Pending"
+  | "Paid"
+  | "Chef Assigned"
+  | "In Progress"
+  | "Completed"
+  | "Cancelled";
+
+export type PaymentStatus = "Unpaid" | "Pending" | "Paid" | "Failed" | "Refunded";
+
+export type BookingType = "INSTANT" | "QUOTATION";
+
+export type ModeOfPayment = "Paystack" | "Transfer" | "Cash" | "Unpaid";
+
+export type MenuSelectionType = "CHEF_MENU" | "CUSTOMER_UPLOAD";
+
+export interface IMenuSelection {
+  source: "chef" | "customer";
+  chefMenuId?: string;
+  uploadedMenuUrl?: string;
+  uploadedMenuType?: "pdf" | "docx" | "jpg" | "png";
+}
+
+export interface IProcurement {
+  option: "customer" | "chef";
+  estimatedCost?: number;
+  finalCost?: number;
+  procurementFee?: number;
+}
+
+export interface IBookingTimelineEntry {
+  status: BookingStatus;
+  changedBy: string;
+  changedAt: string;
+  reason?: string;
+}
+
+export interface IBookingComment {
+  text: string;
+  authorId: string;
+  authorName?: string;
   createdAt: string;
-  updatedAt: string;
-  procurementId?:{
-			"bookingId": string,
-			"items": {
-					"title": string,
-					"description": string,
-					"amount": number,
-					"_id": string,
-				}[],
-			"totalCost": number,
-			"isProcurementPaid": boolean,
-			"createdAt": string,
-			"updatedAt": string,
-			"paymentChannel": string,
-			"paymentReference": string,
-			"id": string,
-		}
 }
 
-export interface Client {
+export interface IBookingPaymentDetails {
+  mode: "Cash" | "Transfer";
+  transactionRef: string;
+  bankName?: string;
+  accountNumber?: string;
+  amount: number;
+  date: string;
+  recordedBy: string;
+  recordedAt: string;
+}
+
+export interface IBookingPricingSnapshot {
+  baseChefFeeMinor: number;
+  estimatedTotalMinor: number;
+  currency: string;
+}
+
+export interface IBooking {
   id: string;
-  location: Location;
-  kyc: KYC;
-  nok: NextOfKin;
-  healthInformation: HealthInformation;
-  email: string;
-  emailVerificationOtp: string;
-  isEmailVerified: boolean;
-  password: string;
-  fullName: string;
-  firstName: string;
-  phone: string;
-  isAdmin: boolean;
-  createdAt: string;
-  updatedAt: string;
-  profilePic: string;
-  maritalStatus: string;
-  dob: string;
-  gender: string;
-  loginOtp: string;
-  loginOtpExpires: string;
-}
+  bookingNumber: string;
 
-export interface Location {
-  home: string;
-  office: string;
-  state: string;
-  city: string;
-  long: string;
-  lat: string;
-}
+  // Populated when the customerId/chefId/serviceId refs are populated, otherwise the raw id.
+  customerId: IUser | string;
+  chefId?: IUser | string;
+  serviceId?: IService | string;
 
-export interface KYC {
-  idType: string;
-  idNumber: string;
-  idPicture: string;
-  isVerified: boolean;
-}
+  specialServiceId?: string;
+  chefCategory?: string;
+  workflow?: string;
 
-export interface NextOfKin {
-  fullName: string;
-  phone: string;
-  relationship: string;
-}
+  termsAccepted: boolean;
 
-export interface HealthInformation {
-  allergies: string[];
-  healthDetails: string;
-}
+  bookingType?: BookingType;
+  modeOfPayment?: ModeOfPayment;
 
-export interface Chef {
-  id: string;
-  staffId: string;
-  name: string;
-  gender: string;
-  email: string;
-  bio: string;
-  specialties: string[];
-  category: string;
-  phoneNumber: number;
-  location: string;
-  state: string;
-  stateId: number;
-  profilePic: string;
-  menus: any[];
-  password: string;
-  isPasswordUpdated: boolean;
-  isActive: boolean;
-  dob: string;
-  yearsOfExperience: number;
-  rating: number;
-  createdAt: string;
-  updatedAt: string;
-}
+  status: BookingStatus;
+  paymentStatus: PaymentStatus;
 
-export interface Service {
-  id: string;
-  name: string;
-  description: string;
-  isActive: boolean;
+  startDate?: string;
+  endDate?: string;
+
+  bookingData: Record<string, any>;
+  pricingSnapshot?: IBookingPricingSnapshot;
+  timeline?: IBookingTimelineEntry[];
+
+  menuSelection?: IMenuSelection;
+  menuSelectionType?: MenuSelectionType;
+  chefMenuId?: string;
+  customerUploadedMenuFileId?: string;
+
+  procurement?: IProcurement;
+  comments?: IBookingComment[];
+  paymentDetails?: IBookingPaymentDetails;
+
+  quotationId?: string;
+  transactnRef?: string;
+
   createdAt: string;
   updatedAt: string;
 }

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Modal, View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator } from "react-native";
+import { Modal, View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator, KeyboardAvoidingView, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import { ScaledSheet } from "react-native-size-matters";
 import { Foundation, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import api from "@/services/apiConfig";
+import { createQuote } from "@/services/Quote";
 import Toast from "react-native-toast-message";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -18,34 +18,43 @@ interface AuthModalProps {
   onClose: () => void;
 }
 
+interface CreateQuoteFormValues {
+  title: string;
+  description: string;
+}
+
 const CreateQuoteModal: React.FC<AuthModalProps> = ({ visible, onClose }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const userProfile = useSelector((state: RootState) => state.auth.bioData);
 
-  const sendQuote = async (values: any) => {
-    console.log({ sendign: values })
+  const sendQuote = async (values: CreateQuoteFormValues) => {
     setLoading(true);
     try {
-      const res = await api.post(`/quote/create`, {...values});
+      const res = await createQuote({
+        title: values.title.trim(),
+        description: values.description.trim(),
+      });
 
-      if (res?.data?.success) {
+      if (res) {
         Toast.show({
           type: "success",
-          text1: "Qoute sent to admin!",
+          text1: "Quote sent to admin!",
         });
         router.navigate('/(dashboard)');
-        onClose()
+        onClose();
       } else {
         Toast.show({
           type: "error",
-          text1: "User already exists",
+          text1: "Unable to send quote",
+          text2: "Please try again.",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       Toast.show({
         type: "error",
-        text1: "Update failed",
+        text1: "Quote request failed",
+        text2: error?.message || "Please try again.",
       });
     } finally {
       setLoading(false);
@@ -63,19 +72,21 @@ const CreateQuoteModal: React.FC<AuthModalProps> = ({ visible, onClose }) => {
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.overlay}>
+      <KeyboardAvoidingView
+        style={styles.overlay}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
         <View style={styles.container}>
           <View style={styles.header}>
-            <Text style={styles.title}>Custorm quote</Text>
+            <Text style={styles.title}>Custom quote</Text>
             <TouchableOpacity onPress={onClose}>
               <Foundation size={24} name="x-circle" />
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.body}>
+          <View style={styles.body}>
             <Formik
               initialValues={{
-                clientId:userProfile.id,
                 title: '',
                 description: ''
               }}
@@ -88,7 +99,7 @@ const CreateQuoteModal: React.FC<AuthModalProps> = ({ visible, onClose }) => {
                 <FormInput
                     id="title"
                     label="Title"
-                    placeholder="i.e wallnut"
+                    placeholder="i.e Owanbe 300 Guests"
                   />
 
                   <FormInput
@@ -106,9 +117,9 @@ const CreateQuoteModal: React.FC<AuthModalProps> = ({ visible, onClose }) => {
                 </>
               )}
             </Formik>
-          </ScrollView>
+          </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };

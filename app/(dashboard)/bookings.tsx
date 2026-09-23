@@ -1,26 +1,58 @@
 // app/(tabs)/guest-chefs.tsx
-import React, { useState } from "react";
+import React, { useLayoutEffect, useState } from "react";
 import { View, ScrollView, Pressable,Text} from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import HeaderBar from "@/components/HeaderBar";
-import ChefCard from "@/components/ChefCard";
-import SectionText from "@/components/typography/SectionText";
 import Colors from "@/constants/Colors";
-import UserPendingBookingTab from "@/components/tabs/UserPendingBookingTab";
 import UserActiveBookingTab from "@/components/tabs/UserActiveBookingTab";
-import UserCompletedBookingTab from "@/components/tabs/UserCompletedBookingTab";
+import UserReviewedBookingTab from "@/components/tabs/UserReviewedBookingTab";
+import UserQuotesTab from "@/components/tabs/UserQuotesTab";
+import { useNavigation } from "expo-router";
+import BodyText from "@/components/typography/BodyText";
+import { TextInput } from "react-native-paper";
+import { Ionicons } from "@expo/vector-icons";
 
-export default function GuestChefsScreen() {
-   const [activeTab, setActiveTab] = useState<"active" | "pending" | "expired">(
+export default function BookingsListScreen() {
+    const [activeTab, setActiveTab] = useState<"active" | "reviewed" | "quotes">(
         "active"
     );
+    const navigation = useNavigation();
+    const [searchQuery, setSearchQuery] = useState<string>('');
+
+    useLayoutEffect(() => {
+    navigation.setOptions({
+      headerShown: true,
+      headerStyle: styles.headerStyle,
+      headerTintColor: "#fff",
+  
+      headerTitle: () => (
+        <View>
+          <BodyText
+          textStyle={{color:'#fff',fontSize:15, fontFamily:'titleFont'}}
+            text={`Bookings`}
+          />
+          <BodyText
+          textStyle={{color:'#fff'}}
+            text={`Find all your bookings here`}
+          />
+        </View>
+      ),
+  
+      headerTitleStyle: {
+        fontWeight: "600",
+        fontFamily: "titleFont",
+      },
+  
+      // headerLeft: () => (
+      //   <TouchableOpacity onPress={() => navigation.goBack()}>
+      //     <Entypo name="chevron-left" size={24} color="white" />
+      //   </TouchableOpacity>
+      // ),
+    });
+  }, [navigation]);
+
   return (
     <View style={styles.container}>
-      <HeaderBar
-        title="Booking"
-        subtitle="Find all your bookings here"
-      />
-
       <View style={{ flex: 1, padding: 16, backgroundColor: "#f2f2f2" }}>
                 {/* PAGE TITLE */}
 
@@ -51,16 +83,16 @@ export default function GuestChefsScreen() {
                                 fontWeight: "600",
                             }}
                         >
-                            Active
+                            All bookings
                         </Text>
                     </Pressable>
 
                     <Pressable
-                        onPress={() => setActiveTab("pending")}
+                        onPress={() => setActiveTab("reviewed")}
                         style={{
                             flex: 1,
                             paddingVertical: 10,
-                            backgroundColor: activeTab === "pending" ? Colors.primary.base : "#fff",
+                            backgroundColor: activeTab === "reviewed" ? Colors.primary.base : "#fff",
                             borderWidth: 1,
                             borderColor: Colors.primary.base,
                             borderRadius: 8,
@@ -70,20 +102,20 @@ export default function GuestChefsScreen() {
                         <Text
                             style={{
                                 textAlign: "center",
-                                color: activeTab === "pending" ? "#fff" : Colors.primary.base,
+                                color: activeTab === "reviewed" ? "#fff" : Colors.primary.base,
                                 fontWeight: "600",
                             }}
                         >
-                            Upcoming
+                            Reviewed
                         </Text>
                     </Pressable>
 
                     <Pressable
-                        onPress={() => setActiveTab("expired")}
+                        onPress={() => setActiveTab("quotes")}
                         style={{
                             flex: 1,
                             paddingVertical: 10,
-                            backgroundColor: activeTab === "expired" ? Colors.primary.base : "#fff",
+                            backgroundColor: activeTab === "quotes" ? Colors.primary.base : "#fff",
                             borderWidth: 1,
                             borderColor: Colors.primary.base,
                             borderRadius: 8,
@@ -92,11 +124,11 @@ export default function GuestChefsScreen() {
                         <Text
                             style={{
                                 textAlign: "center",
-                                color: activeTab === "expired" ? "#fff" : Colors.primary.base,
+                                color: activeTab === "quotes" ? "#fff" : Colors.primary.base,
                                 fontWeight: "600",
                             }}
                         >
-                            Completed
+                            Quotes
                         </Text>
                     </Pressable>
                 </View>
@@ -107,12 +139,12 @@ export default function GuestChefsScreen() {
                         <UserActiveBookingTab />
                     )}
 
-                    {activeTab === "pending" && (
-                       <UserPendingBookingTab />
+                    {activeTab === "reviewed" && (
+                       <UserReviewedBookingTab />
                     )}
 
-                    {activeTab === "expired" && (
-                        <UserCompletedBookingTab />
+                    {activeTab === "quotes" && (
+                        <UserQuotesTab />
                     )}
                 </ScrollView>
             </View>
@@ -122,4 +154,19 @@ export default function GuestChefsScreen() {
 
 const styles = ScaledSheet.create({
   container: { flex: 1, backgroundColor: "#fff" },
+  headerStyle: {
+        backgroundColor: "#000000",
+        height:'125@s'
+    },
+  searchBox: {
+    flexDirection: "row",
+    justifyContent:'space-between',
+    paddingHorizontal:'10@s',
+    alignItems: "center",
+    backgroundColor: "#f8f8fb",
+    borderRadius: "5@s",
+    minWidth:'100%',
+    height:'40@s'
+  },
+  searchInput: {color: "#333", backgroundColor:'#fbf9f9',width:'80%', height:'35@s'},
 });

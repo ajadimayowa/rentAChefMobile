@@ -14,11 +14,22 @@
         "API_BASE_URL": "https://rentachefbackend.onrender.com"
       },
       "android": {
-        "buildType": "app-bundle"
+        "buildType": "app-bundle",
+        "autoIncrement": true
       },
       "ios": {
+        "autoIncrement": true,
         "distribution": "store"
       }
     }
+  },
+  "submit": {
+    "production": {
+      "ios": {},
+      "android": {}
+    }
+  },
+  "cli": {
+    "appVersionSource": "remote"
   }
 }

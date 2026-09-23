@@ -1,108 +1,46 @@
-export interface IChef {
-  chef: Chef;
+// A "chef" is a `User` document with `userType: "Chef"` — see
+// rentAChefBackend/src/models/User.model.ts. IChef narrows IUser to that case.
+// IChefProfile mirrors the payload of GET /chef/:id
+// (rentAChefBackend/src/controllers/chef.controller.ts -> getChefById).
+
+import { IChefDetails, IUser } from "./user";
+
+export interface IChef extends IUser {
+  userType: "Chef";
+  chefDetails: IChefDetails;
+}
+
+// GET /chef/:id resolves servicesOffered via the ChefService collection and
+// returns it populated as {id, name}, separate from the raw
+// chefDetails.servicesOffered id list on IChef.
+export interface IChefServiceOffered {
+  id: string;
+  name: string;
+}
+
+// GET /chef/:id fetches the chef's last 3 menus with `.lean()`, so these come
+// back with a raw `_id` rather than the `id` the toJSON transform would add.
+export interface IChefMenuSummary {
+  _id: string;
+  title: string;
+  description?: string;
+  menuType?: "breakfast" | "lunch" | "dinner";
+  menuClass?: "nigerian" | "continental";
+  pricingModel?: "perhead" | "plater";
+  pricePerHead?: number;
+  isSignatureMenu?: boolean;
+  samplePicture?: string | null;
+  totalGroceryCost?: number;
+  chefId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface IChefProfile {
+  chef: IChef;
   totalChefBooking: number;
   totalCompletedBooking: number;
   totalUpcoming: number;
-  getTheChefMenu: ChefMenu[];
-  servicesOffered: ServiceOffered[];
-}
-
-// -------------------- CHEF --------------------
-export interface Chef {
-  id: string;
-  staffId: string;
-  name: string;
-  gender: string;
-  email: string;
-  bio: string;
-  specialties: string[];
-  category: Category;
-  phoneNumber: number;
-  location: string;
-  state: string;
-  stateId: number;
-  profilePic: string;
-  menus: any[]; // refine if structure is known
-  isPasswordUpdated: boolean;
-  isActive: boolean;
-  yearsOfExperience: number;
-  rating: number;
-  createdAt: string; // or Date
-  updatedAt: string; // or Date
-}
-
-export interface Category {
-  id: string;
-  name: string;
-}
-
-// -------------------- MENU --------------------
-export interface ChefMenu {
-  _id: string;
-  chefId: string;
-  month: string;
-  weeks: Week[];
-  menuPic: string;
-  createdBy: string;
-  approved: boolean;
-  procurement: any[]; // refine if needed
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
-}
-
-export interface Week {
-  weekNumber: number;
-  days: DayMenu[];
-}
-
-export interface DayMenu {
-  day: string;
-  breakfast: string;
-  lunch: string;
-  dinner: string;
-}
-
-// -------------------- SERVICES --------------------
-export interface ServiceOffered {
-  id: string;
-  name: string;
-}
-
-
-
-
-export interface IChefList {
-  id: string;
-  staffId: string;
-  name: string;
-  gender: string; // you can narrow to "m" | "f" if needed
-  email: string;
-  bio: string;
-  specialties: string[];
-  category: ListCategory;
-  phoneNumber: number;
-  location: string;
-  state: string;
-  stateId: number;
-  profilePic: string;
-  menus: any[]; // refine when structure is known
-  isPasswordUpdated: boolean;
-  isActive: boolean;
-  yearsOfExperience: number;
-  rating: number;
-  createdAt: string; // or Date
-  updatedAt: string; // or Date
-}
-
-export interface ListCategory {
-  id: string;
-  name: string;
-  description: string;
-  image: string;
-  isActive: boolean;
-  services: any[]; // refine if you know the structure
-  createdAt: string;
-  updatedAt: string;
-  slug: string;
+  getTheChefMenu: IChefMenuSummary[];
+  servicesOffered: IChefServiceOffered[];
 }

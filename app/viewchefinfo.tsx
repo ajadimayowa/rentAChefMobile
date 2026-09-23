@@ -1,182 +1,74 @@
 // app/(tabs)/guest-chefs.tsx
-import React, { useEffect, useRef, useState } from "react";
-import { View, ScrollView, Pressable, Text, Image, TextInput, RefreshControl } from "react-native";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { View, ScrollView, Pressable, Text, Image, RefreshControl, TouchableOpacity } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
-import HeaderBar from "@/components/HeaderBar";
-import ChefCard from "@/components/ChefCard";
-import SectionText from "@/components/typography/SectionText";
 import Colors from "@/constants/Colors";
-import ChefAboutTab, { IChefABout } from "@/components/tabs/ChefAboutTab";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import { useDispatch, useSelector } from "react-redux";
-import { persistor, RootState } from "@/store";
-import SecureStorage from "@/store/secureStore";
+import ChefAboutTab from "@/components/tabs/ChefAboutTab";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import api from "@/services/apiConfig";
 import Toast from "react-native-toast-message";
-import { IChef } from "@/interfaces/chef";
+import { IChefProfile } from "@/interfaces/chef";
 import ChefMenuTab from "@/components/tabs/ChefMenuTab";
 import ChefServicesTab from "@/components/tabs/ChefServicesTab";
-import ReusableButton from "@/components/buttons/ReusableButton";
+import Entypo from "@expo/vector-icons/build/Entypo";
 
 export default function ViewChefsScreen() {
-    const { id, chefPic } = useLocalSearchParams();
-    const localProfile = useSelector((user: RootState) => user.auth.bioData);
-    
-
-    const [showAnnouncement, setShowAnnouncement] = useState(false);
+    const params = useLocalSearchParams<{ id: string, chefPic: string, chefName: string }>();
     const navigation = useNavigation();
-    const router = useRouter()
-    const inputs = useRef<TextInput[]>([]);
-    const { email } = useLocalSearchParams<{ email: string }>();
     const [loading, setLoading] = useState(false);
-    const dispatch = useDispatch()
-    const handleLogout = async () => {
-        await persistor.purge();
-        await SecureStorage.removeItem('userToken')
-        router.replace('/');
 
-    }
-
-    const [activeTab, setActiveTab] = useState<"active" | "pending" | "expired">(
-        "active"
+    const [activeTab, setActiveTab] = useState<"about" | "menu" | "services">(
+        "about"
     );
 
-    const [chefInfo, setChefInfo] = useState<IChef | any>();
-    const [servicesByChef, setServicesByChef] = useState<any[]>([]);
-    const [chefMenu, setChefMenu] = useState<IChef | any>();
+    const [chefInfo, setChefInfo] = useState<IChefProfile>();
 
-
-    const fetToken = async (): Promise<string> => {
-        const token = SecureStorage.getItem('userToken');
-        return token
-    }
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            title: `${params.chefName || "Chef Details"}`,
+            headerShown: true,
+            headerStyle: styles.headerStyle,
+            headerTintColor: "#fff",
+            headerTitleStyle: {
+                fontWeight: "600",
+                fontFamily: "titleFont",
+            },
+            headerLeft: () => <TouchableOpacity onPress={() => navigation.goBack()}><Entypo name="chevron-left" size={24} color="white" /></TouchableOpacity>
+        });
+    }, [navigation]);
 
     const fetchChefInfo = async () => {
-        // const apiUrl = Constants.expoConfig?.extra?.apiUrl
-        // console.log('baseUrl',apiUrl)
         setLoading(true)
         try {
-            const res = await api.get(`/chef/${id}`)
-
-            // console.log({ seeRes: res })
-
-            if (res?.data?.success) {
-                // Toast.show({
-                //     type: 'success',
-                //     text1: 'Profile Fetched'
-                // });
-                setChefInfo(res?.data?.payload?.chef)
-                setLoading(false)
-            } else {
-
-                console.log({ seeAfter: res })
-                setLoading(false)
-                Toast.show({
-                    type: 'error',
-                    text1: 'Error fetching chef information'
-                });
-
-            }
-
+            const res = await api.get(`/chef/${params.id}`)
+            setChefInfo(res?.data?.payload)
         } catch (error: any) {
-            console.log({ seeErrorBreak: error })
-            setLoading(false)
             Toast.show({
                 type: 'error',
                 text1: 'Error fetching chef information'
             });
+        } finally {
+            setLoading(false)
         }
     }
 
-    const fetchServicesOfferedByChef = async () => {
-        // const apiUrl = Constants.expoConfig?.extra?.apiUrl
-        // console.log('baseUrl',apiUrl)
-        setLoading(true)
-        try {
-            const res = await api.get(`/chefServices/byAChef/${id}`)
-
-            console.log({ seeRes: res })
-
-            if (res?.data?.success) {
-                // Toast.show({
-                //     type: 'success',
-                //     text1: 'Services fectched'
-                // });
-                setServicesByChef(res?.data?.payload);
-                setLoading(false)
-            } else {
-
-                console.log({ seeAfter: res })
-                setLoading(false)
-                Toast.show({
-                    type: 'error',
-                    text1: 'Error fetching chef service'
-                });
-
-            }
-
-        } catch (error: any) {
-            console.log({ seeErrorBreak: error })
-            setLoading(false)
-            Toast.show({
-                type: 'error',
-                text1: 'Error fetching chef service'
-            });
-        }
-    }
-
-    const fetchChefMenu = async () => {
-        // const apiUrl = Constants.expoConfig?.extra?.apiUrl
-        // console.log('baseUrl',apiUrl)
-        setLoading(true)
-        try {
-            const res = await api.get(`/menu/getMenus?chefId=${id}`)
-
-            console.log({ seeRes: res })
-
-            if (res?.data?.success) {
-                // Toast.show({
-                //     type: 'success',
-                //     text1: 'Menu Fetched!'
-                // });
-                setChefMenu(res?.data?.payload)
-                setLoading(false)
-            } else {
-
-                console.log({ seeAfter: res })
-                setLoading(false)
-                Toast.show({
-                    type: 'error',
-                    text1: 'Error fetching chef menus'
-                });
-
-
-            }
-
-        } catch (error: any) {
-            console.log({ seeErrorBreak: error })
-            setLoading(false)
-            Toast.show({
-                type: 'error',
-                text1: 'Error fetching chef information'
-            });
-
-        }
+    const handleRefresh = () => {
+        fetchChefInfo();
     }
 
     useEffect(() => {
         fetchChefInfo();
-        fetchChefMenu()
-        fetchServicesOfferedByChef()
     }, [])
 
     return (
         <View style={styles.container}>
-            <Image style={{ width: '100%', height: 250 }} source={
-                chefPic
-                    ? { uri: chefPic }
-                    : require('../assets/images/manavatar.png')
-            } />
+            <View style={styles.chefImageWrap}>
+                <Image style={styles.chefImage} resizeMode="cover" source={
+                    params.chefPic
+                        ? { uri: params.chefPic }
+                        : require('../assets/images/manavatar.png')
+                } />
+            </View>
             <View style={{ flex: 1, padding: 16, backgroundColor: "#f2f2f2" }}>
                 {/* PAGE TITLE */}
 
@@ -189,11 +81,11 @@ export default function ViewChefsScreen() {
                     }}
                 >
                     <Pressable
-                        onPress={() => setActiveTab("active")}
+                        onPress={() => setActiveTab("about")}
                         style={{
                             flex: 1,
                             paddingVertical: 10,
-                            backgroundColor: activeTab === "active" ? Colors.primary.base : "#fff",
+                            backgroundColor: activeTab === "about" ? Colors.primary.base : "#fff",
                             borderWidth: 1,
                             borderColor: Colors.primary.base,
                             borderRadius: 8,
@@ -203,7 +95,7 @@ export default function ViewChefsScreen() {
                         <Text
                             style={{
                                 textAlign: "center",
-                                color: activeTab === "active" ? "#fff" : Colors.primary.base,
+                                color: activeTab === "about" ? "#fff" : Colors.primary.base,
                                 fontWeight: "600",
                             }}
                         >
@@ -212,11 +104,11 @@ export default function ViewChefsScreen() {
                     </Pressable>
 
                     <Pressable
-                        onPress={() => setActiveTab("pending")}
+                        onPress={() => setActiveTab("menu")}
                         style={{
                             flex: 1,
                             paddingVertical: 10,
-                            backgroundColor: activeTab === "pending" ? Colors.primary.base : "#fff",
+                            backgroundColor: activeTab === "menu" ? Colors.primary.base : "#fff",
                             borderWidth: 1,
                             borderColor: Colors.primary.base,
                             borderRadius: 8,
@@ -226,7 +118,7 @@ export default function ViewChefsScreen() {
                         <Text
                             style={{
                                 textAlign: "center",
-                                color: activeTab === "pending" ? "#fff" : Colors.primary.base,
+                                color: activeTab === "menu" ? "#fff" : Colors.primary.base,
                                 fontWeight: "600",
                             }}
                         >
@@ -235,11 +127,11 @@ export default function ViewChefsScreen() {
                     </Pressable>
 
                     <Pressable
-                        onPress={() => setActiveTab("expired")}
+                        onPress={() => setActiveTab("services")}
                         style={{
                             flex: 1,
                             paddingVertical: 10,
-                            backgroundColor: activeTab === "expired" ? Colors.primary.base : "#fff",
+                            backgroundColor: activeTab === "services" ? Colors.primary.base : "#fff",
                             borderWidth: 1,
                             borderColor: Colors.primary.base,
                             borderRadius: 8,
@@ -248,7 +140,7 @@ export default function ViewChefsScreen() {
                         <Text
                             style={{
                                 textAlign: "center",
-                                color: activeTab === "expired" ? "#fff" : Colors.primary.base,
+                                color: activeTab === "services" ? "#fff" : Colors.primary.base,
                                 fontWeight: "600",
                             }}
                         >
@@ -259,35 +151,35 @@ export default function ViewChefsScreen() {
 
                 {/* TAB CONTENT */}
                 <ScrollView refreshControl={
-                    <RefreshControl refreshing={loading} onRefresh={fetchChefInfo} />
+                    <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
                 } style={{}}>
-                    {activeTab === "active" && (
+                    {activeTab === "about" && (
                         <ChefAboutTab data={chefInfo} />
                     )}
 
-                    {activeTab === "pending" && (
-                        <ChefMenuTab data={chefMenu} />
+                    {activeTab === "menu" && (
+                        <ChefMenuTab chefId={params.id} />
                     )}
 
-                    {activeTab === "expired" && (
-                        <ChefServicesTab data={servicesByChef} />
+                    {activeTab === "services" && (
+                        <ChefServicesTab />
                     )}
                 </ScrollView>
-                <ReusableButton
+                {/* <ReusableButton
                     onPress={async () => {
                         const token = await SecureStorage.getItem('userToken');
 
                         if (token) {
-                            router.push({ pathname: '/viewavailability', params: { chefId: id } });
+                            router.push({ pathname: '/viewavailability', params: { chefId: params.id } });
                         } else {
-                            router.push({ pathname: '/register', params: { chefId: id } });
+                            router.push({ pathname: '/register', params: { chefId: params.id } });
                         }
                     }}
                     style={{ marginTop: 10, marginBottom: 5, borderRadius: 5 }}
                     title="Book Now"
-                />
+                /> */}
 
-                
+
             </View>
         </View>
     );
@@ -295,4 +187,19 @@ export default function ViewChefsScreen() {
 
 const styles = ScaledSheet.create({
     container: { flex: 1, backgroundColor: "#fff" },
+    headerStyle: {
+        backgroundColor: "#000000",
+    },
+    // Clip to a fixed banner height, but render the image taller than that and
+    // let the excess overflow off the bottom — "cover" mode centers by default,
+    // which was cropping chefs' heads out of frame in portrait photos.
+    chefImageWrap: {
+        width: '100%',
+        height: '250@vs',
+        overflow: 'hidden',
+    },
+    chefImage: {
+        width: '100%',
+        height: '130%',
+    },
 });

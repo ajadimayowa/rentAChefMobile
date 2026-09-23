@@ -1,9 +1,6 @@
 import React, { useState } from "react";
-import { Modal, View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
-import { ScaledSheet } from "react-native-size-matters";
-import { Foundation, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import api from "@/services/apiConfig";
 import Toast from "react-native-toast-message";
 import { useSelector } from "react-redux";
@@ -12,6 +9,7 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import FormInput from "@/components/FormInput";
 import ReusableButton from "@/components/buttons/ReusableButton";
+import ProfileEditSheet from "./ProfileEditSheet";
 
 interface AuthModalProps {
   visible: boolean;
@@ -63,135 +61,45 @@ const UpdateHealthInfoModal: React.FC<AuthModalProps> = ({ visible, onClose }) =
   });
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Update Health Information</Text>
-            <TouchableOpacity onPress={onClose}>
-              <Foundation size={24} name="x-circle" />
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView style={styles.body}>
-            <Formik
-              initialValues={{
-                healthDetails: '',
-                allergies: ''
-              }}
-              validationSchema={RegisterSchema}
-              onSubmit={updateHealthInfo}
-            >
-              {({ handleSubmit }) => (
-                <>
-                  <FormInput
-                  type="textarea"
-                    id="healthDetails"
-                    label="Health information"
-                    placeholder="Enter a brief description"
-                  />
-                  <FormInput
-                    id="allergies"
-                    label="Enter allergy"
-                    placeholder="i.e wallnut"
-                  />
-                   {/* <View style={{flexDirection:'row',gap:2, width:'100%',alignItems:'center',justifyContent:'space-between'}}>
-                    
-                  <TouchableOpacity style={{alignItems:'center'}}>
-                    <Ionicons size={16}  name="save"/>
-                  </TouchableOpacity>
-                   </View> */}
-                  <ReusableButton
-                    style={{ marginTop: 20 }}
-                    onPress={handleSubmit}
-                    loading={loading}
-                    title="Save"
-                  />
-                </>
-              )}
-            </Formik>
-          </ScrollView>
-        </View>
-      </View>
-    </Modal>
+    <ProfileEditSheet
+      visible={visible}
+      onClose={onClose}
+      title="Update Health Information"
+      icon={<MaterialCommunityIcons name="heart-pulse" size={16} color="#2E5D49" />}
+      iconBg="#E7F3EA"
+    >
+      <Formik
+        initialValues={{
+          healthDetails: '',
+          allergies: ''
+        }}
+        validationSchema={RegisterSchema}
+        onSubmit={updateHealthInfo}
+      >
+        {({ handleSubmit }) => (
+          <>
+            <FormInput
+              type="textarea"
+              id="healthDetails"
+              label="Health information"
+              placeholder="Enter a brief description"
+            />
+            <FormInput
+              id="allergies"
+              label="Enter allergy"
+              placeholder="i.e wallnut"
+            />
+            <ReusableButton
+              style={{ marginTop: 20 }}
+              onPress={handleSubmit}
+              loading={loading}
+              title="Save"
+            />
+          </>
+        )}
+      </Formik>
+    </ProfileEditSheet>
   );
 };
-
-const styles = ScaledSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  container: {
-    width: "90%",
-    maxHeight: "85%",             // ✅ prevents full screen overflow
-    backgroundColor: "#fff",
-    borderRadius: "16@ms",
-    padding: "20@ms",
-  },
-  body: {
-    width: "100%",
-    marginTop: "25@ms",
-  },
-  title: {
-    fontSize: "18@ms",
-    fontWeight: "bold",
-  },
-  subtitle: {
-    fontSize: "14@ms",
-    color: "#666",
-    marginBottom: "20@ms",
-    textAlign: "center",
-  },
-  button: {
-    width: "100%",
-    padding: "12@ms",
-    borderRadius: "8@ms",
-    alignItems: "center",
-    marginVertical: "8@ms",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: "16@ms",
-    fontWeight: "600",
-  },
-  imagePreview: {
-    width: 60, // Adjust the size of the image
-    height: 60,
-    borderRadius: 30,
-    marginRight: 10,
-  },
-  imageText: {
-    fontSize: "14@ms",
-    marginLeft: 10,
-    color: "#666",
-  },
-  addPhotoText: {
-    fontSize: "14@ms",
-    marginLeft: 10,
-    color: "#0078AF", // Customize the color of the text
-  },
-  signupText: {
-    textAlign: "center",
-    fontSize: "13@s",
-    marginTop: "20@vs",
-  },
-  signupLink: {
-    color: "#EA7052",
-  },
-  header: {
-    width: '100%',
-    justifyContent: 'space-between',
-    flexDirection: 'row'
-  },
-  errorText: {
-    color: "red",
-    fontSize: "12@s",
-    marginTop: 4,
-    marginBottom: 6,
-  },
-});
 
 export default UpdateHealthInfoModal;

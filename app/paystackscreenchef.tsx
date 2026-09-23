@@ -2,11 +2,6 @@
 import React, { useRef, useState } from "react";
 import { View, ScrollView, Pressable, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
-import HeaderBar from "@/components/HeaderBar";
-import ChefCard from "@/components/ChefCard";
-import SectionText from "@/components/typography/SectionText";
-import Colors from "@/constants/Colors";
-import { Calendar } from 'react-native-calendars';
 import { useLocalSearchParams,useRouter } from "expo-router";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@/store";
@@ -55,7 +50,7 @@ export default function PayStackScreenChef() {
       const res = await api.post("/payment/initialize-payment", {
         email: userProfile.email,
         amount: bookingFeeAmount,
-        callback_url: 'https://rent-a-chef-portal.vercel.app/payment-succesful'
+        callback_url: 'https://rentachefapp.com'
       });
 
       console.log({ seeResp: res.data?.data })

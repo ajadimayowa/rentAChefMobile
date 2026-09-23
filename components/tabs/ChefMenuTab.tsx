@@ -1,149 +1,269 @@
-import { RefreshControl, ScrollView, TextInput, Text, TouchableOpacity, View } from "react-native"
+import { Image, RefreshControl, ScrollView, Text, View } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
-import SectionText from "../typography/SectionText";
-import { useDispatch, useSelector } from "react-redux";
-import { persistor, RootState } from "@/store";
-import { useEffect, useRef, useState } from "react";
-import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
-import SecureStorage from "@/store/secureStore";
+import { useEffect, useState } from "react";
 import Toast from "react-native-toast-message";
-// import { IAd } from "@/interfaces/ads";
-import api from "@/services/apiConfig";
-// import ReusableAdCard from "../cards/AdCard";
+import { getMenus } from "@/services/menuService";
 import PrimaryLoader from "../Loader";
 import BodyText from "../typography/BodyText";
 import Colors from "@/constants/Colors";
-import { IChef } from "@/interfaces/chef";
-import { Ionicons } from "@expo/vector-icons";
-import TitleText from "../typography/TitleText";
-import ReusableButton from "../buttons/ReusableButton";
 
 export interface IChefMenu {
-    data: any[]
+    chefId: string;
 }
-const ChefMenuTab: React.FC<IChefMenu> = ({ data }) => {
-    const localProfile = useSelector((user: RootState) => user.auth.bioData);
-    const [ads, setAds] = useState<any[]>([])
 
-    const [showAnnouncement, setShowAnnouncement] = useState(false);
-    const navigation = useNavigation();
-    const router = useRouter()
-    const inputs = useRef<TextInput[]>([]);
-    const { email } = useLocalSearchParams<{ email: string }>();
+interface IMenuCategory {
+    id: string;
+    title: string;
+}
+
+interface IMenuItem {
+    id: string;
+    title: string;
+    description?: string;
+    menuType?: "breakfast" | "lunch" | "dinner";
+    menuClass?: "nigerian" | "continental";
+    pricingModel?: "perhead" | "plater";
+    pricePerHead?: number;
+    isSignatureMenu?: boolean;
+    samplePicture?: string | null;
+    menuCategory?: IMenuCategory[];
+    totalGroceryCost?: number;
+}
+
+const ChefMenuTab: React.FC<IChefMenu> = ({ chefId }) => {
+    const [chefMenus, setChefMenus] = useState<IMenuItem[]>([]);
     const [loading, setLoading] = useState(false);
-    const dispatch = useDispatch()
-    const handleLogout = async () => {
-        await persistor.purge();
-        await SecureStorage.removeItem('userToken')
-        router.replace('/');
 
+    const formatPrice = (value?: number) => {
+        if (!value) return "N0";
+        return `N${value.toLocaleString()}`;
+    };
+
+    const formatMenuType = (menuType?: string) => {
+        if (!menuType) return "General";
+        return menuType.charAt(0).toUpperCase() + menuType.slice(1);
+    };
+
+    const formatPricingModel = (pricingModel?: string) => {
+        if (!pricingModel) return "Flat";
+        return pricingModel === "perhead" ? "Per Head" : "Platter";
+    };
+
+    const fetchChefMenu = async () => {
+        if (!chefId) return;
+
+        setLoading(true);
+        try {
+            const res = await getMenus(chefId);
+            if (res?.data?.success) {
+                setChefMenus(res?.data?.data || res?.data?.payload || []);
+            } else {
+                Toast.show({
+                    type: "error",
+                    text1: "Network error",
+                    text2: res?.data?.message || "Something went wrong!",
+                });
+            }
+        } catch (error) {
+            Toast.show({
+                type: "error",
+                text1: "Network error",
+                text2: "Something went wrong!",
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchChefMenu();
+    }, [chefId]);
+
+    if (loading && chefMenus.length === 0) {
+        return <PrimaryLoader />;
     }
+
     return (
-        <>
-            <ScrollView
-                // refreshControl={
-                //     <RefreshControl refreshing={loading} onRefresh={fetchAds} />
-                // }
-                style={{ width: '100%', flex: 1 }}>
-
-                {
-                    data?.length > 0 ?
-                        data.map((menu,index) => (
-                            <View key={index} style={styles.card}>
-                                <SectionText text={menu?.month}/>
-                                {
-                                    menu?.weeks?.map((week:any,index:number)=>(
-                                        <View key={index + 1} style={styles.calendarcard}>
-                                            <SectionText text={`Week ${week?.weekNumber}`}/>
-
-                                            {
-                                                week?.days.map((day:any, index:number)=>(
-                                                    <View key={index + 1}>
-                                                        <BodyText textStyle={{color:'#f88b8bff'}} text={day?.day}/>
-                                                        <BodyText  text={`Breakfast : ${day?.breakfast}`}/>
-                                                        <BodyText  text={`Lunch : ${day?.lunch}`}/>
-                                                        <BodyText  text={`Dinner : ${day?.dinner}`}/>
-                                                    </View>
-                                                ))
-                                            }
-
-                                        </View>
-                                    ))
-                                }
-
+        <ScrollView
+            refreshControl={
+                <RefreshControl refreshing={loading} onRefresh={fetchChefMenu} />
+            }
+            contentContainerStyle={styles.contentContainer}
+            style={styles.container}
+        >
+            {chefMenus.length > 0 ? (
+                chefMenus.map((menu) => (
+                    <View key={menu.id} style={styles.card}>
+                        {menu.samplePicture ? (
+                            <Image source={{ uri: menu.samplePicture }} style={styles.image} />
+                        ) : (
+                            <View style={styles.imageFallback}>
+                                <Text style={styles.imageFallbackText}>{formatMenuType(menu.menuType)}</Text>
                             </View>
-                        )) :
-                        <BodyText text="No Uploaded Menu at this time" />
-                }
+                        )}
 
+                        <View style={styles.cardContent}>
+                            <View style={styles.rowBetween}>
+                                <Text style={styles.title}>{menu.title}</Text>
+                                {menu.isSignatureMenu ? (
+                                    <View style={styles.signatureTag}>
+                                        <Text style={styles.signatureTagText}>Signature</Text>
+                                    </View>
+                                ) : null}
+                            </View>
 
+                            <Text style={styles.description} numberOfLines={2}>
+                                {menu.description || "No description added yet."}
+                            </Text>
 
-            </ScrollView>
-        </>
+                            <View style={styles.badgeRow}>
+                                <View style={styles.badge}>
+                                    <Text style={styles.badgeText}>{formatMenuType(menu.menuType)}</Text>
+                                </View>
+                                {menu.menuClass ? (
+                                    <View style={styles.badge}>
+                                        <Text style={styles.badgeText}>{menu.menuClass}</Text>
+                                    </View>
+                                ) : null}
+                                {menu.pricingModel ? (
+                                    <View style={styles.badge}>
+                                        <Text style={styles.badgeText}>{formatPricingModel(menu.pricingModel)}</Text>
+                                    </View>
+                                ) : null}
+                            </View>
 
-    )
-}
+                            {menu.menuCategory && menu.menuCategory.length > 0 ? (
+                                <Text style={styles.categoryText}>
+                                    Category: {menu.menuCategory.map((item) => item.title).join(", ")}
+                                </Text>
+                            ) : null}
+
+                            <View style={styles.rowBetween}>
+                                <Text style={styles.price}>{formatPrice(menu.pricePerHead)}</Text>
+                                <Text style={styles.groceryCost}>
+                                    Grocery: {formatPrice(menu.totalGroceryCost)}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+                ))
+            ) : (
+                <View style={styles.emptyStateContainer}>
+                    <BodyText text="No uploaded menu at this time." />
+                </View>
+            )}
+        </ScrollView>
+    );
+};
 
 
 
 const styles = ScaledSheet.create({
     container: {
-        flex: 1
+        flex: 1,
+        width: "100%",
+    },
+    contentContainer: {
+        paddingBottom: "20@vs",
     },
     card: {
         width: "100%",
         marginTop: "10@vs",
-        marginBottom: "10@vs",
-        gap: "10@s",
+        backgroundColor: "#fff",
+        borderRadius: "14@s",
+        overflow: "hidden",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
+        elevation: 5,
+    },
+    image: {
+        width: "100%",
+        height: "140@vs",
+    },
+    imageFallback: {
+        width: "100%",
+        height: "100@vs",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: Colors.primary.light,
+    },
+    imageFallbackText: {
+        color: Colors.primary.base,
+        fontSize: "13@ms",
+        fontWeight: "700",
+    },
+    cardContent: {
+        padding: "12@s",
+        gap: "7@vs",
+    },
+    rowBetween: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: "8@s",
+    },
+    title: {
+        flex: 1,
+        color: "#1f2937",
+        fontSize: "15@ms",
+        fontWeight: "700",
+    },
+    signatureTag: {
+        backgroundColor: "#fef3c7",
+        borderColor: "#f59e0b",
+        borderWidth: 1,
+        paddingVertical: "2@vs",
+        paddingHorizontal: "8@s",
+        borderRadius: "20@s",
+    },
+    signatureTagText: {
+        color: "#92400e",
+        fontSize: "10@ms",
+        fontWeight: "700",
+    },
+    description: {
+        color: "#4b5563",
+        fontSize: "12@ms",
+        lineHeight: "18@vs",
+    },
+    badgeRow: {
         flexDirection: "row",
         flexWrap: "wrap",
-        padding: "12@s",
-        backgroundColor: "#fff",
-        borderRadius: "12@s",
-
-        // iOS shadow
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.15,
-        shadowRadius: 6,
-
-        // Android shadow
-        elevation: 5,
+        gap: "8@s",
     },
-    calendarcard: {
-        width: "100%",
-        marginTop: "10@vs",
-        marginBottom: "10@vs",
-        gap: "10@s",
-        flexWrap: "wrap",
-        padding: "12@s",
-        backgroundColor: "#fff",
-        borderRadius: "12@s",
-
-        // iOS shadow
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.15,
-        shadowRadius: 6,
-
-        // Android shadow
-        elevation: 5,
+    badge: {
+        backgroundColor: "#f3f4f6",
+        paddingVertical: "4@vs",
+        paddingHorizontal: "8@s",
+        borderRadius: "14@s",
     },
-    catbtncontainer: {
-        paddingVertical: "5@ms",
-        paddingHorizontal: "10@ms",
-        borderRadius: "20@ms",
-        alignSelf: "flex-start",
-        alignItems: 'center',
-        // ✅ Drop shadow (iOS)
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.18,
-        shadowRadius: 4,
-        backgroundColor: '#ffffffff',
-
-        // ✅ Drop shadow (Android)
-        elevation: 4,
+    badgeText: {
+        color: "#111827",
+        fontSize: "11@ms",
+        fontWeight: "600",
+        textTransform: "capitalize",
     },
-})
+    categoryText: {
+        color: "#6b7280",
+        fontSize: "11@ms",
+        textTransform: "capitalize",
+    },
+    price: {
+        color: Colors.primary.base,
+        fontWeight: "800",
+        fontSize: "16@ms",
+    },
+    groceryCost: {
+        color: "#374151",
+        fontWeight: "600",
+        fontSize: "11@ms",
+    },
+    emptyStateContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        paddingVertical: "24@vs",
+    },
+});
 export default ChefMenuTab;

@@ -27,8 +27,7 @@ const HeaderBarLoaction: React.FC<HeaderBarProps> = ({ fullName, location, notif
   const storeCount = useSelector((s: RootState) => s.notifications?.count || 0);
   const unread = typeof notificationCountProp === 'number' ? notificationCountProp : storeCount;
   return (
-    <View style={styles.container}>
-      <SafeAreaView>
+      <View style={styles.container}>
         {showBack && <ReusableButton textStyle={{ color: '#fff' }} style={{ width: 100, margin: 0, padding: 0 }} onPress={() => router.back()} iconLeft={"chevron-back"} type="pressableText" title="Go Back" />}
         <View style={{ padding: 10 }}>
           <View style={{ display: 'flex', flexDirection: 'row', gap: 3, alignItems: 'center', width:'100%',justifyContent:'space-between' }}>
@@ -49,15 +48,14 @@ const HeaderBarLoaction: React.FC<HeaderBarProps> = ({ fullName, location, notif
 
 
           <View>
-            <SectionText text="What delicacy
-are you craving for today?" textStyle={{ color: '#fff', fontSize: 24, marginTop: 15 }} />
+            <SectionText text="What are you craving today?" textStyle={{ color: '#fff', fontSize: 18, }} />
           </View>
 
 
           {showSearch && (
             <TouchableOpacity onPress={() => router.push('/search')}>
               <View style={styles.searchBox}>
-                <BodyText text="Search menu..." />
+                <BodyText text="Search service..." />
                 <Ionicons name="search-outline" size={20} color="#999" />
               </View>
             </TouchableOpacity>
@@ -66,13 +64,12 @@ are you craving for today?" textStyle={{ color: '#fff', fontSize: 24, marginTop:
 
         </View>
 
-      </SafeAreaView>
-    </View>
+      </View>
   );
 };
 
 const styles = ScaledSheet.create({
-  container: { padding: "5@s", backgroundColor: Colors.primary.base, borderBottomLeftRadius: "20@s", borderBottomRightRadius: "20@s" },
+  container: { padding: "5@s", backgroundColor: Colors.primary.base, borderBottomLeftRadius: "10@s", borderBottomRightRadius: "10@s" },
   title: { fontSize: "16@s", color: "#fff", fontWeight: "700" },
   subtitle: { fontSize: "12@s", color: "#ffe" },
   searchBox: {

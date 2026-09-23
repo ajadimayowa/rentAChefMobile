@@ -1,32 +1,13 @@
-// store/slices/authSlice.ts
+// store/slices/chefSlice.ts
 import api from "@/services/apiConfig";
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
+// Chefs no longer sign in through this app (they use the web portal), so
+// this slice no longer holds a logged-in chef profile — it just hosts the
+// client-side "rate a chef after a booking" thunk below.
 
-interface IChefProfile {
-    chefData: {
-        "id": string,
-        "staffId": string,
-        "name": string,
-        "email": string,
-        "gender": string,
-        "profilePic": string,
-        "isPasswordUpdated": boolean | null
-    }
-}
+const initialState = {};
 
-
-const initialState: IChefProfile = {
-    chefData: {
-        "id": "",
-        "staffId": "",
-        "name": "",
-        "email": "",
-        "gender": 'm',
-        "profilePic": '',
-        "isPasswordUpdated": null
-    }
-}
 export const rateChef = createAsyncThunk(
   'chef/rateChef',
   async (
@@ -47,17 +28,9 @@ export const rateChef = createAsyncThunk(
 );
 
 const chefSlice = createSlice({
-    name: "auth",
+    name: "chef",
     initialState,
-    reducers: {
-        setChefProfile: (
-            state,
-            action: PayloadAction<any>
-        ) => {
-            state.chefData = action.payload;
-        }
-    },
+    reducers: {},
 });
 
-export const { setChefProfile } = chefSlice.actions;
 export default chefSlice.reducer;

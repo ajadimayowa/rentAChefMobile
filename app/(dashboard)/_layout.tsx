@@ -38,14 +38,13 @@ export default function TabLayout() {
     <>
        <Tabs
       screenOptions={{
-        headerShown: false,
         tabBarActiveTintColor: "#EA7052",
         tabBarInactiveTintColor: "#111010ff",
         tabBarStyle: {
           borderTopLeftRadius: 20,
           borderTopRightRadius: 20,
           paddingBottom: insets.bottom,
-          height: 60 + insets.bottom,
+          height: 50 + insets.bottom,
         },
         tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
       }}
@@ -53,10 +52,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
-          headerShown: false, // <--- hide the extra header
+          tabBarLabel:'Home',
           tabBarIcon: ({ color, size }) => (
-            <Octicons name="home-fill" color={color} size={size} />
+            <Octicons name="home-fill" color={color} size={18} />
           ),
         }}
       />
@@ -64,9 +62,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="chefs"
         options={{
-          title: "Chefs",
+          tabBarLabel:'Chefs',
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="chef-hat" size={size} color={color}/>
+            <MaterialCommunityIcons name="chef-hat" size={18} color={color}/>
           ),
         }}
       />
@@ -74,9 +72,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="bookings"
         options={{
-          title: "Bookings",
+          tabBarLabel:'Bookings',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="fast-food" color={color} size={size} />
+            <Ionicons name="fast-food" color={color} size={18} />
           ),
         }}
       />
@@ -84,9 +82,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          tabBarLabel:'Profile',
+          headerShown:false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" color={color} size={size} />
+            <Ionicons name="person" color={color} size={18} />
           ),
         }}
       />

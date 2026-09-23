@@ -7,14 +7,15 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
 } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { router, useLocalSearchParams, useNavigation, useRouter } from "expo-router";
+import {useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import ReusableButton from "@/components/buttons/ReusableButton";
 import { Ionicons } from "@expo/vector-icons";
-import api from "@/services/apiConfig";
+import { resetPasswordWithOtp } from "@/services/auth/auth";
 import Toast from "react-native-toast-message";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -42,20 +43,16 @@ export default function ResetPasswordScreen() {
 
 
   const handleSetNewPassword = async (val: any) => {
-    // const apiUrl = Constants.expoConfig?.extra?.apiUrl
-    console.log({ email: email, ...val })
     setLoading(true)
     const payload = {
-      "email": email,
-      "otp": val?.otp,
-      "newPassword": val?.newPassword
+      email: email as string,
+      otp: val?.otp,
+      newPassword: val?.newPassword,
     }
     try {
-      const res = await api.post('/auth/reset-password-with-otp', payload)
-      console.log({ seeRes: res?.data })
+      const res = await resetPasswordWithOtp(payload)
 
-      if (res?.data?.success) {
-        console.log("Reset password data:", val);
+      if (res?.success) {
         router.push("/login");
         Toast.show({
           type: 'success',
@@ -64,13 +61,11 @@ export default function ResetPasswordScreen() {
         });
         setLoading(false)
       } else {
-
-        console.log({ seeAfter: res })
         setLoading(false)
         Toast.show({
           type: 'error',
           text1: 'Error',
-          text2: res?.data.message || 'Failed to change password',
+          text2: res?.message || 'Failed to change password',
         });
 
       }
@@ -88,31 +83,38 @@ export default function ResetPasswordScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      {/* Header */}
-      <ImageBackground
-        source={require("../assets/images/header-fruits.png")}
-        resizeMode="cover"
-        style={{ padding: 20, height: 200, justifyContent: "flex-start" }}
-      >
-        <SafeAreaView style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}>
-        <ReusableButton
-          style={{ width: 100 }}
-          onPress={() => router.back()}
-          iconLeft={"chevron-back"}
-          extStyle={{ width: "50%", padding: 0, color: "#000" }}
-          type="pressableText"
-          title="Go Back"
-        />
+          style={styles.container}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+      <ScrollView
+              contentContainerStyle={{ flexGrow: 1 }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+      <View style={styles.backgroundAccentTop} />
+      <View style={styles.backgroundAccentBottom} />
+
+      <SafeAreaView style={styles.safeArea}>
+          <ReusableButton
+            style={{ width: 100 }}
+            onPress={() => router.navigate("./authscreen")}
+            iconLeft={"chevron-back"}
+            extStyle={{ width: "50%", padding: 0, color: "#000" }}
+            type="pressableText"
+            title="Go Back"
+          />
         </SafeAreaView>
-      </ImageBackground>
+
+        <View style={styles.headerCard}>
+                  {/* <Text style={styles.badge}>Secure Access</Text> */}
+                  <Text style={styles.title}>Enter the code sent to:</Text>
+                  <Text style={styles.subText}>
+                    {email}
+                  </Text>
+                </View>
 
       {/* Form Section */}
       <View style={{ width: "100%", padding: 20 }}>
-        <Text style={styles.title}>Enter the code sent to:</Text>
-        <Text style={styles.email}>{email}</Text>
 
         <Formik
           initialValues={{ otp: "", newPassword: "", confirmPassword: "" }}
@@ -197,6 +199,7 @@ export default function ResetPasswordScreen() {
           )}
         </Formik>
       </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -206,12 +209,51 @@ const styles = ScaledSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  title: {
-    fontSize: "20@s",
-    fontWeight: "700",
-    marginTop: "20@vs",
-    color: "#000",
+  safeArea: {
+    width: "100%",
+    paddingHorizontal: "20@s",
+    paddingTop: "6@vs",
   },
+  headerCard: {
+    marginHorizontal: "20@s",
+    marginTop: "10@vs",
+    padding: "18@s",
+    borderRadius: "18@s",
+   backgroundColor: "#f2f1f0",
+    borderWidth: 1,
+    borderColor: "#dfdcda",
+  },
+  subText: {
+    fontSize: "13@s",
+    color: "#4B5563",
+    marginTop: "8@vs",
+    fontFamily: "secondaryFont",
+  },
+  title: {
+    fontSize: "24@s",
+    fontFamily: "secondaryFont",
+    color: "#111827",
+  },
+  backgroundAccentTop: {
+    position: "absolute",
+    top: "-80@vs",
+    right: "-40@s",
+    width: "220@s",
+    height: "220@s",
+    borderRadius: "110@s",
+    backgroundColor: "#eae8e8",
+  },
+
+  backgroundAccentBottom: {
+    position: "absolute",
+    bottom: "-120@vs",
+    left: "-70@s",
+    width: "260@s",
+    height: "260@s",
+    borderRadius: "130@s",
+    backgroundColor: "#f3f0ef",
+  },
+
   email: {
     color: "#EA7052",
     fontWeight: "600",

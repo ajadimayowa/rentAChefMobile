@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { Modal, View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 import { useRouter } from "expo-router";
 import { ScaledSheet } from "react-native-size-matters";
-import { Foundation, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import api from "@/services/apiConfig";
 import Toast from "react-native-toast-message";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store";
+import ReusableButton from "@/components/buttons/ReusableButton";
+import ProfileEditSheet from "./ProfileEditSheet";
 
 interface AuthModalProps {
   visible: boolean;
@@ -99,101 +101,69 @@ const ChangeProfilePicModal: React.FC<AuthModalProps> = ({ visible, onClose }) =
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.overlay}>
-        <View style={styles.container}>
-          <View style={{ width: "100%", justifyContent: "space-between", flexDirection: "row", alignItems: "center" }}>
-            <Text style={styles.title}>Update Profile Picture</Text>
-            <TouchableOpacity onPress={onClose}>
-              <Foundation size={24} name="x-circle" />
-            </TouchableOpacity>
+    <ProfileEditSheet
+      visible={visible}
+      onClose={onClose}
+      title="Update Profile Picture"
+      icon={<Ionicons name="camera-outline" size={16} color="#5D3C17" />}
+      iconBg="#F4EBDD"
+    >
+      <Text style={styles.subtitle}>Select a picture from your gallery.</Text>
+
+      <TouchableOpacity style={styles.pickerArea} onPress={handleImagePick} activeOpacity={0.7}>
+        {image ? (
+          <Image source={{ uri: image }} style={styles.imagePreview} />
+        ) : (
+          <View style={styles.placeholderCircle}>
+            <MaterialIcons name="add-a-photo" size={24} color="#8A7B6A" />
           </View>
+        )}
+        <Text style={styles.pickerText}>{image ? "Change photo" : "Choose a photo"}</Text>
+      </TouchableOpacity>
 
-          <ScrollView style={styles.body}>
-            <Text style={styles.subtitle}>Select a picture from your gallery.</Text>
-            <View style={{ width: "100%", alignItems: "center", flexDirection: "row", justifyContent: "center" }}>
-              {image ? (
-                <TouchableOpacity onPress={handleImagePick} style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Image source={{ uri: image }} style={styles.imagePreview} />
-                  <Text style={styles.imageText}>Selected</Text>
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity onPress={handleImagePick} style={{ flexDirection: "row", alignItems: "center" }}>
-                  <MaterialIcons name="add-a-photo" size={28} />
-                  <Text style={styles.addPhotoText}>Add a photo</Text>
-                </TouchableOpacity>
-              )}
-            </View>
-          </ScrollView>
-
-          <TouchableOpacity
-            style={[styles.button, { backgroundColor: image ? "#000" : "#ccc" }]}
-            onPress={handleFileUpload}
-            disabled={!image||loading} // Disable button if no image is selected
-          >
-            <Text style={styles.buttonText}>{loading ? <ActivityIndicator/> : "Upload"}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
+      <ReusableButton
+        style={{ marginTop: 20 }}
+        onPress={handleFileUpload}
+        loading={loading}
+        disabled={!image}
+        title="Upload"
+      />
+    </ProfileEditSheet>
   );
 };
 
 const styles = ScaledSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+  subtitle: {
+    fontSize: "13@ms",
+    color: "#847564",
+    marginBottom: "18@ms",
+  },
+  pickerArea: {
+    width: "100%",
+    alignItems: "center",
+    paddingVertical: "16@ms",
+  },
+  imagePreview: {
+    width: "88@ms",
+    height: "88@ms",
+    borderRadius: "999@ms",
+    backgroundColor: "#F8F1E8",
+  },
+  placeholderCircle: {
+    width: "88@ms",
+    height: "88@ms",
+    borderRadius: "999@ms",
+    backgroundColor: "#F8F1E8",
+    borderWidth: 1,
+    borderColor: "#EFE3D7",
     justifyContent: "center",
     alignItems: "center",
   },
-  container: {
-    width: "80%",
-    backgroundColor: "#fff",
-    borderRadius: "16@ms",
-    padding: "20@ms",
-    alignItems: "center",
-  },
-  body: {
-    width: "100%",
-    marginTop: "25@ms",
-  },
-  title: {
-    fontSize: "18@ms",
-    fontWeight: "bold",
-  },
-  subtitle: {
-    fontSize: "14@ms",
-    color: "#666",
-    marginBottom: "20@ms",
-    textAlign: "center",
-  },
-  button: {
-    width: "100%",
-    padding: "12@ms",
-    borderRadius: "8@ms",
-    alignItems: "center",
-    marginVertical: "8@ms",
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: "16@ms",
+  pickerText: {
+    marginTop: "10@ms",
+    fontSize: "13@ms",
     fontWeight: "600",
-  },
-  imagePreview: {
-    width: 60, // Adjust the size of the image
-    height: 60,
-    borderRadius: 30,
-    marginRight: 10,
-  },
-  imageText: {
-    fontSize: "14@ms",
-    marginLeft: 10,
-    color: "#666",
-  },
-  addPhotoText: {
-    fontSize: "14@ms",
-    marginLeft: 10,
-    color: "#0078AF", // Customize the color of the text
+    color: "#5D3C17",
   },
 });
 

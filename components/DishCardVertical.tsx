@@ -112,7 +112,7 @@ const DishCardVertical: React.FC<DishCardProps> = ({
 
   return (
     <>
-      <TouchableOpacity activeOpacity={0.9} onPress={() => router.replace({ pathname: '/viewspecialmenubooking', params: { id: menu?.id } })} style={styles.card}>
+      <TouchableOpacity activeOpacity={0.9} onPress={() => router.replace({ pathname: '/booking/specialServiceBookingScreen', params: { specialMenuId: menu?.id, serviceName:menu?.title, workflow: "SPECIAL_SERVICE" } })} style={styles.card}>
         <ImageBackground
                   source={typeof menu?.image === 'string' ? { uri: menu.image } : menu.image}
                   style={styles.image}

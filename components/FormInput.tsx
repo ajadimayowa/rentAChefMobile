@@ -36,6 +36,7 @@ export default function FormInput({
 }: InputProps) {
   const [field, meta, helpers] = useField(id);
   const [showDate, setShowDate] = useState(false);
+  const [hidePassword, setHidePassword] = useState(true);
 
   const secure = type === "password";
   const keyboardType = type === "number" ? "numeric" : "default";
@@ -46,19 +47,33 @@ export default function FormInput({
 
       {/* TEXT / NUMBER / PASSWORD */}
       {(type === "text" || type === "number" || type === "password") && (
-        <TextInput
+        <View
           style={[
             styles.input,
             meta.touched && meta.error ? styles.inputError : null,
           ]}
-          placeholder={placeholder}
-          secureTextEntry={secure}
-          keyboardType={keyboardType}
-          autoCapitalize="none"
-          value={field.value}
-          onChangeText={helpers.setValue}
-          onBlur={() => helpers.setTouched(true)}
-        />
+        >
+          <TextInput
+            style={styles.inputField}
+            placeholder={placeholder}
+            secureTextEntry={secure && hidePassword}
+            keyboardType={keyboardType}
+            autoCapitalize="none"
+            value={field.value}
+            onChangeText={helpers.setValue}
+            onBlur={() => helpers.setTouched(true)}
+          />
+
+          {secure && (
+            <TouchableOpacity onPress={() => setHidePassword(!hidePassword)}>
+              <Ionicons
+                name={hidePassword ? "eye-off" : "eye"}
+                size={20}
+                color="#6B7280"
+              />
+            </TouchableOpacity>
+          )}
+        </View>
       )}
 
       {(type === "textarea") && (
@@ -67,7 +82,7 @@ export default function FormInput({
           style={[
             styles.input,
             meta.touched && meta.error ? styles.inputError : null,
-          ]}
+          {minHeight: 100, textAlignVertical: 'top'}]}
           placeholder={placeholder}
           secureTextEntry={secure}
           keyboardType={keyboardType}
@@ -162,6 +177,12 @@ const styles = ScaledSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  inputField: {
+    flex: 1,
+    fontSize: "14@ms",
+    color: "#000",
+    padding: 0,
   },
   dateInput: {
     flexDirection: "row",

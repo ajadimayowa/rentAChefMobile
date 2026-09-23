@@ -20,7 +20,6 @@ import { setUserState } from "@/store/slices/locationSlice";
 export default function NotificationsScreenModal() {
     const dispatch = useDispatch<AppDispatch>();
     const userProfile = useSelector((user: RootState) => user.auth);
-    const chefProfile = useSelector((state: RootState) => state.chef);
 
     // Use notifications slice as single source of truth
     const { items: notifications = [], loading = false, page = 1, pages = 1, count: unreadCount = 0 } = useSelector((s: RootState) => s.notifications || {} as any);
@@ -28,12 +27,12 @@ export default function NotificationsScreenModal() {
     // console.log('okkkk')
 
   const loadNotifications = useCallback(async (p = 1) => {
-    const id = chefProfile?.chefData?.id || userProfile?.bioData?.id;
+    const id = userProfile?.bioData?.id;
     if (!id) return;
     if (p > 1) setIsLoadingMore(true);
     await dispatch(fetchNotifications({ userId: id, page: p } as any));
     setIsLoadingMore(false);
-  }, [chefProfile, userProfile, dispatch]);
+  }, [userProfile, dispatch]);
 
     useEffect(() => {
         loadNotifications(1);
@@ -49,7 +48,7 @@ export default function NotificationsScreenModal() {
     };
 
     const handleMarkAll = async () => {
-        const id = chefProfile?.chefData?.id || userProfile?.bioData?.id;
+        const id = userProfile?.bioData?.id;
         if (!id) return Toast.show({ type: 'info', text1: 'No user', text2: 'Cannot mark all' });
         try {
             await dispatch(markAllAsRead({ userId: id }) as any);
@@ -67,10 +66,8 @@ export default function NotificationsScreenModal() {
     const navigateForNotification = (notification: any) => {
         const idMatch = String(notification?.message || notification?.resourceId || '').match(/[a-f0-9]{24}/i);
         const id = notification?.resourceId || (idMatch ? idMatch[0] : null);
-        const isChef = Boolean(chefProfile?.chefData?.id);
         if (notification?.type === 'booking-confirmation' || notification?.type === 'payment-receipt' || id) {
-            const path = isChef ? '/chefviewbookinginfo' : '/clientviewbookinginfo';
-            router.push({ pathname: path, params: { id } });
+            router.push({ pathname: '/clientviewbookinginfo', params: { id } });
             return;
         }
         return;

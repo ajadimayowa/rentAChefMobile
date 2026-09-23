@@ -19,7 +19,10 @@ interface ILocations {
     userState: string,
     tempState: string,
     long: string,
-    lat: string
+    lat: string,
+    /** Reverse-geocoded from the device's live GPS position, distinct from the manually picked userLocation/userState above */
+    detectedCity: string,
+    detectedState: string,
 }
 
 
@@ -30,7 +33,9 @@ const initialState: ILocations = {
     tempState: '',
     userState: '',
     long: '',
-    lat: ''
+    lat: '',
+    detectedCity: '',
+    detectedState: '',
 }
 
 
@@ -68,9 +73,21 @@ const locationSlice = createSlice({
             action: PayloadAction<any>
         ) => {
             state.userState = action.payload;
+        },
+        setDetectedCity: (
+            state,
+            action: PayloadAction<any>
+        ) => {
+            state.detectedCity = action.payload;
+        },
+        setDetectedState: (
+            state,
+            action: PayloadAction<any>
+        ) => {
+            state.detectedState = action.payload;
         }
     },
 });
 
-export const { setStates,setUserLocation,setUserState,setLongandLat,setTempState } = locationSlice.actions;
+export const { setStates,setUserLocation,setUserState,setLongandLat,setTempState,setDetectedCity,setDetectedState } = locationSlice.actions;
 export default locationSlice.reducer;

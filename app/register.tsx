@@ -1,39 +1,30 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ImageBackground, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
+import { View, Text, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { router } from "expo-router";
 import ReusableButton from "@/components/buttons/ReusableButton";
 import FormInput from "@/components/FormInput";
-import api from "@/services/apiConfig";
+import { registerCustomer } from "@/services/auth/auth";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
-import BodyText from "@/components/typography/BodyText";
-
-const RegisterSchema = Yup.object().shape({
-    fullName: Yup.string().required("Full name is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    phoneNumber: Yup.string().required("Phone number is required"),
-    password: Yup.string().required("Password is required"),
-});
 
 export default function RegisterScreen() {
     const [loading, setLoading] = useState(false);
     const [step, setStep] = useState(1); // STEP 1 OR STEP 2
 
     const register = async (val: any) => {
-        console.log({ SeeSending: val })
         setLoading(true)
         try {
-            const res = await api.post("/auth/register", val);
-            if (res?.data?.payload) {
+            const res = await registerCustomer(val);
+            if (res?.payload) {
                 setLoading(false);
                 setStep(1)
                 Toast.show({
                     type: 'success',
                     text1: 'OTP Sent',
-                    text2: 'Emain verification code sent!'
+                    text2: 'Email verification code sent!'
                 });
                 router.replace({
                     pathname: "/emailotpverificationscreen",
@@ -58,7 +49,7 @@ export default function RegisterScreen() {
         }
     }
 
-    const RegisterSchema = Yup.object().shape({
+    const registerSchema = Yup.object().shape({
         fullName: Yup.string()
             .trim()
             .min(3, "Full name must be at least 3 characters")
@@ -102,31 +93,29 @@ export default function RegisterScreen() {
               showsVerticalScrollIndicator={false}
             >
         <View style={styles.container}>
-            <ImageBackground
-                source={require("../assets/images/banana-top.jpg")}
-                resizeMode="cover"
-                style={{ padding: 20, height: 200, justifyContent: "flex-start" }}
-            >
-                <SafeAreaView style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <ReusableButton
-                        style={{ width: 100 }}
-                        onPress={() => router.navigate('./authscreen')}
-                        iconLeft={"chevron-back"}
-                        extStyle={{ width: "50%", padding: 0, color: "#000" }}
-                        type="pressableText"
-                        title="Go Back"
-                    />
-                    <TouchableOpacity onPress={() => router.push("/signup-chef")}>
-                        <BodyText text=" Chef Signup >" />
-                    </TouchableOpacity>
-                </SafeAreaView>
-            </ImageBackground>
+            <View style={styles.backgroundAccentTop} />
+            <View style={styles.backgroundAccentBottom} />
 
-            <View style={{ paddingHorizontal: 30 }}>
-                <Text style={styles.title}>Create your account!</Text>
+            <SafeAreaView style={styles.safeArea}>
+                <ReusableButton
+                    style={{ width: 100 }}
+                    onPress={() => router.navigate('./authscreen')}
+                    iconLeft={"chevron-back"}
+                    extStyle={{ width: "50%", padding: 0, color: "#000" }}
+                    type="pressableText"
+                    title="Go Back"
+                />
+            </SafeAreaView>
+
+            <View style={styles.headerCard}>
+                {/* <Text style={styles.badge}>Create Profile</Text> */}
+                <Text style={styles.title}>Create your account</Text>
+                <Text style={styles.subtitle}>
+                    Join to explore chef-made dishes and personalized meal experiences.
+                </Text>
             </View>
 
-            <View style={{ width: "100%", padding: 20 }}>
+            <View style={styles.formCard}>
                 <Formik
                     initialValues={{
                         fullName: "",
@@ -134,7 +123,7 @@ export default function RegisterScreen() {
                         phoneNumber: "",
                         password: "",
                     }}
-                    validationSchema={RegisterSchema}
+                    validationSchema={registerSchema}
                     enableReinitialize
                     onSubmit={(values) => register(values)}
                 >
@@ -201,17 +190,14 @@ export default function RegisterScreen() {
                                         {/* PASSWORD RULES */}
                                         <View style={{ marginTop: 15 }}>
                                             {[
-                                                { label: "One capital letter (A–Z)", pass: pwdRules.hasCapital },
+                                                { label: "One capital letter (A-Z)", pass: pwdRules.hasCapital },
                                                 { label: "One special character (!@#$)", pass: pwdRules.hasSpecial },
                                                 { label: "One number (0–9)", pass: pwdRules.hasNumber },
                                                 { label: "More than 6 characters", pass: pwdRules.isLong },
                                             ].map((item, index) => (
                                                 <Text
                                                     key={index}
-                                                    style={{
-                                                        color: item.pass ? "green" : "red",
-                                                        marginBottom: 4,
-                                                    }}
+                                                    style={[styles.ruleText, { color: item.pass ? "#16A34A" : "#DC2626" }]}
                                                 >
                                                     • {item.label}
                                                 </Text>
@@ -225,7 +211,7 @@ export default function RegisterScreen() {
                                             onPress={() => handleSubmit()}
                                         />
 
-                                        <View style={{ width: '100%', justifyContent: 'center',alignItems:'center', marginTop:20 }}>
+                                        <View style={styles.previousWrap}>
                                             <ReusableButton
                                                 style={{ width: 100 }}
                                                 onPress={() => setStep(1)}
@@ -251,19 +237,99 @@ export default function RegisterScreen() {
 const styles = ScaledSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#fff",
+        backgroundColor: "#F7F8FA",
+        position: "relative",
+    },
+    safeArea: {
+        width: "100%",
+        paddingHorizontal: "20@s",
+        paddingTop: "6@vs",
+    },
+    backgroundAccentTop: {
+    position: "absolute",
+    top: "-80@vs",
+    right: "-40@s",
+    width: "220@s",
+    height: "220@s",
+    borderRadius: "110@s",
+    backgroundColor: "#eae8e8",
+  },
+  backgroundAccentBottom: {
+    position: "absolute",
+    bottom: "-120@vs",
+    left: "-70@s",
+    width: "260@s",
+    height: "260@s",
+    borderRadius: "130@s",
+    backgroundColor: "#f3f0ef",
+  },
+    headerCard: {
+    marginHorizontal: "20@s",
+    marginTop: "10@vs",
+    padding: "18@s",
+    borderRadius: "18@s",
+   backgroundColor: "#f2f1f0",
+    borderWidth: 1,
+    borderColor: "#dfdcda",
+  },
+    badge: {
+        alignSelf: "flex-start",
+        backgroundColor: "#1F2937",
+        color: "#FFFFFF",
+        fontSize: "11@s",
+        fontWeight: "700",
+        letterSpacing: 0.6,
+        textTransform: "uppercase",
+        paddingHorizontal: "10@s",
+        paddingVertical: "6@vs",
+        borderRadius: "20@s",
+        marginBottom: "10@vs",
     },
     title: {
-        fontSize: "34@s",
+        fontSize: "30@s",
         fontFamily: "secondaryFont",
+        color: "#111827",
+    },
+    subtitle: {
+        marginTop: "8@vs",
+        color: "#4B5563",
+        fontSize: "13@s",
+        lineHeight: "20@s",
+        fontFamily: "secondaryFont",
+    },
+    formCard: {
+        width: "100%",
+        padding: "20@s",
+        marginTop: "14@vs",
+        borderTopLeftRadius: "28@s",
+        borderTopRightRadius: "28@s",
+        backgroundColor: "#FFFFFF",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 4,
     },
     signupText: {
         textAlign: "center",
         fontSize: "13@s",
         marginTop: "20@vs",
+        color: "#4B5563",
     },
     signupLink: {
         color: "#EA7052",
+        fontWeight: "600",
+    },
+    ruleText: {
+        marginBottom: "4@vs",
+        fontSize: "12@s",
+        fontFamily: "secondaryFont",
+    },
+    previousWrap: {
+        width: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: "20@vs",
     },
     errorText: {
         color: "red",
