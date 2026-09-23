@@ -7,64 +7,119 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ScrollView,
 } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { router, useLocalSearchParams } from "expo-router";
+import {useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import ReusableButton from "@/components/buttons/ReusableButton";
 import { Ionicons } from "@expo/vector-icons";
+import { resetPasswordWithOtp } from "@/services/auth/auth";
+import Toast from "react-native-toast-message";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ResetPasswordSchema = Yup.object().shape({
   otp: Yup.string().length(6, "Enter 6-digit code").required("OTP is required"),
-   newPassword: Yup.string()
-      .min(6, "At least 6 characters")
-      .matches(/[A-Z]/, "Must contain one uppercase letter")
-      .matches(/[!@#$%^&*]/, "Must contain at least one special character")
-      .required("Password required"),
-    confirmPassword: Yup.string()
-      .oneOf([Yup.ref("newPassword")], "Passwords must match")
-      .required("Confirm your password"),
+  newPassword: Yup.string()
+    .min(6, "At least 6 characters")
+    .matches(/[A-Z]/, "Must contain one uppercase letter")
+    .matches(/[!@#$%^&*]/, "Must contain at least one special character")
+    .required("Password required"),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref("newPassword")], "Passwords must match")
+    .required("Confirm your password"),
 });
 
 export default function ResetPasswordScreen() {
   const { email } = useLocalSearchParams<{ email: string }>();
-  const [showPass,setShowPass] = useState(false)
+  const [showPass, setShowPass] = useState(false)
   const inputs = useRef<TextInput[]>([]);
+
+  const navigation = useNavigation();
+  const router = useRouter()
+  const [loading, setLoading] = useState(false);
+  const [securePass, setSecurePass] = useState(true)
+
+
+  const handleSetNewPassword = async (val: any) => {
+    setLoading(true)
+    const payload = {
+      email: email as string,
+      otp: val?.otp,
+      newPassword: val?.newPassword,
+    }
+    try {
+      const res = await resetPasswordWithOtp(payload)
+
+      if (res?.success) {
+        router.push("/login");
+        Toast.show({
+          type: 'success',
+          text1: 'Password changed!',
+          text2: 'Your password has been updated'
+        });
+        setLoading(false)
+      } else {
+        setLoading(false)
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: res?.message || 'Failed to change password',
+        });
+
+      }
+
+    } catch (error: any) {
+      console.log({ seeErrorBreak: error })
+      setLoading(false)
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: error?.response?.message || 'Error changing password',
+      });
+    }
+  }
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      {/* Header */}
-      <ImageBackground
-        source={require("../assets/images/header-fruits.png")}
-        resizeMode="cover"
-        style={{ padding: 20, height: 200, justifyContent: "flex-start" }}
-      >
-        <ReusableButton
-          style={{ width: 100 }}
-          onPress={() => router.back()}
-          iconLeft={"chevron-back"}
-          extStyle={{ width: "50%", padding: 0, color: "#000" }}
-          type="pressableText"
-          title="Go Back"
-        />
-      </ImageBackground>
+          style={styles.container}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+      <ScrollView
+              contentContainerStyle={{ flexGrow: 1 }}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+            >
+      <View style={styles.backgroundAccentTop} />
+      <View style={styles.backgroundAccentBottom} />
+
+      <SafeAreaView style={styles.safeArea}>
+          <ReusableButton
+            style={{ width: 100 }}
+            onPress={() => router.navigate("./authscreen")}
+            iconLeft={"chevron-back"}
+            extStyle={{ width: "50%", padding: 0, color: "#000" }}
+            type="pressableText"
+            title="Go Back"
+          />
+        </SafeAreaView>
+
+        <View style={styles.headerCard}>
+                  {/* <Text style={styles.badge}>Secure Access</Text> */}
+                  <Text style={styles.title}>Enter the code sent to:</Text>
+                  <Text style={styles.subText}>
+                    {email}
+                  </Text>
+                </View>
 
       {/* Form Section */}
       <View style={{ width: "100%", padding: 20 }}>
-        <Text style={styles.title}>Enter the code sent to:</Text>
-        <Text style={styles.email}>{email}</Text>
 
         <Formik
           initialValues={{ otp: "", newPassword: "", confirmPassword: "" }}
           validationSchema={ResetPasswordSchema}
-          onSubmit={(values) => {
-            console.log("Reset password data:", values);
-            router.push("/login");
-          }}
+          onSubmit={(values) => handleSetNewPassword(values)}
         >
           {({
             handleChange,
@@ -89,24 +144,25 @@ export default function ResetPasswordScreen() {
                 <Text style={styles.error}>{errors.otp}</Text>
               )}
 
-              <View style={{width:'100%',flexDirection:'row', alignItems:'center', gap:10}}>
-{/* New Password */}
-              <TextInput
-                placeholder="New password"
-                style={styles.input}
-                value={values.newPassword}
-                onChangeText={handleChange("newPassword")}
-                onBlur={handleBlur("newPassword")}
-                secureTextEntry={showPass}
-              />
-             <Pressable onPress={()=>setShowPass(!showPass)}>
-                <Ionicons
-              name="eye-off"
-              size={24}
-              style={{padding:0, margin:0}}
-            />
-             </Pressable>
-          </View>
+              <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                {/* New Password */}
+                <TextInput
+                  placeholder="New password"
+                  style={styles.input}
+                  autoCapitalize="none"
+                  value={values.newPassword}
+                  onChangeText={handleChange("newPassword")}
+                  onBlur={handleBlur("newPassword")}
+                  secureTextEntry={showPass}
+                />
+                <Pressable onPress={() => setShowPass(!showPass)}>
+                  <Ionicons
+                    name="eye-off"
+                    size={24}
+                    style={{ padding: 0, margin: 0 }}
+                  />
+                </Pressable>
+              </View>
               {touched.newPassword && errors.newPassword && (
                 <Text style={styles.error}>{errors.newPassword}</Text>
               )}
@@ -115,6 +171,7 @@ export default function ResetPasswordScreen() {
               <TextInput
                 placeholder="Confirm new password"
                 style={styles.input}
+                autoCapitalize="none"
                 value={values.confirmPassword}
                 onChangeText={handleChange("confirmPassword")}
                 onBlur={handleBlur("confirmPassword")}
@@ -124,16 +181,25 @@ export default function ResetPasswordScreen() {
                 <Text style={styles.error}>{errors.confirmPassword}</Text>
               )}
 
-              <ReusableButton
+              {/* <ReusableButton
                 style={{ marginTop: 40 }}
                 iconRight={"arrow-forward-outline"}
                 onPress={() => handleSubmit()}
+                
+              /> */}
+
+              <ReusableButton
+                loading={loading}
+                style={{ marginTop: 40 }}
+                iconRight={"arrow-forward-outline"}
+                onPress={handleSubmit}
                 title="Reset Password"
               />
             </>
           )}
         </Formik>
       </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -143,12 +209,51 @@ const styles = ScaledSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  title: {
-    fontSize: "20@s",
-    fontWeight: "700",
-    marginTop: "20@vs",
-    color: "#000",
+  safeArea: {
+    width: "100%",
+    paddingHorizontal: "20@s",
+    paddingTop: "6@vs",
   },
+  headerCard: {
+    marginHorizontal: "20@s",
+    marginTop: "10@vs",
+    padding: "18@s",
+    borderRadius: "18@s",
+   backgroundColor: "#f2f1f0",
+    borderWidth: 1,
+    borderColor: "#dfdcda",
+  },
+  subText: {
+    fontSize: "13@s",
+    color: "#4B5563",
+    marginTop: "8@vs",
+    fontFamily: "secondaryFont",
+  },
+  title: {
+    fontSize: "24@s",
+    fontFamily: "secondaryFont",
+    color: "#111827",
+  },
+  backgroundAccentTop: {
+    position: "absolute",
+    top: "-80@vs",
+    right: "-40@s",
+    width: "220@s",
+    height: "220@s",
+    borderRadius: "110@s",
+    backgroundColor: "#eae8e8",
+  },
+
+  backgroundAccentBottom: {
+    position: "absolute",
+    bottom: "-120@vs",
+    left: "-70@s",
+    width: "260@s",
+    height: "260@s",
+    borderRadius: "130@s",
+    backgroundColor: "#f3f0ef",
+  },
+
   email: {
     color: "#EA7052",
     fontWeight: "600",
@@ -163,7 +268,7 @@ const styles = ScaledSheet.create({
     marginBottom: "8@vs",
     fontSize: "14@s",
     color: "#000",
-    width:'90%'
+    width: '90%'
   },
   error: {
     color: "red",

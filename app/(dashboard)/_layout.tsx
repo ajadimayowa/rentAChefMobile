@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
 import { Link, Tabs, useRouter } from 'expo-router';
 import { Image, Pressable, Text, View } from 'react-native';
 import { ScaledSheet } from 'react-native-size-matters';
@@ -11,12 +11,15 @@ import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import SecureStorage from '@/store/secureStore';
 import AuthModal from '@/components/AuthModal';
 import SearchScreen from '@/components/SearchScreen';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [searchVisible, setSearchVisible] = useState(false);
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+  
 
   // 🔑 Auth guard for tab presses
   const authGuard = (screen: any) => ({
@@ -33,85 +36,62 @@ export default function TabLayout() {
 
   return (
     <>
-      <Tabs
-        screenOptions={{
-          tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-          headerShown: useClientOnlyValue(false, true),
+       <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: "#EA7052",
+        tabBarInactiveTintColor: "#111010ff",
+        tabBarStyle: {
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+          paddingBottom: insets.bottom,
+          height: 50 + insets.bottom,
+        },
+        tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          tabBarLabel:'Home',
+          tabBarIcon: ({ color, size }) => (
+            <Octicons name="home-fill" color={color} size={18} />
+          ),
         }}
-      >
-        {/* 🏠 Home */}
-        <Tabs.Screen
-          name="index"
-          options={{
-            headerTitle: () => (
-              <View style={styles.headerContainer}>
-                <Image
-                  source={require('../../assets/images/logoCurved.png')}
-                  style={styles.logo}
-                  resizeMode="contain"
-                />
-              </View>
-            ),
-            title: 'Home',
-            tabBarIcon: ({ color }) => (
-              <FontAwesome size={28} name="home" color={color} />
-            ),
-            headerRight: () => (
-              <Link href="/modal" asChild>
-                <Pressable>
-                  {({ pressed }) => (
-                    <FontAwesome
-                      name="gear"
-                      size={25}
-                      color={Colors[colorScheme ?? 'light'].text}
-                      style={{
-                        marginRight: 15,
-                        opacity: pressed ? 0.5 : 1,
-                      }}
-                    />
-                  )}
-                </Pressable>
-              </Link>
-            ),
-          }}
-        />
+      />
 
-        {/* 💬 Messages */}
-        <Tabs.Screen
-          name="groups"
-          options={{
-            title: 'Groups',
-            tabBarIcon: ({ color }) => (
-              <Ionicons size={28} name="people" color={color} />
-            ),
-          }}
-          listeners={authGuard('/groups')}
-        />
+      <Tabs.Screen
+        name="chefs"
+        options={{
+          tabBarLabel:'Chefs',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="chef-hat" size={18} color={color}/>
+          ),
+        }}
+      />
 
-        {/* 🛒 Sell */}
-        <Tabs.Screen
-          name="members"
-          options={{
-            title: 'Member',
-            tabBarIcon: ({ color }) => (
-              <Ionicons size={28} name="person" color={color} />
-            ),
-          }}
-          listeners={authGuard('/members')}
-        />
+      <Tabs.Screen
+        name="bookings"
+        options={{
+          tabBarLabel:'Bookings',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="fast-food" color={color} size={18} />
+          ),
+        }}
+      />
 
-        
-        <Tabs.Screen
-          name="profile"
-          options={{
-            title: 'Profile',
-            tabBarIcon: ({ color }) => (
-              <FontAwesome size={28} name="user-circle-o" color={color} />
-            ),
-          }}
-          listeners={authGuard('/profile')}
-        />
-      </Tabs>
+      <Tabs.Screen
+        name="profile"
+        options={{
+          tabBarLabel:'Profile',
+          headerShown:false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person" color={color} size={18} />
+          ),
+        }}
+      />
+    </Tabs>
+
+    
 
       {/* 🔑 Auth modal */}
       <AuthModal

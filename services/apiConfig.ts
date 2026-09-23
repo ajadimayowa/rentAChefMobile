@@ -1,73 +1,80 @@
-import axios from 'axios';
-// import { API_BASEURL, API_KEY } from '@env';
-// console.log({ currentDev: dev })
-// console.log({ currentEnv: baseURL })
+import * as SecureStore from "expo-secure-store";
+import axios, { AxiosError, AxiosResponse } from "axios";
+import Constants from "expo-constants";
 
-import Constants from 'expo-constants';
-// const apiUrl = Constants.manifest.extra.apiUrl;
-// const nodeEnv = Constants.manifest.extra.nodeEnv;
-const apiUrl = Constants.expoConfig?.extra?.apiUrl
-// console.log({base:apiUrl,env:nodeEnv})
+const apiUrl = Constants.expoConfig?.extra?.apiUrl;
 
 const api = axios.create({
-    baseURL: `${apiUrl}/api/v1`, // replace with your API base URL
-    headers: {
-        'Content-Type': 'application/json',
-        "Access-Control-Allow-Origin":"*"
-    },
+  baseURL: `${apiUrl}/api/v1`,
+  headers: {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+  },
 });
 
-const MAX_RETRIES = 0;
+const MAX_RETRIES = 2;
 
-// Add an interceptor to handle retry logic
+/* -------------------- RESPONSE INTERCEPTOR -------------------- */
 api.interceptors.response.use(
-  (response) => response, // On success, just return the response
-  async (error) => {
-    const { config } = error;
+  (response: AxiosResponse) => {
+    /**
+     * Always return the backend payload
+     * {
+     *   success: boolean,
+     *   message: string,
+     *   data?: any
+     * }
+     */
+    return response;
+  },
+  async (error: AxiosError<any>) => {
+    const config: any = error.config;
 
-     console.log(
-      `%c➡️ [API REQUEST]`,
-      'color: cyan',
-      config.method?.toUpperCase(),
-      config.baseURL + config.url,
+    const apiMessage =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      error.message ||
+      "Something went wrong";
 
+    console.log(
+      "%c❌ [API RESPONSE ERROR]",
+      "color: red",
+      config?.method?.toUpperCase(),
+      `${config?.baseURL}${config?.url}`,
+      "\nMessage:",
+      apiMessage
     );
-    
-    // If retries are not already set, initialize retry count
-    if (!config.__retryCount) {
-      config.__retryCount = 0;
-    }
 
-    // If we have hit the max retries, reject the promise
+    // Retry logic
+    config.__retryCount = config.__retryCount || 0;
+
     if (config.__retryCount >= MAX_RETRIES) {
-      return Promise.reject(error);
+      return Promise.reject({
+        success: false,
+        message: apiMessage,
+        status: error.response?.status,
+        error,
+      });
     }
 
-    // Increment the retry count
     config.__retryCount += 1;
 
-    // Retry the request after a short delay (e.g., 1 second)
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Retry the request
     return api(config);
   }
 );
 
-let token: string | null = null;
-
+/* -------------------- REQUEST INTERCEPTOR -------------------- */
 api.interceptors.request.use(
-    config => {
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    error => Promise.reject(error)
-);
+  async (config) => {
+    const userToken = await SecureStore.getItemAsync("userToken");
 
-export const setToken = (newToken: string) => {
-    token = newToken;
-};
+    if (userToken) {
+      config.headers.Authorization = `Bearer ${userToken}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export default api;

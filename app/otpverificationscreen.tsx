@@ -9,14 +9,21 @@ import {
   Platform,
   ImageBackground,
   Alert,
+  ScrollView,
 } from "react-native";
 import { ScaledSheet } from "react-native-size-matters";
 import { useNavigation } from "@react-navigation/native";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import ReusableButton from "@/components/buttons/ReusableButton";
-import { router, useLocalSearchParams } from "expo-router";
-import api, { setToken } from "@/services/apiConfig";
+import { router, useLocalSearchParams, useRouter } from "expo-router";
+import { verifyLoginOtp } from "@/services/auth/auth";
+import Toast from "react-native-toast-message";
+import { useDispatch } from "react-redux";
+import { setUserProfile } from "@/store/slices/authSlice";
+import BodyText from "@/components/typography/BodyText";
+import { SafeAreaView } from "react-native-safe-area-context";
+import SecureStorage from "@/store/secureStore";
 
 const VerificationSchema = Yup.object().shape({
   code: Yup.string()
@@ -26,9 +33,11 @@ const VerificationSchema = Yup.object().shape({
 
 export default function VerificationCodeScreen() {
   const navigation = useNavigation();
+  const router = useRouter()
   const inputs = useRef<TextInput[]>([]);
   const { email } = useLocalSearchParams<{ email: string }>();
-  const [loading,setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
 
   const handleChange = (text: string, index: number, values: any, setFieldValue: any) => {
     let newCode = values.code.split("");
@@ -50,94 +59,118 @@ export default function VerificationCodeScreen() {
   };
 
   const handleVerifyLoginOtp = async (val: any) => {
-    let payload = {otp:val?.code,email:email}
-    console.log({pay:payload})
-        setLoading(true)
-        try {
-            const res = await api.post('/auth/verify-loginOtp', payload)
+    let payload = { otp: val?.code, email: email }
+    setLoading(true)
+    try {
+      const res = await verifyLoginOtp(payload)
+      if (res?.success) {
+        dispatch(setUserProfile(res?.payload));
+        await SecureStorage.setItem('userToken', res?.token);
+        Toast.show({
+          type: 'success',
+          text1: 'Success',
+          text2: 'Login Successful!'
+        });
 
-            if(res?.data?.success){
-              setToken(res?.data?.token)
-              router.replace({
-                pathname: "/(dashboard)"
-            });
-            setLoading(false)
-            } else{
-              setLoading(false)
-              Alert.alert('Login Error')
-            }
-            
-        } catch (error) {
-            console.log({ seeError: error })
-            setLoading(false)
-        }
+        setLoading(false)
+        router.replace("/(dashboard)");
+
+      } else {
+        setLoading(false)
+        Toast.show({
+          type: 'error',
+          text1: 'Invalid OTP!'
+        });
+      }
+    } catch (error) {
+      console.log({ seeError: error })
+      setLoading(false)
+      Toast.show({
+        type: 'error',
+        text1: 'Invalid OTP!'
+      });
+      setLoading(false)
     }
+  }
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <ImageBackground
-        source={require('../assets/images/header-fruits.png')}
-        resizeMode="cover"
-        style={{ padding: 20, height: 200, justifyContent: 'flex-start' }}
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-         <ReusableButton
-          style={{ width: 100 }}
-          onPress={() => router.back()}
-          iconLeft={"chevron-back"}
-          extStyle={{ width: "50%", padding: 0, color: "#000" }}
-          type="pressableText"
-          title="Go Back"
-        />
-      </ImageBackground>
-      <View style={{ width: '100%', padding: 20 }}>
-        <Text style={styles.title}>Enter the code sent to your email/phone number.</Text>
-        <Text style={styles.subText}>Code sent to: <Text style={styles.email}>{email}</Text></Text>
+        <View style={styles.container}>
+          <View style={styles.backgroundAccentTop} />
+          <View style={styles.backgroundAccentBottom} />
 
-        <Formik
-          initialValues={{ code: "" }}
-          validationSchema={VerificationSchema}
-          onSubmit={(values) => handleVerifyLoginOtp(values)}
-        >
-          {({ values, setFieldValue, handleSubmit, errors, touched }) => (
-            <>
-              <View style={styles.codeContainer}>
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <TextInput
-                    key={index}
-                    ref={(ref: any) => (inputs.current[index] = ref!)}
-                    style={[
-                      styles.codeInput,
-                      values.code[index]?.trim() ? styles.filledBox : {},
-                    ]}
-                    keyboardType="number-pad"
-                    maxLength={1}
-                    value={values.code[index] || ""}
-                    onChangeText={(text) =>
-                      handleChange(text, index, values, setFieldValue)
-                    }
-                    onKeyPress={(e) =>
-                      handleKeyPress(e, index, values, setFieldValue)
-                    }
-                  />
-                ))}
-              </View>
+          <SafeAreaView style={styles.safeArea}>
+            <ReusableButton
+              style={{ width: 100 }}
+              onPress={() => router.navigate('./authscreen')}
+              iconLeft={"chevron-back"}
+              extStyle={{ width: "50%", padding: 0, color: "#000" }}
+              type="pressableText"
+              title="Go Back"
+            />
+          </SafeAreaView>
+          <View style={styles.headerCard}>
+            {/* <Text style={styles.badge}>Create Profile</Text> */}
+            <Text style={styles.title}>Enter the code sent to your email/phone number.</Text>
+            <Text style={styles.subText}>Code sent to: <Text style={styles.email}>{email}</Text></Text>
+          </View>
 
-              {touched.code && errors.code && (
-                <Text style={styles.error}>{errors.code}</Text>
-              )}
 
-              <ReusableButton style={{ marginTop: 40 }} iconRight={"arrow-forward-outline"} onPress={() => handleSubmit()} title="Continue" />
 
-              <Text style={styles.resendText}>
-                Didn’t get code? <Text style={styles.resendLink}>Resend</Text>
-              </Text>
-            </>
-          )}
-        </Formik>
-      </View>
+          <Formik
+            initialValues={{ code: "" }}
+            validationSchema={VerificationSchema}
+            onSubmit={(values) => handleVerifyLoginOtp(values)}
+          >
+            {({ values, setFieldValue, handleSubmit, errors, touched }) => (
+              <>
+                <View style={styles.codeContainer}>
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <TextInput
+                      key={index}
+                      ref={(ref: any) => (inputs.current[index] = ref!)}
+                      style={[
+                        styles.codeInput,
+                        values.code[index]?.trim() ? styles.filledBox : {},
+                      ]}
+                      keyboardType="number-pad"
+                      maxLength={1}
+                      value={values.code[index] || ""}
+                      onChangeText={(text) =>
+                        handleChange(text, index, values, setFieldValue)
+                      }
+                      onKeyPress={(e) =>
+                        handleKeyPress(e, index, values, setFieldValue)
+                      }
+                    />
+                  ))}
+                </View>
+
+                <View style={{ width: "100%", paddingHorizontal: 20 }}>
+                  {touched.code && errors.code && (
+                    <Text style={styles.error}>{errors.code}</Text>
+                  )}
+
+                  <ReusableButton loading={loading} style={{ marginTop: 40 }} iconRight={"arrow-forward-outline"} onPress={() => handleSubmit()} title="Continue" />
+
+                  <Text style={styles.resendText}>
+                    Didn’t get code? <Text style={styles.resendLink}>Resend</Text>
+                  </Text>
+                </View>
+              </>
+            )}
+
+          </Formik>
+        </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -145,17 +178,47 @@ export default function VerificationCodeScreen() {
 const styles = ScaledSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#F7F8FA",
+    position: "relative",
   },
-  goBack: {
-    fontSize: "13@s",
-    color: "#555",
-    marginBottom: "10@s",
-  },
-  headerImage: {
+  safeArea: {
     width: "100%",
-    height: "100@vs",
-    resizeMode: "contain",
+    paddingHorizontal: "20@s",
+    paddingTop: "6@vs",
+  },
+  headerCard: {
+    marginHorizontal: "20@s",
+    marginTop: "10@vs",
+    padding: "18@s",
+    borderRadius: "18@s",
+    backgroundColor: "#f2f1f0",
+    borderWidth: 1,
+    borderColor: "#dfdcda",
+  },
+  subtitle: {
+    marginTop: "8@vs",
+    color: "#4B5563",
+    fontSize: "13@s",
+    lineHeight: "20@s",
+    fontFamily: "secondaryFont",
+  },
+  backgroundAccentTop: {
+    position: "absolute",
+    top: "-80@vs",
+    right: "-40@s",
+    width: "220@s",
+    height: "220@s",
+    borderRadius: "110@s",
+    backgroundColor: "#eae8e8",
+  },
+  backgroundAccentBottom: {
+    position: "absolute",
+    bottom: "-120@vs",
+    left: "-70@s",
+    width: "260@s",
+    height: "260@s",
+    borderRadius: "130@s",
+    backgroundColor: "#f3f0ef",
   },
   title: {
     fontSize: "20@s",
@@ -175,7 +238,7 @@ const styles = ScaledSheet.create({
   codeContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: "20@vs",
+    margin: "20@vs",
   },
   codeInput: {
     borderWidth: 1.5,
@@ -189,7 +252,7 @@ const styles = ScaledSheet.create({
     backgroundColor: "#f9f9f9",
   },
   filledBox: {
-    borderColor: "#EA7052",
+    borderColor: "#0e0e0e",
   },
   error: {
     color: "red",
