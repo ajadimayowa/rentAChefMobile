@@ -80,8 +80,8 @@ export default function LoginScreen() {
     );
   }, [isBlocked, openLocationSettings]);
 
-  const openTerms = () => Linking.openURL("https://rentachefng.com/terms-of-service/");
-  const openPrivacyPolicy = () => Linking.openURL("https://rentachefng.com/privacy-policy/");
+  const openTerms = () => Linking.openURL("https://www.rentachefapp.com/terms");
+  const openPrivacyPolicy = () => Linking.openURL("https://www.rentachefapp.com/privacy-policy");
 
   useEffect(() => {
     const timer = setInterval(() => {

@@ -65,7 +65,19 @@ export default function GuestChefsScreen() {
   }, [userProfile?.id]);
 
   const openPPolicy = async () => {
-      const url = "https://rentachefng.com/privacy-policy/";
+      const url = "https://www.rentachefapp.com/privacy-policy";
+  
+      const supported = await Linking.canOpenURL(url);
+  
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        // console.log("Can't open WhatsApp link");
+      }
+    };
+
+    const openActDeletion = async () => {
+      const url = "https://www.rentachefapp.com/account-deletion";
   
       const supported = await Linking.canOpenURL(url);
   
@@ -77,7 +89,7 @@ export default function GuestChefsScreen() {
     };
 
     const openTOS = async () => {
-      const url = "https://rentachefng.com/terms-of-service/";
+      const url = "https://www.rentachefapp.com/terms";
   
       const supported = await Linking.canOpenURL(url);
   
@@ -89,7 +101,7 @@ export default function GuestChefsScreen() {
     };
 
   const openFAQ = async () => {
-    const url = "https://rentachefng.com/faq/";
+    const url = "https://www.rentachefapp.com/privacy-policy#faq";
 
     const supported = await Linking.canOpenURL(url);
 
@@ -249,6 +261,13 @@ export default function GuestChefsScreen() {
             <MaterialCommunityIcons name="logout" size={18} color="#A62C2C" />
           </View>
           <Text style={styles.logoutText}>Logout</Text>
+        </Pressable>
+
+        <Pressable style={styles.delActBtn} onPress={openActDeletion}>
+          <View style={styles.logoutIconWrap}>
+            <MaterialCommunityIcons name="trash-can" size={18} color="#f50404" />
+          </View>
+          <Text style={styles.logoutText}>Delete Account</Text>
         </Pressable>
 
       </ScrollView>
@@ -480,6 +499,19 @@ const styles = ScaledSheet.create({
     paddingVertical: "13@ms",
     marginTop: "2@ms",
   },
+  delActBtn: {
+    width: "100%",
+    borderRadius: "16@ms",
+    borderWidth: 1,
+    borderColor: "#ff0000",
+    backgroundColor: "#fff",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8@ms",
+    paddingVertical: "13@ms",
+    marginTop: "2@ms",
+  },
   logoutIconWrap: {
     height: "26@ms",
     width: "26@ms",
@@ -490,6 +522,11 @@ const styles = ScaledSheet.create({
   },
   logoutText: {
     color: "#A62C2C",
+    fontSize: "14@ms",
+    fontWeight: "700",
+  },
+  delActText: {
+    color: "#ff0000",
     fontSize: "14@ms",
     fontWeight: "700",
   },

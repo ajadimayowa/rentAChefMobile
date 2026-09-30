@@ -5,7 +5,7 @@ export default {
     name: 'Rent A Chef',
     slug: 'rentAChef',
     scheme: 'rentachef',
-    version: '2.0',
+    version: '3.0',
     orientation: 'portrait',
     icon: './assets/images/loadIcon.png',
     userInterfaceStyle: 'automatic',
